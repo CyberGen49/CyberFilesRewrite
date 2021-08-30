@@ -9,7 +9,7 @@ We recommend using a Debian Linux-based system running Apache for hosting CyberF
 ### Prepare an environment for CyberFiles
 Create a new folder where you'll store the files you want to serve with CyberFiles. For example:
 ```bash
-    mkdir /path/to/cyberfiles
+mkdir /path/to/cyberfiles
 ```
 Remember this path, we'll use it again in a bit.
 
@@ -22,22 +22,22 @@ Remember this path, we'll use it again in a bit.
 ### Set up Apache
 Create a new Apache configuration file:
 ```bash
-    sudo nano /etc/apache2/sites-available/cyberfiles.conf
+sudo nano /etc/apache2/sites-available/cyberfiles.conf
 ```
 In the text editor, paste this example configuration:
 ```apache
-    <VirtualHost *:80>
-        ServerName files.example.com
-	    Define dRoot /path/to/cyberfiles
-        DocumentRoot ${dRoot}
-        DirectoryIndex index.html index.php /_cyberfiles/public/index.php
-        ErrorDocument 401 /_cyberfiles/public/index.php?error=401
-        ErrorDocument 403 /_cyberfiles/public/index.php?error=403
-        ErrorDocument 404 /_cyberfiles/public/index.php?error=404
-        <Directory "${dRoot}">
-            Require all granted
-        </Directory>
-    </VirtualHost>
+<VirtualHost *:80>
+    ServerName files.example.com
+    Define dRoot /path/to/cyberfiles
+    DocumentRoot ${dRoot}
+    DirectoryIndex index.html index.php /_cyberfiles/public/index.php
+    ErrorDocument 401 /_cyberfiles/public/index.php?error=401
+    ErrorDocument 403 /_cyberfiles/public/index.php?error=403
+    ErrorDocument 404 /_cyberfiles/public/index.php?error=404
+    <Directory "${dRoot}">
+        Require all granted
+    </Directory>
+</VirtualHost>
 ```
 In the above configuration, change `files.example.com` to your domain, and `/path/to/cyberfiles` to the path of the folder you created earlier.
 
