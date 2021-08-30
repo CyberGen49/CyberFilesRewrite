@@ -8,7 +8,7 @@ We recommend using a Debian Linux-based system running Apache for hosting CyberF
 
 ### Prepare an environment for CyberFiles
 Create a new folder where you'll store the files you want to serve with CyberFiles. For example:
-```bash
+```sh
 mkdir /path/to/cyberfiles
 ```
 Remember this path, we'll use it again in a bit.
@@ -21,7 +21,7 @@ Remember this path, we'll use it again in a bit.
 
 ### Set up Apache
 Create a new Apache configuration file:
-```bash
+```sh
 sudo nano /etc/apache2/sites-available/cyberfiles.conf
 ```
 In the text editor, paste this example configuration:
