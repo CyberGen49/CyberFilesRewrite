@@ -3,6 +3,7 @@
 # See https://github.com/CyberGen49/CyberFiles2#configuration for documentation
 
 # General settings
+language: en
 siteName: CyberFiles
 siteDesc: View and browse files with ease.
 skipFiles:

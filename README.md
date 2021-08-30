@@ -3,7 +3,7 @@ A capable and customizable Apache file index.
 
 This project is a rewrite of my previous file index site, with some major improvements.
 
-Things are still under very heavy development, so things could be vastly changing over short spans of time.
+*Things are still under very heavy development, so things could be vastly changing over short spans of time.*
 
 ## Installation
 We recommend using a Debian Linux-based system running Apache for hosting CyberFiles. If you're using a different operating system or webserver, you may need to do a bit more work to get everything working.
@@ -37,15 +37,22 @@ In the text editor, paste this example configuration:
     Define dRoot /path/to/cyberfiles
     DocumentRoot ${dRoot}
     DirectoryIndex index.html index.php /_cyberfiles/public/index.php
+    # Set error documents
     ErrorDocument 401 /_cyberfiles/public/index.php?error=401
     ErrorDocument 403 /_cyberfiles/public/index.php?error=403
     ErrorDocument 404 /_cyberfiles/public/index.php?error=404
+    # Always allow access to the root directory
     <Directory "${dRoot}">
         Require all granted
     </Directory>
+    # Always deny access to the private subdirectory
+    <Directory "${dRoot}/_cyberfiles/private">
+        order deny,allow
+        deny from all
+    </Directory>
 </VirtualHost>
 ```
-In the above configuration, change `files.example.com` to your domain, and `/path/to/cyberfiles` to the path of the folder you created earlier.
+In the above configuration, change `files.example.com` to your domain, and `/path/to/cyberfiles` to the path of the folder you created earlier. Make sure your path doesn't have a trailing slash.
 
 You can use online guides to help set up other features, such as SSL. These are just the settings needed to get things started.
 
@@ -53,6 +60,12 @@ You can use online guides to help set up other features, such as SSL. These are 
 To change settings for CyberFiles, open the configuration file located at `/_cyberfiles/private/config.yml`. Below is a description of each setting.
 
 **Note:** Be sure to run the config file through a YAML checker [like this one](https://yamlchecker.com/) to be sure you didn't make any mistakes while editing.
+
+#### `language`
+Type: `string`  
+The language file to reference for all text shown on the site. This should be set to the name of a file that exists in /_cyberfiles/private/lang, without the extension. 
+
+The site will always use `en`, then override it with the language set in the config. This leaves English as a fallback in case the selected language isn't complete.
 
 #### `siteName`
 Type: `string`  
@@ -77,3 +90,4 @@ A set of theme variables used everywhere on the site.
 * `fg` - Primary foreground
 * `fg2` - Secondary foreground
 * `fg2H` - Secondary foreground when hovered over
+* `accent` - Primary accent
