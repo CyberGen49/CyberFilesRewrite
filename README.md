@@ -66,7 +66,7 @@ The description of the file index. This is displayed in link previews.
 Type: `array`  
 A list of wildcard filters to check against file names. Matches are hidden from the file list.
 
-For example, `*.conf` hides all file names that end in ".conf"
+For example, `*.conf` hides all files with names that end in ".conf"
 
 #### `theme`
 Type: `array`  
