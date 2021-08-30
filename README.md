@@ -49,7 +49,7 @@ In the above configuration, change `files.example.com` to your domain, and `/pat
 
 You can use online guides to help set up other features, such as SSL. These are just the settings needed to get things started.
 
-## CyberFiles configuration
+## Configuration
 To change settings for CyberFiles, open the configuration file located at `/_cyberfiles/private/config.yml`. Below is a description of each setting.
 
 **Note:** Be sure to run the config file through a YAML checker [like this one](https://yamlchecker.com/) to be sure you didn't make any mistakes while editing.
