@@ -1,3 +1,26 @@
 
 # Configuration for CyberFiles
 # See https://github.com/CyberGen49/CyberFiles2#cyberfiles-configuration for documentation
+
+# General settings
+siteName: CyberFiles
+siteDesc: View and browse files with ease.
+skipFiles:
+  - '.'
+  - '..'
+  - '*.php'
+  - '*.html'
+  - '.*'
+  - '_*'
+  - 'conf.yml'
+  - '*.crdownload'
+  - 'robots.txt'
+
+# Colour settings
+theme:
+  bg: '#000'
+  bg2: "#222429"
+  fg: '#fff'
+  fg2: "#6f778b"
+  fg2H: "#acb4c7"
+  accent: "#35486d"

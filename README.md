@@ -55,4 +55,21 @@ To change settings for CyberFiles, open the configuration file located at `/_cyb
 **Note:** Be sure to run the config file through a YAML checker [like this one](https://yamlchecker.com/) to be sure you didn't make any mistakes while editing.
 
 ### Settings list
-*I haven't gotten around to adding this yet.*
+#### `siteName`
+Type: `string`
+The name of the file index. This is displayed in the tab title and link previews, as well as in the index navigation bar.
+#### `siteDesc`
+Type: `string`
+The description of the file index. This is displayed in link previews.
+#### `skipFiles`
+Type: `array`
+A list of wildcard filters to check against file names. Matches are hidden from the file list.
+For example, `*.conf` hides all file names that end in ".conf"
+#### `theme`
+Type: `array`
+A set of theme variables used everywhere on the site.
+* `bg` - Primary background
+* `bg2` - Secondary background
+* `fg` - Primary foreground
+* `fg2` - Secondary foreground
+* `fg2H` - Secondary foreground when hovered over
