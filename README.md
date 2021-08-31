@@ -1,5 +1,5 @@
 # CyberFilesRewrite
-A capable and customizable Apache file index.
+A capable and customizable file index for the web, based in PHP.
 
 This project is a rewrite of my previous file index site, with some major improvements in the backend structure. This should give me a chance to make things easier to maintain, and easier to add on to in the future.
 
