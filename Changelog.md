@@ -3,7 +3,14 @@
 I'll try my best to keep track of all changes to CyberFilesRewrite, big and small, right here in this changelog. I'll also be logging how much time I spend working on this project each day, mostly to satisfy my own curiosity.
 
 ## August 30th, 2021
+Development time: 2 hours
 * Continued refining the readme
+* Started adding elements to the index
+    * Topbar
+    * Title
+    * Filter bar
+    * Column headers
+    * File list hint
 
 ## August 29th, 2021
 Development time: 2 hours

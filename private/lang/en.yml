@@ -2,3 +2,9 @@
 # CyberFiles language file
 # English
 
+topbarTitleTooltip: Go home
+fileListFilterPlaceholder: Filter files in this folder...
+fileDetailsName: Name
+fileDetailsDate: Last modified
+fileDetailsSize: File size
+fileListTipLoading: Loading file list...

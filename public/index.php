@@ -4,8 +4,17 @@ define('document_root', $_SERVER['DOCUMENT_ROOT']);
 
 require(document_root."/_cyberfiles/private/src/functions.php");
 try {
+    // Import config
     $conf = yaml_parse_file(document_root."/_cyberfiles/private/config.yml");
     $theme = $conf['theme'];
+    // Import language
+    $lang = yaml_parse_file(document_root."/_cyberfiles/private/lang/en.yml");
+    if ($conf['language'] != "en") {
+        if (file_exists(document_root."/_cyberfiles/private/lang/${$conf['language']}.yml"))
+            $lang = array_merge($lang, yaml_parse_file(document_root."/_cyberfiles/private/lang/${$conf['language']}.yml"));
+        else
+            trigger_error("CyberFiles failed to load nonexistent language file. Check your config.", E_USER_WARNING);
+    }
 } catch (\Throwable $th) {
     print("CyberFiles requires the php_yaml extension. Install the extension and reload to continue.");
     exit;
@@ -61,6 +70,24 @@ $webConf = [
     <?php try_require(document_root."/_cyberfiles/private/src/css.php") ?>
     
     <body id="body" class="no-transitions">
-        
+        <div id="topbar" class="row no-gutters">
+            <div class="col-auto d-flex align-items-center">
+                <a id="topbarTitle" href="/" title="<?= $lang['topbarTitleTooltip'] ?>"><?= $conf['siteName'] ?></a>
+            </div>
+        </div>
+        <div id="fileListContainer" class="container">
+            <input id="fileListFilter" type="text" placeholder="<?= $lang['fileListFilterPlaceholder'] ?>">
+            <div id="fileListHeaders" class="row no-gutters">
+                <div id="fileListHeaderIcon" class="fileListHeader col-auto"></div>
+                <div id="fileListHeaderName" class="fileListHeader col"><?= $lang['fileDetailsName'] ?></div>
+                <div id="fileListHeaderDate" class="fileListHeader col-auto"><?= $lang['fileDetailsDate'] ?></div>
+                <div id="fileListHeaderSize" class="fileListHeader col-auto"><?= $lang['fileDetailsSize'] ?></div>
+            </div>
+            <div id="fileListHint"><?= $lang['fileListTipLoading'] ?></div>
+            <div id="fileList" style="display: none"></div>
+        </div>
+        <div id="previewContainer"></div>
+
+        <?php try_require(document_root."/_cyberfiles/private/src/js.php") ?>
     </body>
 </html>

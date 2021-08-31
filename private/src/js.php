@@ -41,4 +41,10 @@ function _getH(id) {
     return document.getElementById(id).getBoundingClientRect.height;
 }
 
+// To change addressbar without reloading
+// window.history.pushState("", "Title", "/new-url");
+
+// To get the current path
+// window.location.pathname
+
 </script>
