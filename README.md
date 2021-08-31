@@ -3,6 +3,8 @@ A capable and customizable file index for the web, based in PHP.
 
 This project is a rewrite of my previous file index site, with some major improvements in the backend structure. This should give me a chance to make things easier to maintain, and easier to add on to in the future.
 
+The previous version of CyberFiles required that the page be completely reloaded to change what was displayed, since all of the HTML markup was put together by PHP on the server and sent back to the client. This time around, I plan on loading all of the dynamic data via Javascript on the client side, with the mentality that "the page should never need to be completely reloaded." This also means the implementation of an API that's able to serve all of the data the client could need. The result should be shorter load times while navigating through the index, and a bit less strain on the server.
+
 *Things are still under very heavy development, so things could be vastly changing over short spans of time. Keep an eye on [Changelog.md](https://github.com/CyberGen49/CyberFilesRewrite/blob/main/Changelog.md) to see updates.*
 
 ## Installation
@@ -93,3 +95,10 @@ A set of theme variables used everywhere on the site.
 * `fg2` - Secondary foreground
 * `fg2H` - Secondary foreground when hovered over
 * `accent` - Primary accent
+
+## Using the API
+CyberFiles comes with an API that can be used to access anything that could otherwise be accessed by the client.
+
+Use `http://files.example.com/_cyberfiles/public/api.php` as the API endpoint. Optionally, you can use Apache Rewrite to set up a shorter address.
+
+The API will remain undocumented until it's sufficiently developed.
