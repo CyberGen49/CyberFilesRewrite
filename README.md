@@ -1,4 +1,4 @@
-# CyberFiles2
+# CyberFilesRewrite
 A capable and customizable Apache file index.
 
 This project is a rewrite of my previous file index site, with some major improvements in the code structure and organization. This should give me a chance to make things easier to maintain, and also easier to add on to in the future.
