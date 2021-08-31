@@ -3,7 +3,7 @@ A capable and customizable Apache file index.
 
 This project is a rewrite of my previous file index site, with some major improvements in the code structure and organization. This should give me a chance to make things easier to maintain, and also easier to add on to in the future.
 
-*Things are still under very heavy development, so things could be vastly changing over short spans of time.*
+*Things are still under very heavy development, so things could be vastly changing over short spans of time. Keep an eye on [Changelog.md](https://github.com/CyberGen49/CyberFilesRewrite/blob/main/Changelog.md) to see updates.*
 
 ## Installation
 We recommend using a Debian Linux-based system running Apache for hosting CyberFiles. If you're using a different operating system or webserver, you may need to do a bit more work to get everything working.
