@@ -5,7 +5,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&family=Open+Sans:wght@300;400;600;700;800&display=swap');
 
 * {
-    font-family: "Open Sans", sans-serif;
+    font-family: "Segoe UI", "Open Sans", "Roboto", sans-serif;
     color: <?= $theme['fg'] ?>;
 }
 
@@ -48,7 +48,7 @@ a:hover, a:focus {
 
 #fileListContainer {
     max-width: 1000px;
-    margin-top: 85px;
+    margin-top: 80px;
 }
 
 #fileListFilter {
@@ -77,14 +77,21 @@ a:hover, a:focus {
     user-select: none;
 }
 
+.fileEntryIcon,
+.fileEntryName,
+.fileEntryDate,
+.fileEntrySize,
+.fileListHeader {
+    padding: 7px 15px 8px 15px;
+}
+
 .fileListHeader {
     font-size: 13px;
     color: <?= $theme['fg2'] ?>;
-    padding: 8px;
 }
 
 #fileListHeaderIcon, .fileEntryIcon {
-    width: 70px;
+    width: 50px;
 }
 
 #fileListHeaderDate, .fileEntryDate {
@@ -93,13 +100,6 @@ a:hover, a:focus {
 
 #fileListHeaderSize, .fileEntrySize {
     width: 80px;
-}
-
-.fileEntryIcon,
-.fileEntryName,
-.fileEntryDate,
-.fileEntrySize {
-    padding: 8px;
 }
 
 #fileListHint {
