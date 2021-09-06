@@ -79,7 +79,7 @@ The name of the file index. This is displayed in the tab title and link previews
 Type: `string`  
 The description of the file index. This is displayed in link previews.
 
-#### `skipFiles`
+#### `hiddenFiles`
 Type: `array`  
 A list of wildcard filters to check against file names. Matches are hidden from the file list.
 
@@ -102,6 +102,29 @@ A set of theme variables used everywhere on the site.
 ## Using the API
 CyberFiles comes with an API that can be used to access anything that could otherwise be accessed by the client.
 
-Use `http://files.example.com/_cyberfiles/public/api.php` as the API endpoint. Optionally, you can use Apache Rewrite to set up a shorter address.
+To use the API, open the target folder in CyberFiles, then append add `?api` to the end of the URL. This will target the API and work in that directory.
 
-The API will remain undocumented until it's sufficiently developed.
+For example, `https://files.example.com/Images?api`, where `files.example.com` is your domain.
+
+### Actions
+#### `?api&type=list`
+Structure:
+* `files`: An array of [FileList Objects](#filelist-object)
+* `status`: A [status code](#status-codes)
+* `processingTime` The amount of time the server took to process the request, in milliseconds (float)
+
+### Types
+#### Status Codes
+Status codes can include any of the following:
+* `GOOD`: No errors were encountered
+* `DIRECTORY_NONEXISTENT`: The current directory doesn't exist on the server
+* `UNFINISHED`: The requested action (`type=`) is unfinished and can't be used
+* `INVALID_ACTION`: The requested action (`type=`) is invalid
+
+#### FileList Object
+Structure:
+* `name`: The file name
+* `modified`: The file's modification date, as a Unix timestamp
+* `size`: The file's size, in bytes
+* `mimeType`: The file's [MIME Type](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types)
+* `indexed`: `true` if the file's details were loaded from cache, `false` if they needed to be updated

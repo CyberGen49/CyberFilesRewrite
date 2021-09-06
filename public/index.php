@@ -1,7 +1,6 @@
 <?php
 
 define('document_root', $_SERVER['DOCUMENT_ROOT']);
-
 require(document_root."/_cyberfiles/private/src/functions.php");
 try {
     // Import config
@@ -10,14 +9,19 @@ try {
     // Import language
     $lang = yaml_parse_file(document_root."/_cyberfiles/private/lang/en.yml");
     if ($conf['language'] != "en") {
-        if (file_exists(document_root."/_cyberfiles/private/lang/${$conf['language']}.yml"))
+        if (file_exists(document_root."/_cyberfiles/private/lang/${$conf['language']}.yml")) {
             $lang = array_merge($lang, yaml_parse_file(document_root."/_cyberfiles/private/lang/${$conf['language']}.yml"));
-        else
-            trigger_error("CyberFiles failed to load nonexistent language file. Check your config.", E_USER_WARNING);
+        } else {
+            trigger_error("[CyberFiles] Failed to load a nonexistent language file. Check your config.", E_USER_WARNING);
+        }
     }
 } catch (\Throwable $th) {
     print("CyberFiles requires the php_yaml extension. Install the extension and reload to continue.");
     exit;
+}
+
+if (isset($_GET['api'])) {
+    new ApiCall($_GET, $conf);
 }
 
 $webConf = [

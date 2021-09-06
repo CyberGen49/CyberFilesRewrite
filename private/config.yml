@@ -6,7 +6,7 @@
 language: en
 siteName: CyberFiles
 siteDesc: View and browse files with ease.
-skipFiles:
+hiddenFiles:
   - '.'
   - '..'
   - '*.php'
@@ -14,7 +14,6 @@ skipFiles:
   - '.*'
   - '_*'
   - 'conf.yml'
-  - '*.crdownload'
   - 'robots.txt'
 
 # Colour settings

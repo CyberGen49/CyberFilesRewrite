@@ -16,6 +16,16 @@ function copyText(value) {
     console.log("Copied text to clipboard: "+value);
 }
 
+// Get a query string parameter
+function $_GET(name, url = window.location.href) {
+    name = name.replace(/[\[\]]/g, '\\$&');
+    var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+        results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, ' '));
+}
+
 // Shorthand function for document.getElementById()
 function _(id) {
     return document.getElementById(id);
