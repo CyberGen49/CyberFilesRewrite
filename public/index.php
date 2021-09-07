@@ -76,7 +76,7 @@ $webConf = [
     <body id="body" class="no-transitions">
         <div id="topbar" class="row no-gutters">
             <div class="col-auto d-flex align-items-center">
-                <a id="topbarTitle" href="/" title="<?= $lang['topbarTitleTooltip'] ?>"><?= $conf['siteName'] ?></a>
+                <a id="topbarTitle" title="<?= $lang['topbarTitleTooltip'] ?>"><?= $conf['siteName'] ?></a>
             </div>
         </div>
         <div id="fileListContainer" class="container">

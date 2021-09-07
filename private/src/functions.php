@@ -116,8 +116,15 @@ class ApiCall {
                     foreach ($conf['hiddenFiles'] as $s) {
                         if (fnmatch($s, $file)) continue 2;
                     }
-                    // Get the file object
+                    // If it's a directory, make sure it doesn't contain files that would make it hidden
                     $f = "$dir/$file";
+                    if (is_dir($f)) {
+                        $childDir = scandir($f);
+                        foreach ($conf['hideDirWhenContains'] as $s) {
+                            if (in_array($s, $childDir)) continue 2;
+                        }
+                    }
+                    // Get the file object
                     $fileObject = $this->getFileObject($f);
                     // Add to the appropriate array
                     if (is_dir($f)) $folders[] = $fileObject;

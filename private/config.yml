@@ -15,6 +15,10 @@ hiddenFiles:
   - '_*'
   - 'conf.yml'
   - 'robots.txt'
+hideDirWhenContains:
+  - 'index.php'
+  - 'index.html'
+  - '_cf_hideFromList'
 dateFormatShort: '%b %d, %Y'
 dateFormatFull: '%m/%d/%Y %I:%+M %p'
 

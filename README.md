@@ -83,11 +83,21 @@ The description of the file index. This is displayed in link previews.
 Type: `array`  
 A list of wildcard filters to check against file names. Matches are hidden from the file list.
 
-For example, `*.conf` hides all files with names that end in ".conf"
+#### `hideDirWhenContains`
+Type: `array`  
+A list of filenames to check for in each directory. If a directory contains a match, it'll be hidden in its parent directory list.
 
 #### `theme`
 Type: `array`  
 A set of theme variables used everywhere on the site.
+
+#### `dateFormatShort`
+Type: `string`  
+A date format containing some of [these placeholders](https://github.com/CyberGen49/CyberFilesRewrite/blob/main/README-dateTimePlaceholders.md). This should be a short, friendly date format, used in the modification date column of the file list.
+
+#### `dateFormatFull`
+Type: `string`  
+A date format containing some of [these placeholders](https://github.com/CyberGen49/CyberFilesRewrite/blob/main/README-dateTimePlaceholders.md). This should be a complete and informative date format, used in file details.
 
 * `bg` - Primary background
 * `bg2` - Secondary background

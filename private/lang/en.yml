@@ -7,9 +7,13 @@ fileListFilterPlaceholder: Filter files in this folder...
 fileDetailsName: Name
 fileDetailsDate: Last modified
 fileDetailsSize: File size
+fileDetailsType: File type
 fileListDetails1Single: "1 file in %0"
 fileListDetails1Multi: "%0 files in %1"
 fileListDetails2: "Total size: %0"
+fileListEmpty: This folder is empty
+fileListEntryUp: "Up to %0"
+fileListRootName: "Home"
 dtUnitShortMs: ms
 dtUnitShortSecs: ' secs'
 dtMonth1: January

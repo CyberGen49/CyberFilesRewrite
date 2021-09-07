@@ -115,6 +115,7 @@ a:hover, a:focus {
 .fileEntry {
     border-bottom: 1px solid <?= $theme['fileSep'] ?>;
     font-size: 14px;
+    cursor: default;
 }
 
 .fileEntry:hover,
@@ -129,7 +130,14 @@ a:hover, a:focus {
 }
 
 .fileEntryIcon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     padding: 0px;
+    font-family: "Material Icons Outlined", "Material Icons";
+    font-size: 22px;
+    color: <?= $theme['fg2'] ?>;
+    text-overflow: clip;
 }
 
 .fileListHeader {

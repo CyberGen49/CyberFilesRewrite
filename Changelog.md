@@ -1,6 +1,18 @@
 
 # CyberFilesRewrite Changelog
-I'll try my best to keep track of all changes to CyberFilesRewrite, big and small, right here in this changelog.
+I'll try my best to keep track of all changes to CyberFilesRewrite, big and small, right here in this changelog. As things are just getting started, I'll be lumping a lot of my changes together, since so much is happening.
+
+## September 7th, 2021
+* Added file icons (via Google Material Icons)
+* Added title attributes to file entries, so they can be hovered over to view their absolute modification date, file type, and size
+* Changed file entries to use a elements, so their links can be copied by right clicking
+    * The default opening of the link is cancelled when clicking, since that's handled by the JS
+* Added the dynamic updating of the page title to match the current folder
+* Made the browser navigation buttons (back and forward) properly load their target file lists
+* Added an "Up to parent directory" entry to all lists (except for the root), allowing for full navigation of the index
+* Made it so the loading animation between file list loads only displays if the load has taken more than a set amount of time
+    * This makes switching between directories feel completely seamless most times
+    * Subsequently removed since it's not obvious that something's being loaded otherwise
 
 ## September 6th, 2021
 * Started development of the client Javascript used for loading and displaying the file list
