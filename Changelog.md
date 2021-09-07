@@ -2,6 +2,11 @@
 # CyberFilesRewrite Changelog
 I'll try my best to keep track of all changes to CyberFilesRewrite, big and small, right here in this changelog.
 
+## September 6th, 2021
+* Started development of the client Javascript used for loading and displaying the file list
+    * File modification dates and sizes are formatted correctly in the file list
+    * Directories can be clicked on to move into them, but there's no way to move up directories yet
+
 ## September 5th, 2021
 * Created the API for fetching file lists
     * If SQLite3 and its accompanying PHP extension are installed, file details will be saved to a cache database (/_cyberfiles/private/cache.db), vastly decreasing load times (sometimes 80x faster!) after the initial load. If a file's modification date changes, it's details will be updated in the database.

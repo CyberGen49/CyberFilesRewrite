@@ -92,8 +92,11 @@ A set of theme variables used everywhere on the site.
 * `bg` - Primary background
 * `bg2` - Secondary background
 * `fileSep` - The colour of the separator between file entries
-* `fileH` - The colour of files when hovered over
-* `fileC` - The colour of files when the mouse button is down
+* `fileH` - The colour of file entries when hovered over
+* `fileC` - The colour of file entries when the mouse button is down
+* `scrollbar`: The colour of the scrollbar handle
+* `scrollbarH`: The colour of the scrollbar handle when hovered over
+* `scrollbarC`: The colour of the scrollbar handle when the mouse button is down
 * `fg` - Primary foreground
 * `fg2` - Secondary foreground
 * `fg2H` - Secondary foreground when hovered over

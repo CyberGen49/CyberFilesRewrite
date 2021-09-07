@@ -1,4 +1,12 @@
-<?php global $theme; ?>
+<?php
+global $theme;
+/*
+
+READ ME FIRST!
+Before everyone screams at me about using CSS this way (putting it in a PHP file and including it in the main script), know that the reason for this is to allow the use of theme variables set in the config to be used here in the styling.
+
+*/
+?>
 <style>
 
 /* Import fonts */
@@ -83,11 +91,9 @@ a:hover, a:focus {
 .fileEntrySize,
 .fileListHeader {
     padding: 7px 15px 8px 15px;
-}
-
-.fileListHeader {
-    font-size: 13px;
-    color: <?= $theme['fg2'] ?>;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 
 #fileListHeaderIcon, .fileEntryIcon {
@@ -102,21 +108,63 @@ a:hover, a:focus {
     width: 80px;
 }
 
-#fileListHint {
-    margin-top: 20px;
-    font-size: 13px;
-    color: <?= $theme['fg2'] ?>;
-    text-align: center;
-}
-
 #fileList {
     user-select: none;
+}
+
+.fileEntry {
+    border-bottom: 1px solid <?= $theme['fileSep'] ?>;
+    font-size: 14px;
+}
+
+.fileEntry:hover,
+.fileEntry:focus {
+    background: <?= $theme['fileH'] ?>;
+    border-color: rgba(0, 0, 0, 0);
+}
+
+.fileEntry:active {
+    background: <?= $theme['fileC'] ?>;
+    border-color: rgba(0, 0, 0, 0);
+}
+
+.fileEntryIcon {
+    padding: 0px;
+}
+
+.fileListHeader {
+    font-size: 13px;
+    color: <?= $theme['fg2'] ?>;
+}
+
+#fileListHint {
+    margin: 20px 0px;
+    font-size: 14px;
+    color: <?= $theme['fg2'] ?>;
+    text-align: center;
 }
 
 /* Custom placeholder text colour */
 ::placeholder {
     color: <?= $theme['fg3'] ?>;
     opacity: 1;
+}
+
+/* Custom scrollabrs */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: <?= $theme['scrollbar'] ?>;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: <?= $theme['scrollbarH'] ?>;
+}
+
+::-webkit-scrollbar-thumb:active {
+    background: <?= $theme['scrollbarC'] ?>;
 }
     
 /* Disables transitions for all child elements */
@@ -126,6 +174,61 @@ a:hover, a:focus {
     -ms-transition: none !important;
     -o-transition: none !important;
     transition: none !important;
+}
+
+/*
+
+** Material Design Spinner **
+
+<div class="mdSpinner">
+    <svg viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="20" />
+    </svg>
+</div>
+
+*/
+
+.mdSpinner {
+    width: 90px;
+    height: 90px;
+    margin: 0 auto;
+}
+
+.mdSpinner svg {
+    animation: mdSpin-rotate 1.2s linear infinite;
+    height: 100%;
+    width: 100%;
+}
+
+.mdSpinner circle {
+    stroke-dasharray: 1,200;
+    stroke-dashoffset: 0;
+    animation: mdSpin-dash 1.2s ease-in-out infinite 0s;
+    stroke-linecap: round;
+    fill: none;
+    stroke: <?= $theme['fg2'] ?>;
+    stroke-width: 5;
+}
+
+@keyframes mdSpin-rotate {
+    100% {
+        -webkit-transform: rotate(360deg);
+                transform: rotate(360deg);
+    }
+}
+@keyframes mdSpin-dash {
+    0% {
+        stroke-dasharray: 1,200;
+        stroke-dashoffset: 0;
+    }
+    50% {
+        stroke-dasharray: 89,200;
+        stroke-dashoffset: -35;
+    }
+    100% {
+        stroke-dasharray: 89,200;
+        stroke-dashoffset: -124;
+    }
 }
 
 </style>

@@ -87,8 +87,15 @@ $webConf = [
                 <div id="fileListHeaderDate" class="fileListHeader col-auto"><?= $lang['fileDetailsDate'] ?></div>
                 <div id="fileListHeaderSize" class="fileListHeader col-auto"><?= $lang['fileDetailsSize'] ?></div>
             </div>
-            <div id="fileListHint"><?= $lang['fileListTipLoading'] ?></div>
-            <div id="fileList" style="display: none"></div>
+            <div id="fileListLoading">
+                <div class="mdSpinner">
+                    <svg viewBox="0 0 100 100">
+                        <circle cx="50" cy="50" r="20" />
+                    </svg>
+                </div>
+            </div>
+            <div id="fileList"></div>
+            <div id="fileListHint"></div>
         </div>
         <div id="previewContainer"></div>
 
