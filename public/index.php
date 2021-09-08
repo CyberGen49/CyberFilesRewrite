@@ -6,6 +6,13 @@ try {
     // Import config
     $conf = yaml_parse_file(document_root."/_cyberfiles/private/config.yml");
     $theme = $conf['theme'];
+    // Parse variables within theme variables
+    foreach (array_keys($theme) as $v) {
+        trigger_error($theme[$v]);
+        if (preg_match("/\+(.*)/", $theme[$v], $matches)) {
+            $theme[$v] = $theme[$matches[1]];
+        }
+    }
     // Import language
     $lang = yaml_parse_file(document_root."/_cyberfiles/private/lang/en.yml");
     if ($conf['language'] != "en") {
@@ -29,7 +36,7 @@ $webConf = [
     "pageDesc" => $conf['siteDesc'],
     "siteName" => $conf['siteName'],
     "favicon" => "/_cyberfiles/public/icon.png",
-    "themeColour" => $theme['accent'],
+    "themeColour" => $theme['bgTopbar'],
 ];
 
 ?>

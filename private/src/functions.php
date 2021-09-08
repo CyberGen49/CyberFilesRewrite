@@ -107,8 +107,14 @@ class ApiCall {
                     $data['status'] = "DIRECTORY_NONEXISTENT";
                     break;
                 }
-                // Get and loop through directory contents
+                // Get directory contents
                 $scandir = scandir($dir);
+                // Sort files
+                natsort($scandir);
+                //uasort($scandir, function($a, $b) {
+                //    return strcasecmp($a, $b);
+                //});
+                // Loop through files and add
                 $files = [];
                 $folders = [];
                 foreach ($scandir as $file) {

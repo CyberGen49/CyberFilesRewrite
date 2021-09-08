@@ -34,7 +34,8 @@ a:hover, a:focus {
     height: 55px;
     width: 100%;
     padding: 0px 20px;
-    background: <?= $theme['accent'] ?>;
+    background: <?= $theme['bgTopbar'] ?>;
+    border-bottom: 1px solid <?= $theme['topbarBorder'] ?>;
     z-index: 10;
     user-select: none;
 }
@@ -43,7 +44,7 @@ a:hover, a:focus {
     font-family: "Montserrat", sans-serif;
     font-size: 24px;
     font-weight: bold;
-    color: <?= $theme['fg'] ?>;
+    color: <?= $theme['fgTopbar'] ?>;
     padding: 5px;
     transition: 0.1s ease-in-out;
 }

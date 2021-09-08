@@ -2,6 +2,8 @@
 
 Assume that **7:27:07 PM on July 27th, 2021** is the date represented by these placeholders.
 
+Month names, weekday names, AM, and PM can all be changed with CyberFiles' language files.
+
 * `%a`: Short weekday name, ex. `Tue`
 * `%A`: Long weekday name, ex. `Tuesday`
 * `%b`: Short month name, ex. `Jul`

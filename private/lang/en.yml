@@ -60,11 +60,16 @@ dtRelNow: Just now
 dtRelMin: '%0 mins ago'
 dtRelHour: '%0 hours ago'
 dtRelDay: '%0 days ago'
+dtRelFutureMin: '%0 mins from now'
+dtRelFutureHour: '%0 hours from now'
+dtRelFutureDay: '%0 days from now'
 sizeUnitBytes: Bytes
 sizeUnitKB: KB
 sizeUnitMB: MB
 sizeUnitGB: GB
 sizeUnitTB: TB
+fileTypeDefault: File
+fileTypeDirectory: Folder
 fileTypes:
   3DM: Rhino 3D Model
   3DS: 3D Studio Scene

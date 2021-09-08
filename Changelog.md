@@ -10,9 +10,11 @@ I'll try my best to keep track of all changes to CyberFilesRewrite, big and smal
 * Added the dynamic updating of the page title to match the current folder
 * Made the browser navigation buttons (back and forward) properly load their target file lists
 * Added an "Up to parent directory" entry to all lists (except for the root), allowing for full navigation of the index
-* Made it so the loading animation between file list loads only displays if the load has taken more than a set amount of time
-    * This makes switching between directories feel completely seamless most times
-    * Subsequently removed since it's not obvious that something's being loaded otherwise
+* Added the `hideDirWhenContains` config option
+* Added future proofing to JS `dateFormatRelative()`
+* Now using custom file types defined in the language file, displayed in file details (the tooltip when hovering over an entry)
+* Added the ability to reference theme variables from other theme variables
+    * This means we can add much deeper theming of specific elements without having to repeat colour codes
 
 ## September 6th, 2021
 * Started development of the client Javascript used for loading and displaying the file list

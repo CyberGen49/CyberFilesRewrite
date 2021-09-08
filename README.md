@@ -89,7 +89,8 @@ A list of filenames to check for in each directory. If a directory contains a ma
 
 #### `theme`
 Type: `array`  
-A set of theme variables used everywhere on the site.
+A set of theme variables used everywhere on the site. Feel free to play around with the colours until you find a theme you like.  
+**Remember:** Hashtags/pound symbols are comment characters in YAML, so if you're using hex codes, be sure to enclose them in quotation marks.
 
 #### `dateFormatShort`
 Type: `string`  
@@ -98,19 +99,6 @@ A date format containing some of [these placeholders](https://github.com/CyberGe
 #### `dateFormatFull`
 Type: `string`  
 A date format containing some of [these placeholders](https://github.com/CyberGen49/CyberFilesRewrite/blob/main/README-dateTimePlaceholders.md). This should be a complete and informative date format, used in file details.
-
-* `bg` - Primary background
-* `bg2` - Secondary background
-* `fileSep` - The colour of the separator between file entries
-* `fileH` - The colour of file entries when hovered over
-* `fileC` - The colour of file entries when the mouse button is down
-* `scrollbar`: The colour of the scrollbar handle
-* `scrollbarH`: The colour of the scrollbar handle when hovered over
-* `scrollbarC`: The colour of the scrollbar handle when the mouse button is down
-* `fg` - Primary foreground
-* `fg2` - Secondary foreground
-* `fg2H` - Secondary foreground when hovered over
-* `accent` - Primary accent
 
 ## Using the API
 CyberFiles comes with an API that can be used to access anything that could otherwise be accessed by the client.

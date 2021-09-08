@@ -26,14 +26,17 @@ dateFormatFull: '%m/%d/%Y %I:%+M %p'
 theme:
   bg: '#000'
   bg2: "#222429"
-  fileSep: "#1a1b1d"
-  fileH: "#1f2124"
-  fileC: "#32353b"
-  scrollbar: "#222429"
-  scrollbarH: "#3d4047"
-  scrollbarC: "#575a63"
   fg: '#fff'
   fg2: "#6f778b"
   fg2H: "#acb4c7"
   fg3: "#64666c"
+  fileSep: "#1a1b1d"
+  fileH: "#1f2124"
+  fileC: "#32353b"
+  scrollbar: +bg2
+  scrollbarH: "#3d4047"
+  scrollbarC: "#575a63"
   accent: "#35486d"
+  bgTopbar: +accent
+  fgTopbar: +fg
+  topbarBorder: 'rgba(0, 0, 0, 0)'

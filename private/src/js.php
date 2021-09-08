@@ -117,8 +117,8 @@ function dateFormat(timestamp, format) {
         .replace("%A", window.lang[`dtWeekday${date.getDay()+1}`])
         .replace("%b", window.lang[`dtMonth${date.getMonth()+1}Short`])
         .replace("%B", window.lang[`dtMonth${date.getMonth()+1}`])
-        .replace("%d", date.getDate()+1)
-        .replace("%+d", addLeadingZeroes(date.getDate()+1, 2))
+        .replace("%d", date.getDate())
+        .replace("%+d", addLeadingZeroes(date.getDate(), 2))
         .replace("%H", date.getHours())
         .replace("%+H", addLeadingZeroes(date.getHours(), 2))
         .replace("%I", twelveH)
@@ -128,10 +128,8 @@ function dateFormat(timestamp, format) {
         .replace("%M", date.getMinutes())
         .replace("%+M", addLeadingZeroes(date.getMinutes(), 2))
         .replace("%p", function() {
-            if (date.getHours() > 12)
-                return window.lang.dtPM;
-            else
-                return window.lang.dtAM;
+            if (date.getHours() > 12) return window.lang.dtPM;
+            else return window.lang.dtAM;
         })
         .replace("%S", date.getSeconds())
         .replace("%+S", addLeadingZeroes(date.getSeconds(), 2))
@@ -161,14 +159,22 @@ function dateFormatPreset(timestamp, format = "short") {
 // Returns the relative interpritation of a date
 function dateFormatRelative(timestamp) {
     time = Date.now()-convertTimestamp(timestamp);
+    var future = "";
+    if (time < 0) {
+        future = "future";
+        time = abs(time);
+    }
     time /= 1000;
-    if (time < 120) return window.lang.dtRelNow;
+    if (time < 120) return window.lang[`dtRelNow`];
     time /= 60;
-    if (time < 180) return window.lang.dtRelMin.replace("%0", Math.round(time));
+    if (time < 180)
+        return window.lang[`dtRel${future}Min`].replace("%0", Math.round(time));
     time /= 60;
-    if (time < 72) return window.lang.dtRelHour.replace("%0", Math.round(time));
+    if (time < 72)
+        return window.lang[`dtRel${future}Hour`].replace("%0", Math.round(time));
     time /= 24;
-    if (time < 30) return window.lang.dtRelDay.replace("%0", Math.round(time));
+    if (time < 30)
+        return window.lang[`dtRel${future}Day`].replace("%0", Math.round(time));
     return dateFormatPreset(timestamp);
 }
 
@@ -198,7 +204,7 @@ async function loadFileList() {
             // Add up button first, if necessary
             if (dir != "/") {
                 if (dirSplit.length > 2)
-                    var dirParentName = dirSplit[dirSplit.length-2];
+                    var dirParentName = decodeURI(dirSplit[dirSplit.length-2]);
                 else
                     var dirParentName = window.lang.fileListRootName;
                 output += `
@@ -210,19 +216,34 @@ async function loadFileList() {
                     </a>
                 `;
             }
-            var totalSize = 0;
+            // Loop through the returned file objects
             window.fileObjects = [];
+            var totalSize = 0;
             var i = 0;
             data.files.forEach(f => {
+                // Get formatted dates
                 f.modifiedF = dateFormatRelative(f.modified);
                 f.modifiedFF = dateFormatPreset(f.modified, "full");
+                // If the file is a directory
                 if (f.mimeType == "directory") {
+                    // Set texts
                     f.sizeF = "-";
+                    f.typeF = window.lang.fileTypeDirectory;
                     f.icon = "folder";
-                    f.title = `${f.name}\n${window.lang.fileDetailsDate}: ${f.modifiedFF}\n${window.lang.fileDetailsType}: ${f.mimeType}" href="${f.name}`;
+                    f.title = `${f.name}\n${window.lang.fileDetailsDate}: ${f.modifiedFF}\n${window.lang.fileDetailsType}: ${f.typeF}" href="${f.name}`;
                 } else {
+                    // Get formatted size and add to total
                     f.sizeF = formattedSize(f.size);
                     totalSize += f.size;
+                    // Set file type from type list
+                    f.typeF = window.lang.fileTypeDefault;
+                    if (f.name.match(/^.*\..*$/)) {
+                        var fileNameSplit = f.name.split(".");
+                        var fileExt = fileNameSplit[fileNameSplit.length-1].toUpperCase();
+                        if (typeof window.lang.fileTypes[fileExt] !== 'undefined')
+                            f.typeF = window.lang.fileTypes[fileExt];
+                    }
+                    // Set icon based on MIME type
                     f.icon = "insert_drive_file";
                     if (f.mimeType.match(/^video\/.*$/gi))
                         f.icon = "movie";
@@ -236,8 +257,10 @@ async function loadFileList() {
                         f.icon = "widgets";
                     if (f.mimeType.match(/^application\/(zip|x-7z-compressed)$/gi))
                         f.icon = "archive";
-                    f.title = `${f.name}\n${window.lang.fileDetailsDate}: ${f.modifiedFF}\n${window.lang.fileDetailsType}: ${f.mimeType}\n${window.lang.fileDetailsSize}: ${f.sizeF}" href="${f.name}`;
+                    // Set tooltip
+                    f.title = `${f.name}\n${window.lang.fileDetailsDate}: ${f.modifiedFF}\n${window.lang.fileDetailsType}: ${f.typeF}\n${window.lang.fileDetailsSize}: ${f.sizeF}" href="${f.name}`;
                 }
+                // Build HTML
                 output += `
                     <a class="row no-gutters fileEntry" tabindex=0 data-filename='${f.name}' data-objectindex=${i} onClick='fileEntryClicked(this, event)' title="${f.title}">
                         <div class="col-auto fileEntryIcon material-icons">${f.icon}</div>
@@ -249,20 +272,22 @@ async function loadFileList() {
                 window.fileObjects[i] = f;
                 i++;
             });
+            // Format load time
             var loadElapsed = Date.now()-loadStart;
             var loadTimeF = loadElapsed+window.lang.dtUnitShortMs;
             if (loadElapsed >= 1000)
                 var loadTimeF = roundSmart(loadElapsed/1000, 2)+window.lang.dtUnitShortSecs;
-                if (data.files.length == 0) {
-                    _("fileListHint").innerHTML = window.lang.fileListEmpty;
+            // Set footer
+            if (data.files.length == 0) {
+                _("fileListHint").innerHTML = window.lang.fileListEmpty;
+            } else {
+                if (data.files.length == 1) {
+                    _("fileListHint").innerHTML = window.lang.fileListDetails1Single.replace("%0", loadTimeF);
                 } else {
-                    if (data.files.length == 1) {
-                        _("fileListHint").innerHTML = window.lang.fileListDetails1Single.replace("%0", loadTimeF);
-                    } else {
-                        _("fileListHint").innerHTML = window.lang.fileListDetails1Multi.replace("%0", data.files.length).replace("%1", loadTimeF);
-                    }
-                    _("fileListHint").innerHTML += "<br>"+window.lang.fileListDetails2.replace("%0", formattedSize(totalSize));
+                    _("fileListHint").innerHTML = window.lang.fileListDetails1Multi.replace("%0", data.files.length).replace("%1", loadTimeF);
                 }
+                _("fileListHint").innerHTML += "<br>"+window.lang.fileListDetails2.replace("%0", formattedSize(totalSize));
+            }
             // Show elements
             clearTimeout(seamlessTimeout);
             _("fileList").innerHTML = output;
