@@ -1,6 +1,14 @@
 
 # CyberFilesRewrite Changelog
-I'll try my best to keep track of all changes to CyberFilesRewrite, big and small, right here in this changelog. As things are just getting started, I'll be lumping a lot of my changes together, since so much is happening.
+I'll try my best to keep track of all changes to CyberFilesRewrite, big and small, right here in this changelog. As things are just getting started, I'll be lumping a lot of my changes together for the sake of simplicity
+
+## September 8th, 2021
+* Continued refining theme variables to be more specific
+* Made it so the loading spinner only displays after we've been waiting on a file list for over 500ms (subject to change)
+    * This prevents the quick spinner flash between fast loads
+* Started work on the handling of non-directory file entries (actual files!)
+* Added a CSS breakpoint at 600px for mobile devices
+    * At screen widths smaller than this amount, the file list will condence into one column, with modification date and size moving to a second line, beneath the file name.
 
 ## September 7th, 2021
 * Added file icons (via Google Material Icons)

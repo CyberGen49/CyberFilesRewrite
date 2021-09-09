@@ -66,25 +66,28 @@ a:hover, a:focus {
     margin-bottom: 20px;
     background: rgba(0, 0, 0, 0);
     border: none;
-    border-bottom: 2px solid <?= $theme['bg2'] ?>;
+    border-bottom: 2px solid <?= $theme['filterBarBottom'] ?>;
     border-radius: 4px 4px 0px 0px;
     outline: none;
     font-family: "Open Sans";
     font-size: 15px;
-    color: <?= $theme['fg'] ?>;
+    color: <?= $theme['filterBarText'] ?>;
     transition: 0.1s ease-in-out;
     user-select: none;
 }
 
 #fileListFilter:focus {
-    background: <?= $theme['bg2'] ?>;
-    border-bottom: 2px solid <?= $theme['accent'] ?>;
+    background: <?= $theme['filterBarBgF'] ?>;
+    border-bottom: 2px solid <?= $theme['filterBarBottomF'] ?>;
 }
 
 #fileListHeaders {
     border-bottom: 1px solid <?= $theme['fileSep'] ?>;
     user-select: none;
 }
+
+.fileListMobile { display: none; }
+.fileListDesktop { display: inherit; }
 
 .fileEntryIcon,
 .fileEntryName,
@@ -95,6 +98,11 @@ a:hover, a:focus {
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
+}
+
+.fileListHeader {
+    font-size: 13px;
+    color: <?= $theme['fileListHeaders'] ?>;
 }
 
 #fileListHeaderIcon, .fileEntryIcon {
@@ -119,6 +127,18 @@ a:hover, a:focus {
     cursor: default;
 }
 
+.fileEntryName {
+    color: <?= $theme['fileNameCol'] ?>;
+}
+
+.fileEntryDate {
+    color: <?= $theme['fileDateCol'] ?>;
+}
+
+.fileEntrySize {
+    color: <?= $theme['fileSizeCol'] ?>;
+}
+
 .fileEntry:hover,
 .fileEntry:focus {
     background: <?= $theme['fileH'] ?>;
@@ -137,25 +157,29 @@ a:hover, a:focus {
     padding: 0px;
     font-family: "Material Icons Outlined", "Material Icons";
     font-size: 22px;
-    color: <?= $theme['fg2'] ?>;
+    color: <?= $theme['fileIcon'] ?>;
     text-overflow: clip;
 }
 
-.fileListHeader {
-    font-size: 13px;
-    color: <?= $theme['fg2'] ?>;
+.fileEntryMobileDetails {
+    color: <?= $theme['fileDateMobile'] ?>;
 }
 
 #fileListHint {
     margin: 20px 0px;
     font-size: 14px;
-    color: <?= $theme['fg2'] ?>;
+    color: <?= $theme['fileListFooter'] ?>;
     text-align: center;
+}
+
+@media only screen and (max-width: 600px) {
+    .fileListMobile { display: inherit; }
+    .fileListDesktop { display: none; }
 }
 
 /* Custom placeholder text colour */
 ::placeholder {
-    color: <?= $theme['fg3'] ?>;
+    color: <?= $theme['textboxPlaceholder'] ?>;
     opacity: 1;
 }
 
@@ -215,7 +239,7 @@ a:hover, a:focus {
     animation: mdSpin-dash 1.2s ease-in-out infinite 0s;
     stroke-linecap: round;
     fill: none;
-    stroke: <?= $theme['fg2'] ?>;
+    stroke: <?= $theme['loadingSpinner'] ?>;
     stroke-width: 5;
 }
 

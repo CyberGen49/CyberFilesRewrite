@@ -54,30 +54,42 @@ function _getH(id) {
     return document.getElementById(id).getBoundingClientRect.height;
 }
 
-// Function to add leading zeros to a string
+// Adds leading characters to a string to match a specified length
 function addLeadingZeroes(string, newLength = 2, char = "0") {
     return string.toString().padStart(newLength, "0");
 }
 
-// Function to push a state to history
+// Pushes a state to history
 function historyPushState(title, url) {
     window.history.pushState("", title, url);
 }
 
-// Function to round with a certain number of decimal places
+// Rounds a number to a certain number of decimal places
 function roundSmart(number, decimalPlaces = 0) {
     const factorOfTen = Math.pow(10, decimalPlaces)
     return Math.round(number * factorOfTen) / factorOfTen
 }
 
+// Parses Markdown and returns HTML
+function mdToHtml(mdSource) {
+    // ...
+}
+
 // Returns a properly formatted version of the current directory
-function currentDir() {
+function currentDir(upLevels = 0) {
     var path = window.location.pathname;
-    tmp = path.split("/");
-    path = "";
+    var tmp = path.split("/");
+    var dirSplit = [];
     tmp.forEach(f => {
-        if (f != "") path += "/"+f;
+        if (f != '') dirSplit.push(f);
     });
+    path = "";
+    for (i = 0; i < dirSplit.length-upLevels; i++) {
+        if (dirSplit[i] != '') {
+            path += `/${dirSplit[i]}`;
+        }
+    }
+    path = path.replace("//", "/");
     if (path == "") return "/";
     else return path;
 }
@@ -179,22 +191,17 @@ function dateFormatRelative(timestamp) {
 }
 
 // Function to load a file list with the API
-async function loadFileList() {
+async function loadFileList(dir = "") {
     var loadStart = Date.now();
+    _("fileList").style.display = "none";
+    _("fileListHint").style.display = "none";
+    document.title = "<?= $conf['siteName'] ?>";
     var seamlessTimeout = setTimeout(() => {
-        _("fileList").style.display = "none";
-        _("fileListHint").style.display = "none";
         _("fileListLoading").style.display = "";
-        document.title = "<?= $conf['siteName'] ?>";
-    }, 0);
-    var dir = currentDir();
+    }, 500);
+    if (dir == "") dir = currentDir();
     var dirSplit = dir.split("/");
     var dirName = decodeURI(dirSplit[dirSplit.length-1]);
-    var dirParent = "";
-    for (i = 0; i < dirSplit.length-1; i++) {
-        if (dirSplit[i] != '/') dirParent += `/${dirSplit[i]}`;
-    }
-    if (dirParent == "") dirParent = "/";
     let response = await fetch(`${dir}?api&type=list`);
     await response.json().then(data => {
         if (data.status == "GOOD") {
@@ -208,11 +215,11 @@ async function loadFileList() {
                 else
                     var dirParentName = window.lang.fileListRootName;
                 output += `
-                    <a id="fileEntryUp" class="row no-gutters fileEntry" tabindex=0 onClick='fileEntryClicked(this, event)' data-dirparent="${dirParent.replace("//", "/")}">
+                    <a id="fileEntryUp" class="row no-gutters fileEntry" tabindex=0 onClick='fileEntryClicked(this, event)'">
                         <div class="col-auto fileEntryIcon material-icons">arrow_upward</div>
                         <div class="col fileEntryName">${window.lang.fileListEntryUp.replace("%0", dirParentName)}</div>
-                        <div class="col-auto fileEntryDate">-</div>
-                        <div class="col-auto fileEntrySize">-</div>
+                        <div class="col-auto fileEntryDate fileListDesktop">-</div>
+                        <div class="col-auto fileEntrySize fileListDesktop">-</div>
                     </a>
                 `;
             }
@@ -230,7 +237,10 @@ async function loadFileList() {
                     f.sizeF = "-";
                     f.typeF = window.lang.fileTypeDirectory;
                     f.icon = "folder";
+                    // Set tooltip
                     f.title = `${f.name}\n${window.lang.fileDetailsDate}: ${f.modifiedFF}\n${window.lang.fileDetailsType}: ${f.typeF}" href="${f.name}`;
+                    // Set mobile details
+                    f.detailsMobile = f.modifiedF;
                 } else {
                     // Get formatted size and add to total
                     f.sizeF = formattedSize(f.size);
@@ -259,14 +269,19 @@ async function loadFileList() {
                         f.icon = "archive";
                     // Set tooltip
                     f.title = `${f.name}\n${window.lang.fileDetailsDate}: ${f.modifiedFF}\n${window.lang.fileDetailsType}: ${f.typeF}\n${window.lang.fileDetailsSize}: ${f.sizeF}" href="${f.name}`;
+                    // Set mobile details
+                    f.detailsMobile = window.lang.fileListMobileLine2.replace("%0", f.modifiedF).replace("%1", f.sizeF);
                 }
                 // Build HTML
                 output += `
                     <a class="row no-gutters fileEntry" tabindex=0 data-filename='${f.name}' data-objectindex=${i} onClick='fileEntryClicked(this, event)' title="${f.title}">
                         <div class="col-auto fileEntryIcon material-icons">${f.icon}</div>
-                        <div class="col fileEntryName">${f.name}</div>
-                        <div class="col-auto fileEntryDate">${f.modifiedF}</div>
-                        <div class="col-auto fileEntrySize">${f.sizeF}</div>
+                        <div class="col fileEntryName">
+                            <div class="fileEntryNameInner">${f.name}</div>
+                            <div class="fileEntryMobileDetails fileListMobile">${f.detailsMobile}</div>
+                        </div>
+                        <div class="col-auto fileEntryDate fileListDesktop">${f.modifiedF}</div>
+                        <div class="col-auto fileEntrySize fileListDesktop">${f.sizeF}</div>
                     </a>
                 `;
                 window.fileObjects[i] = f;
@@ -316,8 +331,8 @@ function fileEntryClicked(el, event) {
     }
     // See if this is the up button
     if (el.id == "fileEntryUp") {
-        console.log("Up entry clicked: "+el.dataset.dirparent);
-        historyPushState("<?= $conf['siteName'] ?>", el.dataset.dirparent);
+        console.log("Up entry clicked: "+currentDir(1));
+        historyPushState("<?= $conf['siteName'] ?>", currentDir(1));
         loadFileList();
         return;
     }
@@ -328,6 +343,10 @@ function fileEntryClicked(el, event) {
     if (f.mimeType == "directory") {
         window.canClickEntries = false;
         historyPushState("<?= $conf['siteName'] ?>", `${currentDir()}/${f.name}`.replace("//", "/"));
+        loadFileList();
+    } else {
+        window.canClickEntries = false;
+        historyPushState("<?= $conf['siteName'] ?>", `${currentDir()}/?f=${f.name}`.replace("//", "/"));
         loadFileList();
     }
 }

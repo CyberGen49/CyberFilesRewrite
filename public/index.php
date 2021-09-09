@@ -90,9 +90,10 @@ $webConf = [
             <input id="fileListFilter" type="text" placeholder="<?= $lang['fileListFilterPlaceholder'] ?>">
             <div id="fileListHeaders" class="row no-gutters">
                 <div id="fileListHeaderIcon" class="fileListHeader col-auto"></div>
-                <div id="fileListHeaderName" class="fileListHeader col"><?= $lang['fileDetailsName'] ?></div>
-                <div id="fileListHeaderDate" class="fileListHeader col-auto"><?= $lang['fileDetailsDate'] ?></div>
-                <div id="fileListHeaderSize" class="fileListHeader col-auto"><?= $lang['fileDetailsSize'] ?></div>
+                <div id="fileListHeaderName" class="fileListHeader col fileListDesktop"><?= $lang['fileDetailsName'] ?></div>
+                <div id="fileListHeaderDate" class="fileListHeader col-auto fileListDesktop"><?= $lang['fileDetailsDate'] ?></div>
+                <div id="fileListHeaderSize" class="fileListHeader col-auto fileListDesktop"><?= $lang['fileDetailsSize'] ?></div>
+                <div id="fileListHeaderMobile" class="fileListHeader col fileListMobile"><?= $lang['fileListColumnGeneric'] ?></div>
             </div>
             <div id="fileListLoading">
                 <div class="mdSpinner">

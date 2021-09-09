@@ -8,6 +8,8 @@ fileDetailsName: Name
 fileDetailsDate: Last modified
 fileDetailsSize: File size
 fileDetailsType: File type
+fileListColumnGeneric: "File list"
+fileListMobileLine2: "%0 • %1"
 fileListDetails1Single: "1 file in %0"
 fileListDetails1Multi: "%0 files in %1"
 fileListDetails2: "Total size: %0"

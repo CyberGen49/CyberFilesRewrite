@@ -5,7 +5,7 @@
 # General settings
 language: en
 siteName: CyberFiles
-siteDesc: View and browse files with ease.
+siteDesc: An open sourced file index for the web to make accessing server content easy.
 hiddenFiles:
   - '.'
   - '..'
@@ -19,6 +19,7 @@ hideDirWhenContains:
   - 'index.php'
   - 'index.html'
   - '_cf_hideFromList'
+headerFileName: _cf_header.md
 dateFormatShort: '%b %d, %Y'
 dateFormatFull: '%m/%d/%Y %I:%+M %p'
 
@@ -30,13 +31,27 @@ theme:
   fg2: "#6f778b"
   fg2H: "#acb4c7"
   fg3: "#64666c"
+  accent: "#35486d"
   fileSep: "#1a1b1d"
   fileH: "#1f2124"
   fileC: "#32353b"
+  fileListHeaders: +fg2
+  fileIcon: +fg2
+  fileNameCol: +fg
+  fileDateCol: +fg
+  fileDateMobile: +fg2
+  fileSizeCol: +fg
+  fileListFooter: +fg2
   scrollbar: +bg2
   scrollbarH: "#3d4047"
   scrollbarC: "#575a63"
-  accent: "#35486d"
   bgTopbar: +accent
   fgTopbar: +fg
-  topbarBorder: 'rgba(0, 0, 0, 0)'
+  topbarBorder: rgba(0, 0, 0, 0)
+  textboxPlaceholder: +fg3
+  filterBarBottom: +bg2
+  filterBarBottomF: +accent
+  filterBarBgF: +bg2
+  filterBarText: +fg
+  loadingSpinner: +fg2
+  browserTheme: +accent

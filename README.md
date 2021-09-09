@@ -1,14 +1,17 @@
 # CyberFilesRewrite
 A capable and customizable file index for the web, based in PHP.
 
-This project is a rewrite of my previous file index site, with some major improvements in the backend structure. This should give me a chance to make things easier to maintain, and easier to add on to in the future.
+This project is a complete rewrite of my previous file index, which was a lot more primitive than this one. 
 
-The previous version of CyberFiles required that the page be completely reloaded to change what was displayed, since all of the HTML markup was put together by PHP on the server and sent back to the client. This time around, I plan on loading all of the dynamic data via Javascript on the client side, with the mentality that "the page should never need to be completely reloaded." This also means the implementation of an API that's able to serve all of the data the client could need. The result should be shorter load times while navigating through the index, and a bit less strain on the server.
+*Things are still under very heavy development, so they could be vastly changing over short spans of time. Keep an eye on [Changelog.md](https://github.com/CyberGen49/CyberFilesRewrite/blob/main/Changelog.md) to see updates.*
 
-*Things are still under very heavy development, so things could be vastly changing over short spans of time. Keep an eye on [Changelog.md](https://github.com/CyberGen49/CyberFilesRewrite/blob/main/Changelog.md) to see updates.*
+## Features
+* Completely customizable colours all from within the config, no CSS tinkering required
+* Completely customizable language files
+* File caching (via SQLite), making for blistering fast load speeds
 
 ## Installation
-We recommend using a Debian Linux-based system running Apache for hosting CyberFiles. If you're using a different operating system or webserver, you may need to do a bit more work to get everything working.
+We can only guarantee everything will work as expected if you're using an Apache webserver. Your mileage may vary with other setups. The tutorials below assume that you're on a Debian-based Linux distrobution and that you plan on using Apache.
 
 ### Prepare an environment for CyberFiles
 Create a new folder where you'll store the files you want to serve with CyberFiles. For example:
@@ -87,10 +90,11 @@ A list of wildcard filters to check against file names. Matches are hidden from 
 Type: `array`  
 A list of filenames to check for in each directory. If a directory contains a match, it'll be hidden in its parent directory list.
 
-#### `theme`
-Type: `array`  
-A set of theme variables used everywhere on the site. Feel free to play around with the colours until you find a theme you like.  
-**Remember:** Hashtags/pound symbols are comment characters in YAML, so if you're using hex codes, be sure to enclose them in quotation marks.
+#### `headerFileName`
+Type: `string`  
+The name of the file where directory header Markdown is stored.
+
+If a file with this name exists in a directory, it will be read and parsed as Markdown, then displayed above the directory's file list online. Only a limited subset of the Markdown spec is supported. See [the Markdown guide](#) for details.
 
 #### `dateFormatShort`
 Type: `string`  
@@ -99,6 +103,11 @@ A date format containing some of [these placeholders](https://github.com/CyberGe
 #### `dateFormatFull`
 Type: `string`  
 A date format containing some of [these placeholders](https://github.com/CyberGen49/CyberFilesRewrite/blob/main/README-dateTimePlaceholders.md). This should be a complete and informative date format, used in file details.
+
+#### `theme`
+Type: `array`  
+A set of theme variables used everywhere on the site. Feel free to play around with the colours until you find a theme you like.  
+**Remember:** Hashtags/pound symbols are comment characters in YAML, so if you're using hex codes, be sure to enclose them in quotation marks.
 
 ## Using the API
 CyberFiles comes with an API that can be used to access anything that could otherwise be accessed by the client.
