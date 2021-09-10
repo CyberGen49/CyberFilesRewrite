@@ -2,6 +2,26 @@
 # CyberFilesRewrite Changelog
 I'll try my best to keep track of all changes to CyberFilesRewrite, big and small, right here in this changelog. As things are just getting started, I'll be lumping a lot of my changes together for the sake of simplicity
 
+## September 9th, 2021
+* Fixed some logic in date formatting (specifically with 12-hour time)
+* Overhauled the colour theme
+* Moved themes to separate files in `/_cyberfiles/private/themes`, and the default is set by the `theme` config option
+* Added a drop shadow to the topbar that only shows up while scrolled
+    * It's extremely subtle on darker backgrounds
+* Made it so file lists have a short fade in animation, just to add some polish
+* Updated file caching to store only the data that takes time to get
+    * Now storing file path, modification timestamp, file size, and mime type
+* Added an Up button to the topbar
+    * Functions exactly like the one in the file list
+* Added the `upButtonInFileList` config option
+* Now we clear the contents of the filter bar and disable it when switching directories
+* Added full functionality to the filter bar
+* Added a popup that displays when Javascript is disabled
+* Added history tracking with LocalStorage
+    * A history entry will be added every time a directory is loaded, and there can be up to 1000 entries
+    * Once file previews are in place, those will be logged as well
+    * Later, we'll implement an interface for browsing your file history
+
 ## September 8th, 2021
 * Continued refining theme variables to be more specific
 * Made it so the loading spinner only displays after we've been waiting on a file list for over 500ms (subject to change)

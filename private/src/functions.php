@@ -60,7 +60,7 @@ class ApiCall {
                 'value' text not null
             );");
             // Get database version and wipe if necessary
-            $versionTarget = "3";
+            $versionTarget = "1";
             $result = $db->query("SELECT value
                 from data
                 where key = 'version';
@@ -81,11 +81,9 @@ class ApiCall {
             // Create the fileCache table if it doesn't exist
             $db->query("CREATE TABLE IF NOT EXISTS 'fileCache' (
                 'path' text not null unique,
-                'dir' text not null,
-                'name' text not null,
                 'modified' integer not null,
                 'size' integer not null,
-                'mimeType' text not null
+                'mimeType' integer not null
             );");
         }
         // Start the call
@@ -160,7 +158,9 @@ class ApiCall {
     // Returns a consistently structured file object
     function getFileObject($path) {
         $reindex = true;
-        $dir = pathinfo($path)['dirname'];
+        $file['path'] = $path;
+        $file['name'] = pathinfo($path)['basename'];
+        $file['modified'] = filemtime($path);
         $file['indexed'] = false;
         // If the database is open
         if (isset($this->db)) {
@@ -170,7 +170,7 @@ class ApiCall {
             $stmt->bindValue(':p', $path, SQLITE3_TEXT);
             $result = $stmt->execute();
             $cache = $result->fetchArray(SQLITE3_ASSOC);
-            if ($cache and filemtime($path) == $cache['modified']) {
+            if ($cache and $file['modified'] == $cache['modified']) {
                 $reindex = false;
                 $file['indexed'] = true;
                 $file = array_merge($cache, $file);
@@ -178,10 +178,6 @@ class ApiCall {
         }
         // Get up to date file details if needed
         if ($reindex) {
-            $file['path'] = $path;
-            $file['dir'] = $path;
-            $file['name'] = pathinfo($path)['basename'];
-            $file['modified'] = filemtime($path);
             $file['size'] = filesize($path);
             $file['mimeType'] = mime_content_type($path);
             // If the database is open, update this file's cache
@@ -189,31 +185,27 @@ class ApiCall {
                 // Build SQL
                 if (!$cache) {
                     $stmt = $db->prepare("INSERT INTO 'fileCache'
-                        ('path', 'dir', 'name', 'modified', 'size', 'mimeType')
-                        values (:path, :dir, :name, :mod, :size, :mime)
+                        ('path', 'modified', 'size', 'mimeType')
+                        values (:path, :mod, :size, :mimeType)
                     ;");
                 } else {
                     $stmt = $db->prepare("UPDATE 'fileCache' set
                         path = :path,
-                        dir = :dir,
-                        name = :name,
                         modified = :mod,
                         size = :size,
-                        mimeType = :mime
+                        mimeType = :mimeType
                     ;");
                 }
                 // Bind variables
                 $stmt->bindValue(':path', $file['path'], SQLITE3_TEXT);
-                $stmt->bindValue(':dir', $dir, SQLITE3_TEXT);
-                $stmt->bindValue(':name', $file['name'], SQLITE3_TEXT);
                 $stmt->bindValue(':mod', $file['modified'], SQLITE3_TEXT);
                 $stmt->bindValue(':size', $file['size'], SQLITE3_TEXT);
-                $stmt->bindValue(':mime', $file['mimeType'], SQLITE3_TEXT);
+                $stmt->bindValue(':mimeType', $file['mimeType'], SQLITE3_TEXT);
                 // Execute
                 $result = $stmt->execute();
             }
         }
-        unset($file['path'], $file['dir']);
+        unset($file['path']);
         return $file;
     }
 }

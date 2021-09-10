@@ -6,9 +6,10 @@ This project is a complete rewrite of my previous file index, which was a lot mo
 *Things are still under very heavy development, so they could be vastly changing over short spans of time. Keep an eye on [Changelog.md](https://github.com/CyberGen49/CyberFilesRewrite/blob/main/Changelog.md) to see updates.*
 
 ## Features
-* Completely customizable colours all from within the config, no CSS tinkering required
+* Completely customizable colour theming, no CSS tinkering required
 * Completely customizable language files
 * File caching (via SQLite), making for blistering fast load speeds
+* Ability to hide directories from their parent file lists
 
 ## Installation
 We can only guarantee everything will work as expected if you're using an Apache webserver. Your mileage may vary with other setups. The tutorials below assume that you're on a Debian-based Linux distrobution and that you plan on using Apache.
@@ -104,10 +105,17 @@ A date format containing some of [these placeholders](https://github.com/CyberGe
 Type: `string`  
 A date format containing some of [these placeholders](https://github.com/CyberGen49/CyberFilesRewrite/blob/main/README-dateTimePlaceholders.md). This should be a complete and informative date format, used in file details.
 
+#### `upButtonInFileList`
+Type: `boolean`  
+Whether or not the "Up to parent directory" entry should be shown at the top of file lists.
+
 #### `theme`
 Type: `array`  
-A set of theme variables used everywhere on the site. Feel free to play around with the colours until you find a theme you like.  
+The name (without extension) of a theme file located in `/_cyberfiles/private/themes`. File free to edit the existing themes or create your own to customize the experience.
+
 **Remember:** Hashtags/pound symbols are comment characters in YAML, so if you're using hex codes, be sure to enclose them in quotation marks.
+
+**Tip:** Check out the [Material Design Tools for Picking Colours](https://material.io/design/color/the-color-system.html#tools-for-picking-colors) to make cool combinations that look nice.
 
 ## Using the API
 CyberFiles comes with an API that can be used to access anything that could otherwise be accessed by the client.

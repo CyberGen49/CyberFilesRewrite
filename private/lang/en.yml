@@ -3,7 +3,9 @@
 # English
 
 topbarTitleTooltip: Go home
-fileListFilterPlaceholder: Filter files in this folder...
+topbarButtonUpLimitTooltip: This is the root directory.
+fileListFilter: Filter files in this folder...
+fileListFilterDisabled: Filtering is unavailable right now
 fileDetailsName: Name
 fileDetailsDate: Last modified
 fileDetailsSize: File size
@@ -13,9 +15,16 @@ fileListMobileLine2: "%0 • %1"
 fileListDetails1Single: "1 file in %0"
 fileListDetails1Multi: "%0 files in %1"
 fileListDetails2: "Total size: %0"
-fileListEmpty: This folder is empty
+fileListDetailsFilterSingle: "Filtered 1 file"
+fileListDetailsFilterMulti: "Filtered %0 files"
+fileListDetailsFilterNone: "No files match your filter"
+fileListEmpty: There's nothing here.
 fileListEntryUp: "Up to %0"
 fileListRootName: "Home"
+popupNoJsTitle: "Uh oh!"
+popupNoJsDesc: "Seems like you have Javascript disabled! The core functionality of CyberFiles requires Javascript, so you'll need to enable it to continue."
+popupNoJsButtonHelp: "I need help"
+popupNoJsButtonReload: "Reload page"
 dtUnitShortMs: ms
 dtUnitShortSecs: ' secs'
 dtMonth1: January

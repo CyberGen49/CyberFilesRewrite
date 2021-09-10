@@ -5,8 +5,30 @@ global $conf, $lang;
 ?>
 <script>
 
+// Hide the Javascript warning popup
+if (document.getElementById("popupNoJs"))
+    document.getElementById("popupNoJs").style.display = "none";
+
 // Language variables dumped from the server
 var lang = JSON.parse(`<?= json_encode($lang) ?>`);
+
+// Initialize file history
+var fileHistoryTargetVersion = 1;
+var fileHistory = locStoreArrayGet("history");
+if (fileHistory === null || fileHistory.version != fileHistoryTargetVersion) {
+    fileHistory = {
+        'version': fileHistoryTargetVersion,
+        'entries': []
+    };
+    locStoreArraySet("history", fileHistory);
+    console.log("File history has been wiped because the version changed");
+}
+var i = 0;
+while (fileHistory.entries.length > 1000) {
+    fileHistory.entries.shift();
+    i++;
+}
+if (i > 0) console.log(`Removed ${i} of the oldest file history entries`);
 
 // Copies the specified text to the clipboard
 function copyText(value) {
@@ -34,7 +56,7 @@ function _(id) {
     return document.getElementById(id);
 }
 
-// Functions for getting element coordinates and dimensions
+// Get element coordinates and dimensions
 function _getX(id) {
     return document.getElementById(id).getBoundingClientRect.x;
 }
@@ -70,6 +92,21 @@ function roundSmart(number, decimalPlaces = 0) {
     return Math.round(number * factorOfTen) / factorOfTen
 }
 
+// Saves an array to localstorage
+function locStoreArraySet(key, array) {
+    localStorage.setItem(key, JSON.stringify(array));
+}
+
+// Retrieves an array from localstorage
+function locStoreArrayGet(key, array) {
+    return JSON.parse(localStorage.getItem(key));
+}
+
+// Changes the meta theme color
+function meta_themeColor(hexCode = "#fff") {
+    document.querySelector('meta[name="theme-color"]').setAttribute('content',  hexCode);
+}
+
 // Parses Markdown and returns HTML
 function mdToHtml(mdSource) {
     // ...
@@ -94,7 +131,7 @@ function currentDir(upLevels = 0) {
     else return path;
 }
 
-// Function to make sure timestamps are in millisecond form
+// Makes sure a timestamp is in millisecond form and returns it
 function convertTimestamp(timestamp) {
     if (timestamp > 3000000000) return timestamp;
     else return (timestamp*1000);
@@ -122,8 +159,8 @@ function dateFormat(timestamp, format) {
     var twelveH = date.getHours();
     if (twelveH > 12) {
         var twelveH = twelveH-12;
-        if (twelveH == 0) twelveH = 12;
     }
+    if (twelveH == 0) twelveH = 12;
     format = format
         .replace("%a", window.lang[`dtWeekday${date.getDay()+1}Short`])
         .replace("%A", window.lang[`dtWeekday${date.getDay()+1}`])
@@ -140,7 +177,7 @@ function dateFormat(timestamp, format) {
         .replace("%M", date.getMinutes())
         .replace("%+M", addLeadingZeroes(date.getMinutes(), 2))
         .replace("%p", function() {
-            if (date.getHours() > 12) return window.lang.dtPM;
+            if (date.getHours() >= 12) return window.lang.dtPM;
             else return window.lang.dtAM;
         })
         .replace("%S", date.getSeconds())
@@ -190,11 +227,10 @@ function dateFormatRelative(timestamp) {
     return dateFormatPreset(timestamp);
 }
 
-// Function to load a file list with the API
+// Loads a file list with the API
 async function loadFileList(dir = "") {
+    // Set variables
     var loadStart = Date.now();
-    _("fileList").style.display = "none";
-    _("fileListHint").style.display = "none";
     document.title = "<?= $conf['siteName'] ?>";
     var seamlessTimeout = setTimeout(() => {
         _("fileListLoading").style.display = "";
@@ -202,26 +238,57 @@ async function loadFileList(dir = "") {
     if (dir == "") dir = currentDir();
     var dirSplit = dir.split("/");
     var dirName = decodeURI(dirSplit[dirSplit.length-1]);
+    // Prepare for loading
+    _("fileList").style.display = "none";
+    _("fileListHint").style.display = "none";
+    _("fileList").style.opacity = 0;
+    _("fileListHint").style.opacity = 0;
+    _("fileListFilter").disabled = true;
+    _("fileListFilter").value = "";
+    _("fileListFilter").placeholder = window.lang.fileListFilterDisabled;
+    // Make the API call
     let response = await fetch(`${dir}?api&type=list`);
     await response.json().then(data => {
         if (data.status == "GOOD") {
             console.log("Fetched file list:");
             console.log(data);
+            // Update history
+            fileHistory.entries.push({
+                'created': Date.now(),
+                'dir': dir,
+                'name': dirName,
+                'type': 'directory'
+            });
+            locStoreArraySet("history", fileHistory);
+            // If we aren't in the document root
             var output = "";
-            // Add up button first, if necessary
             if (dir != "/") {
+                // Set the appropriate parent directory name
                 if (dirSplit.length > 2)
                     var dirParentName = decodeURI(dirSplit[dirSplit.length-2]);
                 else
                     var dirParentName = window.lang.fileListRootName;
-                output += `
-                    <a id="fileEntryUp" class="row no-gutters fileEntry" tabindex=0 onClick='fileEntryClicked(this, event)'">
-                        <div class="col-auto fileEntryIcon material-icons">arrow_upward</div>
-                        <div class="col fileEntryName">${window.lang.fileListEntryUp.replace("%0", dirParentName)}</div>
-                        <div class="col-auto fileEntryDate fileListDesktop">-</div>
-                        <div class="col-auto fileEntrySize fileListDesktop">-</div>
-                    </a>
-                `;
+                // Set the up entry text
+                var upTitle = window.lang.fileListEntryUp.replace("%0", dirParentName);
+                // Build the HTML
+                if ('<?= $conf['upButtonInFileList'] ?>' !== '') {
+                    output += `
+                        <a id="fileEntryUp" class="row no-gutters fileEntry" tabindex=0 onClick='fileEntryClicked(this, event)'">
+                            <div class="col-auto fileEntryIcon material-icons">arrow_upward</div>
+                            <div class="col fileEntryName">
+                                <div class="fileEntryNameInner">${upTitle}</div>
+                            </div>
+                            <div class="col-auto fileEntryDate fileListDesktop">-</div>
+                            <div class="col-auto fileEntrySize fileListDesktop">-</div>
+                        </a>
+                    `;
+                }
+                // Handle the up button in the topbar
+                _("topbarButtonUp").classList.remove("disabled");
+                _("topbarButtonUp").title = upTitle;
+            } else {
+                _("topbarButtonUp").classList.add("disabled");
+                _("topbarButtonUp").title = window.lang.topbarButtonUpLimitTooltip;
             }
             // Loop through the returned file objects
             window.fileObjects = [];
@@ -238,7 +305,7 @@ async function loadFileList(dir = "") {
                     f.typeF = window.lang.fileTypeDirectory;
                     f.icon = "folder";
                     // Set tooltip
-                    f.title = `${f.name}\n${window.lang.fileDetailsDate}: ${f.modifiedFF}\n${window.lang.fileDetailsType}: ${f.typeF}" href="${f.name}`;
+                    f.title = `${f.name}\n${window.lang.fileDetailsDate}: ${f.modifiedFF}\n${window.lang.fileDetailsType}: ${f.typeF}`;
                     // Set mobile details
                     f.detailsMobile = f.modifiedF;
                 } else {
@@ -274,7 +341,7 @@ async function loadFileList(dir = "") {
                 }
                 // Build HTML
                 output += `
-                    <a class="row no-gutters fileEntry" tabindex=0 data-filename='${f.name}' data-objectindex=${i} onClick='fileEntryClicked(this, event)' title="${f.title}">
+                    <a class="row no-gutters fileEntry" tabindex=0 data-filename='${f.name}' data-objectindex=${i} onClick='fileEntryClicked(this, event)' title="${f.title}" href="${encodeURI(f.name)}">
                         <div class="col-auto fileEntryIcon material-icons">${f.icon}</div>
                         <div class="col fileEntryName">
                             <div class="fileEntryNameInner">${f.name}</div>
@@ -287,15 +354,20 @@ async function loadFileList(dir = "") {
                 window.fileObjects[i] = f;
                 i++;
             });
+            window.fileElements = document.getElementsByClassName("fileEntry");
             // Format load time
             var loadElapsed = Date.now()-loadStart;
             var loadTimeF = loadElapsed+window.lang.dtUnitShortMs;
             if (loadElapsed >= 1000)
                 var loadTimeF = roundSmart(loadElapsed/1000, 2)+window.lang.dtUnitShortSecs;
-            // Set footer
+            // If there aren't any files
             if (data.files.length == 0) {
                 _("fileListHint").innerHTML = window.lang.fileListEmpty;
             } else {
+                // Handle the filter bar while we're at it
+                _("fileListFilter").disabled = false;
+                _("fileListFilter").placeholder = window.lang.fileListFilter;
+                // Set the right footer
                 if (data.files.length == 1) {
                     _("fileListHint").innerHTML = window.lang.fileListDetails1Single.replace("%0", loadTimeF);
                 } else {
@@ -303,16 +375,21 @@ async function loadFileList(dir = "") {
                 }
                 _("fileListHint").innerHTML += "<br>"+window.lang.fileListDetails2.replace("%0", formattedSize(totalSize));
             }
+            window.fileListHint = _("fileListHint").innerHTML;
             // Show elements
-            clearTimeout(seamlessTimeout);
+            clearTimeout(seamlessTimeout);  
             _("fileList").innerHTML = output;
-            _("fileListLoading").style.display = "none";
             _("fileList").style.display = "";
             _("fileListHint").style.display = "";
+            setTimeout(() => {
+                _("fileListLoading").style.display = "none";
+                _("fileList").style.opacity = 1;
+                _("fileListHint").style.opacity = 1;
+                window.canClickEntries = true;
+            }, 50);
             // Finish up
             if (dirName != "")
-                document.title = dirName+" | <?= $conf['siteName'] ?>";
-            window.canClickEntries = true;
+                document.title = dirName+" - <?= $conf['siteName'] ?>";
         } else {
             console.log("Failed to fetch file list: "+data.status);
         }
@@ -320,7 +397,7 @@ async function loadFileList(dir = "") {
 }
 
 // Function to do stuff when a file entry is clicked
-window.canClickEntries = true;
+var canClickEntries = true;
 function fileEntryClicked(el, event) {
     event.preventDefault();
     document.activeElement.blur();
@@ -330,7 +407,7 @@ function fileEntryClicked(el, event) {
         return;
     }
     // See if this is the up button
-    if (el.id == "fileEntryUp") {
+    if (el.id == "fileEntryUp" || (el.id == "topbarButtonUp" && !el.classList.contains("disabled"))) {
         console.log("Up entry clicked: "+currentDir(1));
         historyPushState("<?= $conf['siteName'] ?>", currentDir(1));
         loadFileList();
@@ -351,10 +428,55 @@ function fileEntryClicked(el, event) {
     }
 }
 
+// Handle the filter bar
+_("fileListFilter").addEventListener("keyup", function(event) {
+    var value = this.value.toLowerCase();
+    // To reduce system resource usage, we'll wait a set amount of time after the user hasn't typed anything to actually run the filter
+    // The wait time is half of the number of files in milliseconds
+    clearTimeout(window.filterInterval);
+    window.filterInterval = setTimeout(() => {
+        console.log(`Filtering files that match "${value}"`);
+        if (value == "") {
+            for (i = 0; i < window.fileElements.length; i++) {
+                var el = window.fileElements[i];
+                el.style.display = "";
+            }
+            _("fileListHint").innerHTML = window.fileListHint;
+        } else {
+            var matches = 0;
+            for (i = 0; i < window.fileElements.length; i++) {
+                var el = window.fileElements[i];
+                if (el.dataset.filename.toLowerCase().includes(value)) {
+                    el.style.display = "";
+                    matches++;
+                }
+                else
+                    el.style.display = "none";
+            }
+            if (matches == 0) {
+                _("fileListHint").innerHTML = window.lang.fileListDetailsFilterNone;
+            } else if (matches == 1) {
+                _("fileListHint").innerHTML = window.lang.fileListDetailsFilterSingle;
+            } else {
+                _("fileListHint").innerHTML = window.lang.fileListDetailsFilterMulti.replace("%0", matches);
+            }
+        }
+    }, Math.floor(0.5*window.fileElements.length));
+});
+
 // Do this stuff whenever a state is pushed to history
 window.addEventListener("popstate", function(event) {
     console.log("Browser navigation buttons were used");
     loadFileList();
+});
+
+// Do this stuff when the main window is scrolled
+document.addEventListener("scroll", function(event) {
+    el = document.documentElement;
+    if (el.scrollTop > 0)
+        _("topbar").classList.add("shadow");
+    else
+        _("topbar").classList.remove("shadow");
 });
 
 // Topbar title click event

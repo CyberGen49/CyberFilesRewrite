@@ -5,7 +5,9 @@ require(document_root."/_cyberfiles/private/src/functions.php");
 try {
     // Import config
     $conf = yaml_parse_file(document_root."/_cyberfiles/private/config.yml");
-    $theme = $conf['theme'];
+    $themeDef = yaml_parse_file(document_root."/_cyberfiles/private/themes/Default.yml");
+    $theme = yaml_parse_file(document_root."/_cyberfiles/private/themes/{$conf['theme']}.yml");
+    array_merge($themeDef, $theme);
     // Parse variables within theme variables
     foreach (array_keys($theme) as $v) {
         trigger_error($theme[$v]);
@@ -36,7 +38,7 @@ $webConf = [
     "pageDesc" => $conf['siteDesc'],
     "siteName" => $conf['siteName'],
     "favicon" => "/_cyberfiles/public/icon.png",
-    "themeColour" => $theme['bgTopbar'],
+    "themeColour" => $theme['browserTheme'],
 ];
 
 ?>
@@ -65,6 +67,7 @@ $webConf = [
         <meta name="og:image" content="<?= $webConf['favicon'] ?>">
         <meta name="theme-color" content="<?= $webConf['themeColour'] ?>">
         <link rel="icon" href="<?= $webConf['favicon'] ?>">
+        <meta name="mobile-web-app-capable" content="yes">
         <meta charset="utf-8">
         <!-- Bootstrap -->
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
@@ -81,13 +84,16 @@ $webConf = [
     <?php try_require(document_root."/_cyberfiles/private/src/css.php") ?>
     
     <body id="body" class="no-transitions">
-        <div id="topbar" class="row no-gutters">
-            <div class="col-auto d-flex align-items-center">
+        <div id="topbar" class="row no-gutters flex-nowrap">
+            <div class="col-auto d-flex align-items-center topbarButtonContainer">
+                <a id="topbarButtonUp" class="topbarButton disabled" onClick='fileEntryClicked(this, event)'>arrow_upward</a>
+            </div>
+            <div id="topbarTitleContainer" class="col-auto d-flex align-items-center">
                 <a id="topbarTitle" title="<?= $lang['topbarTitleTooltip'] ?>"><?= $conf['siteName'] ?></a>
             </div>
         </div>
         <div id="fileListContainer" class="container">
-            <input id="fileListFilter" type="text" placeholder="<?= $lang['fileListFilterPlaceholder'] ?>">
+            <input id="fileListFilter" type="text" placeholder="<?= $lang['fileListFilterDisabled'] ?>" autocomplete="off" disabled>
             <div id="fileListHeaders" class="row no-gutters">
                 <div id="fileListHeaderIcon" class="fileListHeader col-auto"></div>
                 <div id="fileListHeaderName" class="fileListHeader col fileListDesktop"><?= $lang['fileDetailsName'] ?></div>
@@ -102,10 +108,26 @@ $webConf = [
                     </svg>
                 </div>
             </div>
-            <div id="fileList"></div>
-            <div id="fileListHint"></div>
+            <div id="fileList" class="ease-in-out-100ms"></div>
+            <div id="fileListHint" class="ease-in-out-100ms"></div>
         </div>
         <div id="previewContainer"></div>
+
+        <noscript>
+            <div id="popupNoJs" class="popupBackground ease-in-out-100ms">
+                <div class="popupCard">
+                    <div class="popupTitle"><?= $lang['popupNoJsTitle'] ?></div>
+                    <div class="popupContent">
+                        <p><?= $lang['popupNoJsDesc'] ?></p>
+                        <p>
+                            <a href="https://www.enablejavascript.io/" target="_blank"><?= $lang['popupNoJsButtonHelp'] ?></a>
+                            <br>
+                            <a href=""><?= $lang['popupNoJsButtonReload'] ?></a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </noscript>
 
         <?php try_require(document_root."/_cyberfiles/private/src/js.php") ?>
     </body>

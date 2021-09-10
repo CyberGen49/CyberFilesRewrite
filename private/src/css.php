@@ -23,8 +23,20 @@ body {
     margin: 0px;
 }
 
-a:hover, a:focus {
+p {
+    margin: 0px;
+    padding: 0px;
+    padding-bottom: 5px;
+}
+
+a {
+    color: <?= $theme['hyperlink'] ?>;
     text-decoration: none;
+}
+
+a:hover, a:focus {
+    color: <?= $theme['hyperlinkH'] ?>;
+    text-decoration: underline;
 }
 
 #topbar {
@@ -33,26 +45,57 @@ a:hover, a:focus {
     left: 0px;
     height: 55px;
     width: 100%;
-    padding: 0px 20px;
+    padding: 0px 15px;
     background: <?= $theme['bgTopbar'] ?>;
     border-bottom: 1px solid <?= $theme['topbarBorder'] ?>;
-    z-index: 10;
+    z-index: 5;
     user-select: none;
+    transition: 0.1s ease-in-out;
+}
+
+#topbar.shadow {
+    box-shadow: 0px -20px 15px 14px rgba(0,0,0,0.7);
 }
 
 #topbarTitle {
+    margin-top: 2px;
+    padding: 5px;
     font-family: "Montserrat", sans-serif;
     font-size: 24px;
     font-weight: bold;
     color: <?= $theme['fgTopbar'] ?>;
-    padding: 5px;
     transition: 0.1s ease-in-out;
 }
 #topbarTitle:hover, #topbarTitle:focus {
-    opacity: 70%;
-    color: inherit;
+    color: <?= $theme['fgTopbarH'] ?>;
     text-decoration: none;
     cursor: default;
+}
+
+.topbarButton {
+    line-height: 100%;
+    padding: 8px;
+    font-family: "Material Icons Outlined", "Material Icons";
+    font-size: 28px;
+    color: <?= $theme['fgTopbar'] ?> !important;
+    border-radius: 20px;
+    transition: 0.1s ease-in-out;
+}
+
+.topbarButton:hover:not(.disabled),
+.topbarButton:focus:not(.disabled) {
+    background: <?= $theme['bgTopbarButtonH'] ?>;
+    color: <?= $theme['fgTopbarH'] ?>;
+    text-decoration: none;
+    cursor: default;
+}
+
+.topbarButton.disabled {
+    opacity: 50%;
+}
+
+#topbarButtonUp {
+    margin-right: 5px;
 }
 
 #fileListContainer {
@@ -100,6 +143,13 @@ a:hover, a:focus {
     text-overflow: ellipsis;
 }
 
+.fileEntryNameInner {
+    padding-right: 10px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
 .fileListHeader {
     font-size: 13px;
     color: <?= $theme['fileListHeaders'] ?>;
@@ -125,6 +175,7 @@ a:hover, a:focus {
     border-bottom: 1px solid <?= $theme['fileSep'] ?>;
     font-size: 14px;
     cursor: default;
+    text-decoration: none !important;
 }
 
 .fileEntryName {
@@ -166,15 +217,88 @@ a:hover, a:focus {
 }
 
 #fileListHint {
-    margin: 20px 0px;
+    margin: 25px 0px;
     font-size: 14px;
     color: <?= $theme['fileListFooter'] ?>;
     text-align: center;
 }
 
+.popupBackground {
+    position: fixed;
+    display: flex;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+    padding: 10px;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 10;
+}
+
+.popupCard {
+    margin: auto;
+    max-width: 500px;
+    padding: 15px 20px;
+    background: <?= $theme['bgPopup'] ?>;
+    border-radius: 12px;
+    box-shadow: 0px 4px 20px 8px rgba(0,0,0,0.3);
+}
+
+.popupTitle {
+    font-family: "Montserrat", "Segoe UI", sans-serif;
+    font-weight: bold;
+    font-size: 20px;
+    padding-bottom: 5px;
+}
+
+.popupContent p:last-of-type {
+    padding-bottom: 0px;
+    margin-bottom: 0px;
+}
+
 @media only screen and (max-width: 600px) {
+    #topbarTitle {
+        font-size: 22px;
+    }
+
+    #fileListFilter {
+        padding-top: 12px;
+        padding-bottom: 12px;
+    }
+
     .fileListMobile { display: inherit; }
     .fileListDesktop { display: none; }
+
+    #fileList,
+    #fileListHeaders {
+        margin-left: -15px;
+        margin-right: -15px;
+    }
+
+    .fileListHeader {
+        font-size: 14px;
+    }
+
+    #fileListHeaderIcon, .fileEntryIcon {
+        width: 60px;
+    }
+    .fileEntryIcon {
+        font-size: 26px;
+    }
+
+    .fileEntryName {
+        padding: 11px 15px 11px 15px;
+    }
+    .fileEntryNameInner {
+        font-size: 15px;
+    }
+}
+
+/* Transition animation classes */
+.ease-in-out-100ms {
+    transition: 0.1s ease-in-out;
 }
 
 /* Custom placeholder text colour */
@@ -190,6 +314,7 @@ a:hover, a:focus {
 
 ::-webkit-scrollbar-thumb {
     background: <?= $theme['scrollbar'] ?>;
+    border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
