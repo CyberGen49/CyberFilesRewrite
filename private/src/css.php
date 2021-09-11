@@ -1,5 +1,5 @@
 <?php
-global $theme;
+global $conf, $theme;
 /*
 
 READ ME FIRST!
@@ -14,6 +14,7 @@ Before everyone screams at me about using CSS this way (putting it in a PHP file
 
 * {
     font-family: "Segoe UI", "Open Sans", "Roboto", sans-serif;
+    font-size: 15px;
     color: <?= $theme['fg'] ?>;
 }
 
@@ -23,10 +24,12 @@ body {
     margin: 0px;
 }
 
-p {
+p, .paragraph {
     margin: 0px;
     padding: 0px;
     padding-bottom: 5px;
+    text-size-adjust: none;
+    font-size: 15px !important;
 }
 
 a {
@@ -48,7 +51,7 @@ a:hover, a:focus {
     padding: 0px 15px;
     background: <?= $theme['bgTopbar'] ?>;
     border-bottom: 1px solid <?= $theme['topbarBorder'] ?>;
-    z-index: 5;
+    z-index: 10;
     user-select: none;
     transition: 0.1s ease-in-out;
 }
@@ -138,12 +141,14 @@ a:hover, a:focus {
 .fileEntrySize,
 .fileListHeader {
     padding: 7px 15px 8px 15px;
+    font-size: 14px;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
 }
 
 .fileEntryNameInner {
+    font-size: 14px;
     padding-right: 10px;
     overflow: hidden;
     white-space: nowrap;
@@ -234,7 +239,7 @@ a:hover, a:focus {
     overflow-x: hidden;
     overflow-y: scroll;
     background: rgba(0, 0, 0, 0.5);
-    z-index: 10;
+    z-index: 50;
 }
 
 .popupCard {
@@ -250,12 +255,51 @@ a:hover, a:focus {
     font-family: "Montserrat", "Segoe UI", sans-serif;
     font-weight: bold;
     font-size: 20px;
+    color: <?= $theme['fgPopup'] ?>;
     padding-bottom: 5px;
+}
+
+.popupContent {
+    color: <?= $theme['fgPopup'] ?>;
 }
 
 .popupContent p:last-of-type {
     padding-bottom: 0px;
     margin-bottom: 0px;
+}
+
+.popupActions {
+    margin: -5px -10px;
+    padding-top: 15px;
+    display: flex;
+    justify-content: right;
+    flex-wrap: wrap;
+    user-select: none;
+}
+
+.popupButton {
+    line-height: 100%;
+    margin: 1px;
+    padding: 12px 14px;
+    font-family: "Montserrat", "Segoe UI", sans-serif;
+    font-weight: bold;
+    font-size: 15px;
+    color: <?= $theme['fgPopupButton'] ?>;
+    border-radius: 6px;
+    cursor: default;
+    transition: 0.1s ease-in-out;
+}
+
+.popupButton:hover,
+.popupButton:focus {
+    background: <?= $theme['bgPopupButtonH'] ?>;
+    color: <?= $theme['fgPopupButton'] ?>;
+    text-decoration: none;
+}
+
+.popupButton:active {
+    background: <?= $theme['bgPopupButtonC'] ?>;
+    color: <?= $theme['fgPopupButton'] ?>;
 }
 
 @media only screen and (max-width: 600px) {
@@ -279,6 +323,10 @@ a:hover, a:focus {
 
     .fileListHeader {
         font-size: 14px;
+    }
+
+    .fileEntry {
+        border: <?php if (!$conf['mobileFileListBorders']) print("none"); else print("inherit"); ?>;
     }
 
     #fileListHeaderIcon, .fileEntryIcon {

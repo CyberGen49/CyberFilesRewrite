@@ -10,7 +10,6 @@ try {
     array_merge($themeDef, $theme);
     // Parse variables within theme variables
     foreach (array_keys($theme) as $v) {
-        trigger_error($theme[$v]);
         if (preg_match("/\+(.*)/", $theme[$v], $matches)) {
             $theme[$v] = $theme[$matches[1]];
         }
@@ -86,7 +85,7 @@ $webConf = [
     <body id="body" class="no-transitions">
         <div id="topbar" class="row no-gutters flex-nowrap">
             <div class="col-auto d-flex align-items-center topbarButtonContainer">
-                <a id="topbarButtonUp" class="topbarButton disabled" onClick='fileEntryClicked(this, event)'>arrow_upward</a>
+                <a id="topbarButtonUp" class="topbarButton disabled" onClick='fileEntryClicked(this, event)'>arrow_back</a>
             </div>
             <div id="topbarTitleContainer" class="col-auto d-flex align-items-center">
                 <a id="topbarTitle" title="<?= $lang['topbarTitleTooltip'] ?>"><?= $conf['siteName'] ?></a>
@@ -116,14 +115,13 @@ $webConf = [
         <noscript>
             <div id="popupNoJs" class="popupBackground ease-in-out-100ms">
                 <div class="popupCard">
-                    <div class="popupTitle"><?= $lang['popupNoJsTitle'] ?></div>
+                    <div class="popupTitle"><?= $lang['popupErrorTitle'] ?></div>
                     <div class="popupContent">
                         <p><?= $lang['popupNoJsDesc'] ?></p>
-                        <p>
-                            <a href="https://www.enablejavascript.io/" target="_blank"><?= $lang['popupNoJsButtonHelp'] ?></a>
-                            <br>
-                            <a href=""><?= $lang['popupNoJsButtonReload'] ?></a>
-                        </p>
+                    </div>
+                    <div class="popupActions">
+                        <a class="popupButton no-transitions-exclude" href="https://www.enablejavascript.io/" target="_blank"><?= $lang['popupHelp'] ?></a>
+                        <a class="popupButton no-transitions-exclude" href=""><?= $lang['popupReload'] ?></a>
                     </div>
                 </div>
             </div>

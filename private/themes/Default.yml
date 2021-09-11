@@ -1,3 +1,12 @@
+
+# CyberFiles default theme
+
+# If you can, you probably shouldn't edit this file.
+# To make a custom theme:
+#   - Create a new .yml file in this directory, or duplicate this one
+#   - Change the 'theme' config option to the name of your new file
+# Once you have your file, any theme variables you set in there will override the ones set here
+
 bg: '#1E1E24'
 bg2: "#3f3f45"
 fg: '#f3f3fc'
@@ -28,6 +37,10 @@ filterBarBottomF: +accent
 filterBarBgF: +bg2
 filterBarText: +fg
 bgPopup: +bg
+fgPopup: +fg
+fgPopupButton: +accent
+bgPopupButtonH: rgba(163, 231, 252, 0.3)
+bgPopupButtonC: rgba(163, 231, 252, 0.5)
 hyperlink: +accent
 hyperlinkH: +fg2
 loadingSpinner: +accent

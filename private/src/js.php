@@ -24,7 +24,7 @@ if (fileHistory === null || fileHistory.version != fileHistoryTargetVersion) {
     console.log("File history has been wiped because the version changed");
 }
 var i = 0;
-while (fileHistory.entries.length > 1000) {
+while (JSON.stringify(fileHistory).length > 1000000) {
     fileHistory.entries.shift();
     i++;
 }
@@ -48,7 +48,12 @@ function $_GET(name, url = window.location.href) {
         results = regex.exec(url);
     if (!results) return null;
     if (!results[2]) return '';
-    return decodeURIComponent(results[2].replace(/\+/g, ' '));
+    try {
+        return decodeURIComponent(results[2].replace(/\+/g, '%20'));
+    } catch {
+        console.log(`Failed to decode "${results[2]}"`);
+        return null;
+    }
 }
 
 // Shorthand function for document.getElementById()
@@ -74,6 +79,17 @@ function _getW(id) {
 }
 function _getH(id) {
     return document.getElementById(id).getBoundingClientRect.height;
+}
+
+// Function to start a direct file download
+function downloadFile(url) {
+    var id = `fileDownload-${Date.now}`;
+    _("body").insertAdjacentHTML('beforeend', `
+        <a id="${id}" href="${url}" download></a>
+    `);
+    console.log(`Starting direct download of "${url}"`);
+    _(id).click();
+    _(id).remove();
 }
 
 // Adds leading characters to a string to match a specified length
@@ -228,172 +244,235 @@ function dateFormatRelative(timestamp) {
 }
 
 // Loads a file list with the API
-async function loadFileList(dir = "") {
+async function loadFileList(dir = "", entryData = null) {
     // Set variables
-    var loadStart = Date.now();
     document.title = "<?= $conf['siteName'] ?>";
-    var seamlessTimeout = setTimeout(() => {
-        _("fileListLoading").style.display = "";
-    }, 500);
     if (dir == "") dir = currentDir();
     var dirSplit = dir.split("/");
     var dirName = decodeURI(dirSplit[dirSplit.length-1]);
-    // Prepare for loading
-    _("fileList").style.display = "none";
-    _("fileListHint").style.display = "none";
-    _("fileList").style.opacity = 0;
-    _("fileListHint").style.opacity = 0;
-    _("fileListFilter").disabled = true;
-    _("fileListFilter").value = "";
-    _("fileListFilter").placeholder = window.lang.fileListFilterDisabled;
-    // Make the API call
-    let response = await fetch(`${dir}?api&type=list`);
-    await response.json().then(data => {
-        if (data.status == "GOOD") {
-            console.log("Fetched file list:");
-            console.log(data);
-            // Update history
-            fileHistory.entries.push({
-                'created': Date.now(),
-                'dir': dir,
-                'name': dirName,
-                'type': 'directory'
-            });
-            locStoreArraySet("history", fileHistory);
-            // If we aren't in the document root
-            var output = "";
-            if (dir != "/") {
-                // Set the appropriate parent directory name
-                if (dirSplit.length > 2)
-                    var dirParentName = decodeURI(dirSplit[dirSplit.length-2]);
-                else
-                    var dirParentName = window.lang.fileListRootName;
-                // Set the up entry text
-                var upTitle = window.lang.fileListEntryUp.replace("%0", dirParentName);
-                // Build the HTML
-                if ('<?= $conf['upButtonInFileList'] ?>' !== '') {
+    // If the directory has changed since the last load
+    if (dir != window.loadDir) {
+        // Prepare for loading
+        var loadStart = Date.now();
+        var seamlessTimeout = setTimeout(() => {
+            _("fileListLoading").style.display = "";
+        }, 500);
+        _("fileList").style.display = "none";
+        _("fileListHint").style.display = "none";
+        _("fileList").style.opacity = 0;
+        _("fileListHint").style.opacity = 0;
+        _("fileListFilter").disabled = true;
+        _("fileListFilter").value = "";
+        _("fileListFilter").placeholder = window.lang.fileListFilterDisabled;
+        // Make the API call
+        let response = await fetch(`${dir}?api&type=list`);
+        await response.json().then(data => {
+            if (data.status == "GOOD") {
+                console.log("Fetched file list:");
+                console.log(data);
+                // Update history
+                fileHistory.entries.push({
+                    'created': Date.now(),
+                    'dir': dir,
+                    'name': dirName,
+                    'type': 'directory'
+                });
+                locStoreArraySet("history", fileHistory);
+                // If we aren't in the document root
+                var output = "";
+                if (dir != "/") {
+                    // Set the appropriate parent directory name
+                    if (dirSplit.length > 2)
+                        var dirParentName = decodeURI(dirSplit[dirSplit.length-2]);
+                    else
+                        var dirParentName = window.lang.fileListRootName;
+                    // Set the up entry text
+                    var upTitle = window.lang.fileListEntryUp.replace("%0", dirParentName);
+                    // Build the HTML
+                    if ('<?= $conf['upButtonInFileList'] ?>' !== '') {
+                        output += `
+                            <a id="fileEntryUp" class="row no-gutters fileEntry" tabindex=0 onClick='fileEntryClicked(this, event)'">
+                                <div class="col-auto fileEntryIcon material-icons">arrow_back</div>
+                                <div class="col fileEntryName">
+                                    <div class="fileEntryNameInner">${upTitle}</div>
+                                </div>
+                                <div class="col-auto fileEntryDate fileListDesktop">-</div>
+                                <div class="col-auto fileEntrySize fileListDesktop">-</div>
+                            </a>
+                        `;
+                    }
+                    // Handle the up button in the topbar
+                    _("topbarButtonUp").classList.remove("disabled");
+                    _("topbarButtonUp").title = upTitle;
+                } else {
+                    _("topbarButtonUp").classList.add("disabled");
+                    _("topbarButtonUp").title = window.lang.topbarButtonUpLimitTooltip;
+                }
+                // Loop through the returned file objects
+                window.fileObjects = [];
+                var totalSize = 0;
+                var i = 0;
+                data.files.forEach(f => {
+                    // Get formatted dates
+                    f.modifiedF = dateFormatRelative(f.modified);
+                    f.modifiedFF = dateFormatPreset(f.modified, "full");
+                    // If the file is a directory
+                    if (f.mimeType == "directory") {
+                        // Set texts
+                        f.sizeF = "-";
+                        f.typeF = window.lang.fileTypeDirectory;
+                        f.icon = "folder";
+                        // Set tooltip
+                        f.title = `${f.name}\n${window.lang.fileDetailsDate}: ${f.modifiedFF}\n${window.lang.fileDetailsType}: ${f.typeF}`;
+                        // Set mobile details
+                        f.detailsMobile = f.modifiedF;
+                    } else {
+                        // Get formatted size and add to total
+                        f.sizeF = formattedSize(f.size);
+                        totalSize += f.size;
+                        // Set file type from type list
+                        f.typeF = window.lang.fileTypeDefault;
+                        if (f.name.match(/^.*\..*$/)) {
+                            var fileNameSplit = f.name.split(".");
+                            var fileExt = fileNameSplit[fileNameSplit.length-1].toUpperCase();
+                            if (typeof window.lang.fileTypes[fileExt] !== 'undefined')
+                                f.typeF = window.lang.fileTypes[fileExt];
+                        }
+                        // Set icon based on MIME type
+                        f.icon = "insert_drive_file";
+                        if (f.mimeType.match(/^video\/.*$/gi))
+                            f.icon = "movie";
+                        if (f.mimeType.match(/^text\/.*$/gi))
+                            f.icon = "text_snippet";
+                        if (f.mimeType.match(/^audio\/.*$/gi))
+                            f.icon = "headset";
+                        if (f.mimeType.match(/^image\/.*$/gi))
+                            f.icon = "image";
+                        if (f.mimeType.match(/^application\/.*$/gi))
+                            f.icon = "widgets";
+                        if (f.mimeType.match(/^application\/(zip|x-7z-compressed)$/gi))
+                            f.icon = "archive";
+                        // Set tooltip
+                        f.title = `${f.name}\n${window.lang.fileDetailsDate}: ${f.modifiedFF}\n${window.lang.fileDetailsType}: ${f.typeF}\n${window.lang.fileDetailsSize}: ${f.sizeF}" href="${f.name}`;
+                        // Set mobile details
+                        f.detailsMobile = window.lang.fileListMobileLine2.replace("%0", f.modifiedF).replace("%1", f.sizeF);
+                    }
+                    // Build HTML
                     output += `
-                        <a id="fileEntryUp" class="row no-gutters fileEntry" tabindex=0 onClick='fileEntryClicked(this, event)'">
-                            <div class="col-auto fileEntryIcon material-icons">arrow_upward</div>
+                        <a class="row no-gutters fileEntry" tabindex=0 data-filename='${f.name}' data-objectindex=${i} onClick='fileEntryClicked(this, event)' title="${f.title}" href="${encodeURI(f.name)}">
+                            <div class="col-auto fileEntryIcon material-icons">${f.icon}</div>
                             <div class="col fileEntryName">
-                                <div class="fileEntryNameInner">${upTitle}</div>
+                                <div class="fileEntryNameInner">${f.name}</div>
+                                <div class="fileEntryMobileDetails fileListMobile">${f.detailsMobile}</div>
                             </div>
-                            <div class="col-auto fileEntryDate fileListDesktop">-</div>
-                            <div class="col-auto fileEntrySize fileListDesktop">-</div>
+                            <div class="col-auto fileEntryDate fileListDesktop">${f.modifiedF}</div>
+                            <div class="col-auto fileEntrySize fileListDesktop">${f.sizeF}</div>
                         </a>
                     `;
-                }
-                // Handle the up button in the topbar
-                _("topbarButtonUp").classList.remove("disabled");
-                _("topbarButtonUp").title = upTitle;
-            } else {
-                _("topbarButtonUp").classList.add("disabled");
-                _("topbarButtonUp").title = window.lang.topbarButtonUpLimitTooltip;
-            }
-            // Loop through the returned file objects
-            window.fileObjects = [];
-            var totalSize = 0;
-            var i = 0;
-            data.files.forEach(f => {
-                // Get formatted dates
-                f.modifiedF = dateFormatRelative(f.modified);
-                f.modifiedFF = dateFormatPreset(f.modified, "full");
-                // If the file is a directory
-                if (f.mimeType == "directory") {
-                    // Set texts
-                    f.sizeF = "-";
-                    f.typeF = window.lang.fileTypeDirectory;
-                    f.icon = "folder";
-                    // Set tooltip
-                    f.title = `${f.name}\n${window.lang.fileDetailsDate}: ${f.modifiedFF}\n${window.lang.fileDetailsType}: ${f.typeF}`;
-                    // Set mobile details
-                    f.detailsMobile = f.modifiedF;
+                    window.fileObjects[i] = f;
+                    i++;
+                });
+                window.fileElements = document.getElementsByClassName("fileEntry");
+                // Format load time
+                var loadElapsed = Date.now()-loadStart;
+                var loadTimeF = loadElapsed+window.lang.dtUnitShortMs;
+                if (loadElapsed >= 1000)
+                    var loadTimeF = roundSmart(loadElapsed/1000, 2)+window.lang.dtUnitShortSecs;
+                // If there aren't any files
+                if (data.files.length == 0) {
+                    _("fileListHint").innerHTML = window.lang.fileListEmpty;
                 } else {
-                    // Get formatted size and add to total
-                    f.sizeF = formattedSize(f.size);
-                    totalSize += f.size;
-                    // Set file type from type list
-                    f.typeF = window.lang.fileTypeDefault;
-                    if (f.name.match(/^.*\..*$/)) {
-                        var fileNameSplit = f.name.split(".");
-                        var fileExt = fileNameSplit[fileNameSplit.length-1].toUpperCase();
-                        if (typeof window.lang.fileTypes[fileExt] !== 'undefined')
-                            f.typeF = window.lang.fileTypes[fileExt];
+                    // Handle the filter bar while we're at it
+                    _("fileListFilter").disabled = false;
+                    _("fileListFilter").placeholder = window.lang.fileListFilter;
+                    // Set the right footer
+                    if (data.files.length == 1) {
+                        _("fileListHint").innerHTML = window.lang.fileListDetails1Single.replace("%0", loadTimeF);
+                    } else {
+                        _("fileListHint").innerHTML = window.lang.fileListDetails1Multi.replace("%0", data.files.length).replace("%1", loadTimeF);
                     }
-                    // Set icon based on MIME type
-                    f.icon = "insert_drive_file";
-                    if (f.mimeType.match(/^video\/.*$/gi))
-                        f.icon = "movie";
-                    if (f.mimeType.match(/^text\/.*$/gi))
-                        f.icon = "text_snippet";
-                    if (f.mimeType.match(/^audio\/.*$/gi))
-                        f.icon = "headset";
-                    if (f.mimeType.match(/^image\/.*$/gi))
-                        f.icon = "image";
-                    if (f.mimeType.match(/^application\/.*$/gi))
-                        f.icon = "widgets";
-                    if (f.mimeType.match(/^application\/(zip|x-7z-compressed)$/gi))
-                        f.icon = "archive";
-                    // Set tooltip
-                    f.title = `${f.name}\n${window.lang.fileDetailsDate}: ${f.modifiedFF}\n${window.lang.fileDetailsType}: ${f.typeF}\n${window.lang.fileDetailsSize}: ${f.sizeF}" href="${f.name}`;
-                    // Set mobile details
-                    f.detailsMobile = window.lang.fileListMobileLine2.replace("%0", f.modifiedF).replace("%1", f.sizeF);
+                    _("fileListHint").innerHTML += "<br>"+window.lang.fileListDetails2.replace("%0", formattedSize(totalSize));
                 }
-                // Build HTML
-                output += `
-                    <a class="row no-gutters fileEntry" tabindex=0 data-filename='${f.name}' data-objectindex=${i} onClick='fileEntryClicked(this, event)' title="${f.title}" href="${encodeURI(f.name)}">
-                        <div class="col-auto fileEntryIcon material-icons">${f.icon}</div>
-                        <div class="col fileEntryName">
-                            <div class="fileEntryNameInner">${f.name}</div>
-                            <div class="fileEntryMobileDetails fileListMobile">${f.detailsMobile}</div>
-                        </div>
-                        <div class="col-auto fileEntryDate fileListDesktop">${f.modifiedF}</div>
-                        <div class="col-auto fileEntrySize fileListDesktop">${f.sizeF}</div>
-                    </a>
-                `;
-                window.fileObjects[i] = f;
-                i++;
-            });
-            window.fileElements = document.getElementsByClassName("fileEntry");
-            // Format load time
-            var loadElapsed = Date.now()-loadStart;
-            var loadTimeF = loadElapsed+window.lang.dtUnitShortMs;
-            if (loadElapsed >= 1000)
-                var loadTimeF = roundSmart(loadElapsed/1000, 2)+window.lang.dtUnitShortSecs;
-            // If there aren't any files
-            if (data.files.length == 0) {
-                _("fileListHint").innerHTML = window.lang.fileListEmpty;
-            } else {
-                // Handle the filter bar while we're at it
-                _("fileListFilter").disabled = false;
-                _("fileListFilter").placeholder = window.lang.fileListFilter;
-                // Set the right footer
-                if (data.files.length == 1) {
-                    _("fileListHint").innerHTML = window.lang.fileListDetails1Single.replace("%0", loadTimeF);
-                } else {
-                    _("fileListHint").innerHTML = window.lang.fileListDetails1Multi.replace("%0", data.files.length).replace("%1", loadTimeF);
+                window.fileListHint = _("fileListHint").innerHTML;
+                // Show elements
+                clearTimeout(seamlessTimeout);  
+                _("fileList").innerHTML = output;
+                _("fileList").style.display = "";
+                _("fileListHint").style.display = "";
+                setTimeout(() => {
+                    _("fileListLoading").style.display = "none";
+                    _("fileList").style.opacity = 1;
+                    _("fileListHint").style.opacity = 1;
+                }, 50);
+                // Show a file preview if it was requested
+                if ($_GET("f") !== null) {
+                    var targetFile = $_GET("f");
+                    var targetFileFound = false;
+                    // Loop through file objects and search for the right one
+                    window.fileObjects.forEach(f => {
+                        if (f.name == targetFile && !targetFileFound) {
+                            showFilePreview(f);
+                            targetFileFound = true;
+                        }
+                    });
+                    // If no file was found, show a popup
+                    if (!targetFileFound) {
+                        showPopup("fileNotFound", window.lang.popupErrorTitle, `<p>${window.lang.popupFileNotFound}</p>`, [{
+                            'id': "close",
+                            'text': window.lang.popupOkay,
+                            'action': function() { hidePopup("fileNotFound") }
+                        }], false);
+                    }
                 }
-                _("fileListHint").innerHTML += "<br>"+window.lang.fileListDetails2.replace("%0", formattedSize(totalSize));
-            }
-            window.fileListHint = _("fileListHint").innerHTML;
-            // Show elements
-            clearTimeout(seamlessTimeout);  
-            _("fileList").innerHTML = output;
-            _("fileList").style.display = "";
-            _("fileListHint").style.display = "";
-            setTimeout(() => {
-                _("fileListLoading").style.display = "none";
-                _("fileList").style.opacity = 1;
-                _("fileListHint").style.opacity = 1;
+                // Finish up
                 window.canClickEntries = true;
-            }, 50);
-            // Finish up
-            if (dirName != "")
-                document.title = dirName+" - <?= $conf['siteName'] ?>";
-        } else {
-            console.log("Failed to fetch file list: "+data.status);
-        }
-    });
+                window.loadDir = dir;
+                if (dirName != "")
+                    document.title = dirName+" - <?= $conf['siteName'] ?>";
+            } else {
+                console.log("Failed to fetch file list: "+data.status);
+                showPopup("fetchFailed", window.lang.popupErrorTitle, window.lang.popupFileListFetchFailed.replace("%0", `<b>${data.status}</b>`), [{
+                    'id': "close",
+                    'text': window.lang.popupOkay,
+                    'action': function() { hidePopup("fileNotFound") }
+                }], false);
+            }
+        });
+    } else showFilePreview(entryData);
+}
+
+// Displays a file preview
+function showFilePreview(data = null) {
+    window.canClickEntries = true;
+    if ($_GET("f") !== null && data !== null) {
+        console.log(`Loading file preview for "${data.name}"`);
+        showPopup("fileInfo", window.lang.popupFileInfoTitle, `
+            <p>
+                <b>${window.lang.fileDetailsName}</b><br>
+                ${data.name}
+            </p><p>
+                <b>${window.lang.fileDetailsDate}</b><br>
+                ${data.modifiedFF}
+            </p><p>
+                <b>${window.lang.fileDetailsType}</b><br>
+                ${data.typeF}
+            </p><p>
+                <b>${window.lang.fileDetailsSize}</b><br>
+                ${data.sizeF}
+            </p>
+        `, [{
+            'id': "dl",
+            'text': "Download",
+            'action': function() { downloadFile(encodeURIComponent(data.name)) }
+        }, {
+            'id': "close",
+            'text': window.lang.popupClose,
+            'action': function() {
+                historyPushState('', currentDir());
+                hidePopup("fileInfo");
+            }
+        }]);
+    }
 }
 
 // Function to do stuff when a file entry is clicked
@@ -423,16 +502,60 @@ function fileEntryClicked(el, event) {
         loadFileList();
     } else {
         window.canClickEntries = false;
-        historyPushState("<?= $conf['siteName'] ?>", `${currentDir()}/?f=${f.name}`.replace("//", "/"));
-        loadFileList();
+        historyPushState("<?= $conf['siteName'] ?>", `${currentDir()}/?f=${encodeURIComponent(f.name)}`.replace("//", "/"));
+        loadFileList("", f);
     }
+}
+
+// Display a popup
+function showPopup(id = "", title = "", body = "", actions = [], clickAwayHide = true) {
+    if (!_(`popup-${id}`)) {
+        _("body").insertAdjacentHTML('beforeend', `
+            <div id="popup-${id}" class="popupBackground ease-in-out-100ms" style="display: none; opacity: 0"></div>
+        `);
+    }
+    _(`popup-${id}`).style.display = "none";
+    _(`popup-${id}`).style.opacity = 0;
+    _(`popup-${id}`).innerHTML = `
+        <div class="popupCard" onclick="event.stopPropagation()">
+            <div id="popup-${id}-title" class="popupTitle">${title}</div>
+            <div id="popup-${id}-body" class="popupContent">${body}</div>
+            <div id="popup-${id}-actions" class="popupActions"></div>
+        </div>
+    `;
+    for (i = 0; i < actions.length; i++) {
+        var a = actions[i];
+        var fullActionId = `popup-${id}-action-${a.id}`;
+        _(`popup-${id}-actions`).insertAdjacentHTML('beforeend', `
+            <div id="${fullActionId}" class="popupButton">${a.text}</div>
+        `);
+        _(fullActionId).addEventListener("click", a.action);
+    }
+    if (clickAwayHide) {
+        _(`popup-${id}`).addEventListener("click", function() { hidePopup(id) });
+    }
+    console.log(`Showing popup "${id}"`);
+    _(`popup-${id}`).style.display = "flex";
+    setTimeout(() => {
+        _(`popup-${id}`).style.opacity = 1;
+        _("body").style.overflowY = "hidden";
+    }, 50);
+}
+
+// Hide an existing popup
+function hidePopup(id) {
+    console.log(`Hiding popup "${id}"`);
+    _(`popup-${id}`).style.opacity = 0;
+    _("body").style.overflowY = "";
+    setTimeout(() => {
+        _(`popup-${id}`).style.display = "none";
+    }, 200);
 }
 
 // Handle the filter bar
 _("fileListFilter").addEventListener("keyup", function(event) {
     var value = this.value.toLowerCase();
     // To reduce system resource usage, we'll wait a set amount of time after the user hasn't typed anything to actually run the filter
-    // The wait time is half of the number of files in milliseconds
     clearTimeout(window.filterInterval);
     window.filterInterval = setTimeout(() => {
         console.log(`Filtering files that match "${value}"`);
@@ -461,7 +584,7 @@ _("fileListFilter").addEventListener("keyup", function(event) {
                 _("fileListHint").innerHTML = window.lang.fileListDetailsFilterMulti.replace("%0", matches);
             }
         }
-    }, Math.floor(0.5*window.fileElements.length));
+    }, (500*Math.floor(window.fileElements.length/500)));
 });
 
 // Do this stuff whenever a state is pushed to history

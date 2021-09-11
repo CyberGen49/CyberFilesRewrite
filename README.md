@@ -109,6 +109,10 @@ A date format containing some of [these placeholders](https://github.com/CyberGe
 Type: `boolean`  
 Whether or not the "Up to parent directory" entry should be shown at the top of file lists.
 
+#### `mobileFileListBorders`
+Type: `boolean`  
+Whethe or or not separators should be shown between file entries on mobile (small width) displays
+
 #### `theme`
 Type: `array`  
 The name (without extension) of a theme file located in `/_cyberfiles/private/themes`. File free to edit the existing themes or create your own to customize the experience.

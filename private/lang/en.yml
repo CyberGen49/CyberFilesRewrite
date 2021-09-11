@@ -21,10 +21,15 @@ fileListDetailsFilterNone: "No files match your filter"
 fileListEmpty: There's nothing here.
 fileListEntryUp: "Up to %0"
 fileListRootName: "Home"
-popupNoJsTitle: "Uh oh!"
+popupErrorTitle: "Uh oh!"
 popupNoJsDesc: "Seems like you have Javascript disabled! The core functionality of CyberFiles requires Javascript, so you'll need to enable it to continue."
-popupNoJsButtonHelp: "I need help"
-popupNoJsButtonReload: "Reload page"
+popupFileInfoTitle: File info
+popupFileNotFound: "We couldn't find the file you requested. It was probably moved or deleted."
+popupFileListFetchFailed: "Failed to fetch the file list! The server responded with an error code of %0."
+popupOkay: "Okay"
+popupClose: "Close"
+popupHelp: "Help"
+popupReload: "Try again"
 dtUnitShortMs: ms
 dtUnitShortSecs: ' secs'
 dtMonth1: January

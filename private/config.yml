@@ -23,6 +23,7 @@ headerFileName: _cf_header.md
 dateFormatShort: '%b %d, %Y'
 dateFormatFull: '%m/%d/%Y %I:%+M %p'
 upButtonInFileList: false
+mobileFileListBorders: false
 
 # Colour settings
 theme: Default

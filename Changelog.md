@@ -1,6 +1,18 @@
 
 # CyberFilesRewrite Changelog
-I'll try my best to keep track of all changes to CyberFilesRewrite, big and small, right here in this changelog. As things are just getting started, I'll be lumping a lot of my changes together for the sake of simplicity
+I'll try my best to keep track of all changes to CyberFilesRewrite, big and small, right here in this changelog. As things are just getting started, I'll be lumping a lot of my changes together for the sake of simplicity.
+
+## September 10th, 2021
+* Chnaged the max file history entry count to be length based
+    * That is to say, on load, we'll remove the oldest entry from history until the overall size of history is less than a million characters.
+    * For some context, LocalStorage allows up to 5 MB (~5.2 million ASCII characters) per origin (domain). After a very basic test, I've concluded that 1000 entries comes out to about 80k characters, which is only 1.5% of our available space.
+* Added some comments at the top of the default theme
+* Added the `mobileFileListBorders` config option
+* Implemented a function for building and displaying popups on-demand
+    * For now, this is being used for displaying file information when a file is clicked, as a proof of concept
+* Added popups for the following conditions
+    * When a file preview URL is invalid
+    * When the file list fails to load
 
 ## September 9th, 2021
 * Fixed some logic in date formatting (specifically with 12-hour time)
@@ -8,7 +20,7 @@ I'll try my best to keep track of all changes to CyberFilesRewrite, big and smal
 * Moved themes to separate files in `/_cyberfiles/private/themes`, and the default is set by the `theme` config option
 * Added a drop shadow to the topbar that only shows up while scrolled
     * It's extremely subtle on darker backgrounds
-* Made it so file lists have a short fade in animation, just to add some polish
+* Added a short fade-in animation to file lists, just to add some polish
 * Updated file caching to store only the data that takes time to get
     * Now storing file path, modification timestamp, file size, and mime type
 * Added an Up button to the topbar
