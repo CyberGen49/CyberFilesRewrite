@@ -5,7 +5,7 @@
 # General settings
 language: en
 siteName: CyberFiles
-siteDesc: An open sourced file index for the web to make accessing server content easy.
+siteDesc: Browse and preview server files with ease.
 hiddenFiles:
   - '.'
   - '..'
@@ -19,11 +19,15 @@ hideDirWhenContains:
   - 'index.php'
   - 'index.html'
   - '_cf_hideFromList'
-headerFileName: _cf_header.md
+headerFileNameMarkdown: _cf_header.md
+headerFileNameHtml: _cf_header.html
+hideContentsFile: _cf_hideContents
 dateFormatShort: '%b %d, %Y'
 dateFormatFull: '%m/%d/%Y %I:%+M %p'
 upButtonInFileList: false
 mobileFileListBorders: false
+videoAutoplay: true
+audioAutoplay: true
 
 # Colour settings
 theme: Default

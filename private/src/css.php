@@ -14,8 +14,9 @@ Before everyone screams at me about using CSS this way (putting it in a PHP file
 
 * {
     font-family: "Segoe UI", "Open Sans", "Roboto", sans-serif;
-    font-size: 15px;
     color: <?= $theme['fg'] ?>;
+    line-height: 140%;
+    text-size-adjust: none !important;
 }
 
 body {
@@ -29,7 +30,8 @@ p, .paragraph {
     padding: 0px;
     padding-bottom: 5px;
     text-size-adjust: none;
-    font-size: 15px !important;
+    font-size: 15px;
+    line-height: 150%;
 }
 
 a {
@@ -61,12 +63,13 @@ a:hover, a:focus {
 }
 
 #topbarTitle {
-    margin-top: 2px;
     padding: 5px;
     font-family: "Montserrat", sans-serif;
     font-size: 24px;
     font-weight: bold;
     color: <?= $theme['fgTopbar'] ?>;
+    background: none;
+    border: none;
     transition: 0.1s ease-in-out;
 }
 #topbarTitle:hover, #topbarTitle:focus {
@@ -80,7 +83,9 @@ a:hover, a:focus {
     padding: 8px;
     font-family: "Material Icons Outlined", "Material Icons";
     font-size: 28px;
-    color: <?= $theme['fgTopbar'] ?> !important;
+    color: <?= $theme['fgTopbar'] ?>;
+    background: none;
+    border: none;
     border-radius: 20px;
     transition: 0.1s ease-in-out;
 }
@@ -93,8 +98,13 @@ a:hover, a:focus {
     cursor: default;
 }
 
+.topbarButton:active:not(.disabled) {
+    background: <?= $theme['bgTopbarButtonC'] ?>;
+}
+
 .topbarButton.disabled {
     opacity: 50%;
+    text-decoration: none;
 }
 
 #topbarButtonUp {
@@ -285,6 +295,8 @@ a:hover, a:focus {
     font-weight: bold;
     font-size: 15px;
     color: <?= $theme['fgPopupButton'] ?>;
+    background: none;
+    border: none;
     border-radius: 6px;
     cursor: default;
     transition: 0.1s ease-in-out;
@@ -302,31 +314,231 @@ a:hover, a:focus {
     color: <?= $theme['fgPopupButton'] ?>;
 }
 
-@media only screen and (max-width: 600px) {
-    #topbarTitle {
-        font-size: 22px;
+#previewContainer {
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: <?= $theme['bgPreview'] ?>;
+    z-index: 20;
+}
+
+#previewTopbar {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    height: 65px;
+    width: 100%;
+    padding: 0px 15px;
+    background: <?= $theme['bgPreviewTopbar'] ?>;
+    background: linear-gradient(180deg, <?= $theme['bgPreviewTopbar'] ?> 0%, rgba(0,0,0,0) 100%);
+    padding-bottom: 10px;
+    user-select: none;
+    transition: 0.1s ease-in-out;
+    z-index: 21;
+    pointer-events: none;
+}
+
+.previewTopbarButton {
+    line-height: 100%;
+    padding: 8px;
+    font-family: "Material Icons Outlined", "Material Icons";
+    font-size: 28px;
+    color: <?= $theme['fgPreview'] ?>;
+    background: none;
+    border: none;
+    border-radius: 20px;
+    transition: 0.1s ease-in-out;
+    pointer-events: initial;
+}
+
+.previewTopbarButton:hover:not(.disabled),
+.previewTopbarButton:focus:not(.disabled) {
+    background: <?= $theme['bgPreviewH'] ?>;
+    color: <?= $theme['fgPreviewH'] ?>;
+    text-decoration: none;
+    cursor: default;
+}
+
+.previewTopbarButton:active:not(.disabled) {
+    background: <?= $theme['bgPreviewC'] ?>;
+}
+
+.previewTopbarButton.disabled {
+    opacity: 50%;
+    text-decoration: none;
+}
+
+#previewTitleContainer {
+    margin-top: 7px;
+    padding: 0px 10px;
+    overflow: hidden;
+}
+
+#previewFileName {
+    display: block;
+    margin-bottom: -4px;
+    font-family: "Montserrat", "Segoe UI", sans-serif;
+    font-size: 18px;
+    font-weight: bold;
+    color: <?= $theme['fgPreview'] ?>;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+#previewFileDesc {
+    display: block;
+    font-size: 16px;
+    color: <?= $theme['fg2Preview'] ?>;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+#previewFile {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    height: 100%;
+    width: 100%;
+    overflow-y: scroll;
+}
+
+.previewTypeNone,
+.previewTypeVideo,
+.previewTypeAudio,
+.previewTypeImage {
+    display: flex;
+}
+.previewTypeVideo video,
+.previewTypeImage img {
+    max-width: 100%;
+    max-height: 100%;
+    min-width: 256px;
+    min-height: 256px;
+    margin: auto;
+}
+#previewCard {
+    margin: auto;
+    padding: 10px;
+    text-align: center;
+    user-select: none;
+}
+
+.previewTypeVideo video:focus {
+    outline: none;
+}
+
+.previewTypeAudio audio {
+    margin: auto;
+}
+.previewTypeAudio audio:focus {
+    outline: none;
+}
+
+#previewCardIcon {
+    font-family: "Material Icons Outlined", "Material Icons";
+    font-size: 48px;
+    color: <?= $theme['fgPreviewIcon'] ?>;
+    line-height: 100%;
+    margin-bottom: 5px;
+}
+
+#previewCardTitle {
+    font-family: "Montserrat", "Segoe UI", sans-serif;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+#previewCardDesc {
+    font-size: 16px;
+}
+
+#previewCardDownloadCont {
+    margin-top: 15px;
+}
+
+.buttonMain {
+    padding: 10px 16px;
+    font-family: "Montserrat", "Segoe UI", sans-serif;
+    font-size: 15px;
+    font-weight: bold;
+    color: <?= $theme['fgButton'] ?>;
+    background: <?= $theme['bgButton'] ?>;
+    border: none;
+    border-radius: 6px;
+    transition: 0.1s ease-in-out;
+}
+.buttonMain:hover,
+.buttonMain:focus {
+    color: <?= $theme['fgButtonH'] ?>;
+    background: <?= $theme['bgButtonH'] ?>;
+}
+.buttonMain:active {
+    color: <?= $theme['fgButtonC'] ?>;
+    background: <?= $theme['bgButtonC'] ?>;
+}
+
+/* Handle touch devices */
+@media (hover: none) and (pointer: coarse) {
+    * {
+        line-height: 150%;
     }
 
     #fileListFilter {
         padding-top: 12px;
         padding-bottom: 12px;
-    }
-
-    .fileListMobile { display: inherit; }
-    .fileListDesktop { display: none; }
-
-    #fileList,
-    #fileListHeaders {
-        margin-left: -15px;
-        margin-right: -15px;
+        font-size: 16px;
     }
 
     .fileListHeader {
         font-size: 14px;
     }
 
+    .fileEntryName,
+    .fileEntryDate,
+    .fileEntrySize {
+        padding: 10px 15px 10px 15px;
+        font-size: 15px;
+    }
+    .fileEntryNameInner,
+    .fileEntryMobileDetails {
+        font-size: 15px;
+    }
+
+    #fileListHeaderIcon, .fileEntryIcon {
+        width: 60px;
+    }
+    .fileEntryIcon {
+        font-size: 26px;
+    }
+}
+
+/* Handle small screen widths */
+@media only screen and (max-width: 600px) {
+    #topbarTitle {
+        font-size: 22px;
+    }
+
+    .fileListMobile { display: inherit; }
+    .fileListDesktop { display: none; }
+
+    #fileListHeaders {
+        display: <?php if (!$conf['mobileFileListBorders']) print("none"); else print("initial"); ?>;
+        margin-bottom: <?php if (!$conf['mobileFileListBorders']) print("5px"); else print("initial"); ?>;
+    }
+
+    #fileListHeaders,
+    #fileList {
+        margin-left: -15px;
+        margin-right: -15px;
+    }
+
     .fileEntry {
-        border: <?php if (!$conf['mobileFileListBorders']) print("none"); else print("inherit"); ?>;
+        border: <?php if (!$conf['mobileFileListBorders']) print("none"); else print("initial"); ?>;
     }
 
     #fileListHeaderIcon, .fileEntryIcon {
@@ -336,11 +548,23 @@ a:hover, a:focus {
         font-size: 26px;
     }
 
+    .fileEntryNameInner {
+        padding-right: 15px;
+    }
+
+    #fileListHint {
+        margin-top: <?php if (!$conf['mobileFileListBorders']) print("15px"); else print("initial"); ?>;
+    }
+}
+
+/* Handle touch devices with small screen widths */
+@media only screen and (max-width: 600px) and (hover: none) and (pointer: coarse) {
+    .fileEntryIcon {
+        font-size: 28px;
+    }
+    
     .fileEntryName {
         padding: 11px 15px 11px 15px;
-    }
-    .fileEntryNameInner {
-        font-size: 15px;
     }
 }
 
@@ -355,20 +579,27 @@ a:hover, a:focus {
     opacity: 1;
 }
 
+/* Custom text highlight colours */
+::selection {
+    background: <?= $theme['textHighlightBg'] ?>;
+    color: <?= $theme['textHighlightFg'] ?>;
+}
+::-moz-selection {
+    background: <?= $theme['textHighlightBg'] ?>;
+    color: <?= $theme['textHighlightFg'] ?>;
+}
+
 /* Custom scrollabrs */
 ::-webkit-scrollbar {
     width: 10px;
 }
-
 ::-webkit-scrollbar-thumb {
     background: <?= $theme['scrollbar'] ?>;
     border-radius: 3px;
 }
-
 ::-webkit-scrollbar-thumb:hover {
     background: <?= $theme['scrollbarH'] ?>;
 }
-
 ::-webkit-scrollbar-thumb:active {
     background: <?= $theme['scrollbarC'] ?>;
 }
@@ -399,13 +630,11 @@ a:hover, a:focus {
     height: 90px;
     margin: 0 auto;
 }
-
 .mdSpinner svg {
     animation: mdSpin-rotate 1.2s linear infinite;
     height: 100%;
     width: 100%;
 }
-
 .mdSpinner circle {
     stroke-dasharray: 1,200;
     stroke-dashoffset: 0;

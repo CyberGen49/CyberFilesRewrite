@@ -2,10 +2,14 @@
 # CyberFiles language file
 # English
 
+# Don't edit this file!
+# If you want to customize these language variables, create a new language file, copy over the variables you want to change, and then change the 'language' config option to the name of your new file.
+
 topbarTitleTooltip: Go home
 topbarButtonUpLimitTooltip: This is the root directory.
 fileListFilter: Filter files in this folder...
 fileListFilterDisabled: Filtering is unavailable right now
+fileListFilterUrl: Type a URL and press Enter to navigate.
 fileDetailsName: Name
 fileDetailsDate: Last modified
 fileDetailsSize: File size
@@ -19,17 +23,45 @@ fileListDetailsFilterSingle: "Filtered 1 file"
 fileListDetailsFilterMulti: "Filtered %0 files"
 fileListDetailsFilterNone: "No files match your filter"
 fileListEmpty: There's nothing here.
+fileListHidden: This folder's contents have been hidden.
+fileListError: An error occurred.
 fileListEntryUp: "Up to %0"
 fileListRootName: "Home"
+previewTitle: "This file can't be previewed!"
+previewDesc: "You'll have to download it to view its contents."
+previewDownload: "Download file (%0)"
 popupErrorTitle: "Uh oh!"
-popupNoJsDesc: "Seems like you have Javascript disabled! The core functionality of CyberFiles requires Javascript, so you'll need to enable it to continue."
+popupNoJsDesc: "Seems like you have Javascript disabled! The core functionality of CyberFiles requires Javascript, so you'll need to enable it to continue. See the Help link below if you're having trouble."
 popupFileInfoTitle: File info
 popupFileNotFound: "We couldn't find the file you requested. It was probably moved or deleted."
-popupFileListFetchFailed: "Failed to fetch the file list! The server responded with an error code of %0."
+popupFileNotFound2: "The directory it was in still exists, so take a look around to see if it's listed under a different name."
+popupFetchError: "Something went wrong while fetching the file list. Check your internet connection and try again."
+popupServerErrorTitle: "Server error %0"
+popupServerError400: "The server refused to fufill the request. This could be a problem on your end, so try doing some searching if it continues."
+popupServerError401: "We couldn't verify your cridentials. Try refreshing the page to log in again."
+popupServerError403: "You don't have permission to access this resource."
+popupServerError404: "We couldn't find the resource you requested. It was probably moved or deleted."
+popupServerError408: "The request timed out."
+popupServerError414: "The requested URL is too long."
+popupServerError418: "The server refuses to brew coffee with a teapot."
+popupServerError429: "Too many requests, you're being rate-limited."
+popupServerError500: "The server ran into an internal error."
+popupServerError502: "Bad gateway."
+popupServerError503: "The server is temporarily unavailable."
+popupServerError504: "The gateway server timed out."
+popupServerError520: "The origin server encountered an unknown error."
+popupServerError521: "The origin server is inaccessible."
+popupServerError522: "The proxy server timed out while connecting to the origin server."
+popupServerError523: "The proxy server failed to connect to the origin server."
+popupServerError524: "The proxy server timed out while waiting for a response from the origin server."
+popupServerErrorOther: "The server encountered an error. Search for the error code above for more info."
 popupOkay: "Okay"
 popupClose: "Close"
 popupHelp: "Help"
-popupReload: "Try again"
+popupReload: "Reload"
+popupRetry: "Try again"
+popupHome: "Home"
+popupBack: "Back"
 dtUnitShortMs: ms
 dtUnitShortSecs: ' secs'
 dtMonth1: January

@@ -29,7 +29,8 @@ scrollbarC: "#717179"
 bgTopbar: +accent
 fgTopbar: +bg
 fgTopbarH: +bg2
-bgTopbarButtonH: '#dbf6fe'
+bgTopbarButtonH: rgba(0, 0, 0, 0.1)
+bgTopbarButtonC: rgba(0, 0, 0, 0.2)
 topbarBorder: +bg2
 textboxPlaceholder: +fg2
 filterBarBottom: +bg2
@@ -41,7 +42,23 @@ fgPopup: +fg
 fgPopupButton: +accent
 bgPopupButtonH: rgba(163, 231, 252, 0.3)
 bgPopupButtonC: rgba(163, 231, 252, 0.5)
+bgPreview: '#000'
+bgPreviewH: rgba(255, 255, 255, 0.1)
+bgPreviewC: rgba(255, 255, 255, 0.2)
+bgPreviewTopbar: rgba(0, 0, 0, 0.7)
+fgPreview: +fg
+fg2Preview: +fg
+fgPreviewH: +fg2
+fgPreviewIcon: +accent
 hyperlink: +accent
 hyperlinkH: +fg2
+bgButton: +accent
+fgButton: +bg
+bgButtonH: +fg
+fgButtonH: +bg
+bgButtonC: +fg2
+fgButtonC: +bg
 loadingSpinner: +accent
 browserTheme: +bgTopbar
+textHighlightBg: +accent
+textHighlightFg: +bg

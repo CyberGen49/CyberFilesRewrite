@@ -36,7 +36,7 @@ $webConf = [
     "pageTitle" => "",
     "pageDesc" => $conf['siteDesc'],
     "siteName" => $conf['siteName'],
-    "favicon" => "/_cyberfiles/public/icon.png",
+    "favicon" => "/_cyberfiles/public/src/icon.png",
     "themeColour" => $theme['browserTheme'],
 ];
 
@@ -69,9 +69,7 @@ $webConf = [
         <meta name="mobile-web-app-capable" content="yes">
         <meta charset="utf-8">
         <!-- Bootstrap -->
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-Piv4xVNRyMGpqkS2by6br4gNJ7DXjqk09RmUpJ8jgGtD7zP9yug3goQfGII0yAns" crossorigin="anonymous"></script>
+        <link rel="stylesheet" href="/_cyberfiles/public/src/bootstrap-grid.min.css">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
         <!-- Normalize.css -->
         <link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" rel="stylesheet">
@@ -84,11 +82,15 @@ $webConf = [
     
     <body id="body" class="no-transitions">
         <div id="topbar" class="row no-gutters flex-nowrap">
-            <div class="col-auto d-flex align-items-center topbarButtonContainer">
-                <a id="topbarButtonUp" class="topbarButton disabled" onClick='fileEntryClicked(this, event)'>arrow_back</a>
+            <div class="col-auto d-flex align-items-center">
+                <button id="topbarButtonUp" class="topbarButton disabled" onClick='fileEntryClicked(this, event)'>arrow_back</button>
             </div>
             <div id="topbarTitleContainer" class="col-auto d-flex align-items-center">
-                <a id="topbarTitle" title="<?= $lang['topbarTitleTooltip'] ?>"><?= $conf['siteName'] ?></a>
+                <button id="topbarTitle" title="<?= $lang['topbarTitleTooltip'] ?>"><?= $conf['siteName'] ?></button>
+            </div>
+            <div class="col"></div>
+            <div class="col-auto d-flex align-items-center">
+                <button id="topbarButtonMenu" class="topbarButton">more_vert</button>
             </div>
         </div>
         <div id="fileListContainer" class="container">
@@ -110,7 +112,21 @@ $webConf = [
             <div id="fileList" class="ease-in-out-100ms"></div>
             <div id="fileListHint" class="ease-in-out-100ms"></div>
         </div>
-        <div id="previewContainer"></div>
+        <div id="previewContainer" class="ease-in-out-100ms" style="display: none; opacity: 0;">
+            <div id="previewTopbar" class="row no-gutters flex-nowrap">
+                <div class="col-auto d-flex align-items-center">
+                    <button id="previewButtonClose" class="previewTopbarButton" onClick='hideFilePreview()'>close</button>
+                </div>
+                <div id="previewTitleContainer" class="col">
+                    <span id="previewFileName">-</span>
+                    <span id="previewFileDesc">-</span>
+                </div>
+                <div class="col-auto d-flex align-items-center">
+                    <button id="previewButtonMenu" class="previewTopbarButton">more_vert</button>
+                </div>
+            </div>
+            <div id="previewFile"></div>
+        </div>
 
         <noscript>
             <div id="popupNoJs" class="popupBackground ease-in-out-100ms">

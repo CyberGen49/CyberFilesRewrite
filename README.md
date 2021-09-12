@@ -6,10 +6,13 @@ This project is a complete rewrite of my previous file index, which was a lot mo
 *Things are still under very heavy development, so they could be vastly changing over short spans of time. Keep an eye on [Changelog.md](https://github.com/CyberGen49/CyberFilesRewrite/blob/main/Changelog.md) to see updates.*
 
 ## Features
-* Completely customizable colour theming, no CSS tinkering required
+* An extremely responsive interface
+* View videos, audio files, and images without leaving the page
+* Completely customizable colours, no CSS tinkering required
 * Completely customizable language files
 * File caching (via SQLite), making for blistering fast load speeds
-* Ability to hide directories from their parent file lists
+* Hide files with name patterns
+* Hide directories from their parent file lists
 
 ## Installation
 We can only guarantee everything will work as expected if you're using an Apache webserver. Your mileage may vary with other setups. The tutorials below assume that you're on a Debian-based Linux distrobution and that you plan on using Apache.
@@ -44,9 +47,11 @@ In the text editor, paste this example configuration:
     DocumentRoot ${dRoot}
     DirectoryIndex index.html index.php /_cyberfiles/public/index.php
     # Set error documents
+    ErrorDocument 400 /_cyberfiles/public/index.php?error=400
     ErrorDocument 401 /_cyberfiles/public/index.php?error=401
     ErrorDocument 403 /_cyberfiles/public/index.php?error=403
     ErrorDocument 404 /_cyberfiles/public/index.php?error=404
+    ErrorDocument 500 /_cyberfiles/public/index.php?error=500
     # Always allow access to the root directory
     <Directory "${dRoot}">
         Require all granted
@@ -91,11 +96,17 @@ A list of wildcard filters to check against file names. Matches are hidden from 
 Type: `array`  
 A list of filenames to check for in each directory. If a directory contains a match, it'll be hidden in its parent directory list.
 
-#### `headerFileName`
+#### `headerFileNameMarkdown`
 Type: `string`  
-The name of the file where directory header Markdown is stored.
-
 If a file with this name exists in a directory, it will be read and parsed as Markdown, then displayed above the directory's file list online. Only a limited subset of the Markdown spec is supported. See [the Markdown guide](#) for details.
+
+#### `headerFileNameHtml`
+Type: `string`  
+Like `headerFileNameMarkdown`, but instead of parsing the contents as Markdown, they'll be dumped right on to the page. Ideally, the contents of this file should be in HTML.
+
+#### `hideContentsFile`
+Type: `string`  
+If this file exists in a directory, the directory's contents will be hidden from view online.
 
 #### `dateFormatShort`
 Type: `string`  
@@ -111,7 +122,15 @@ Whether or not the "Up to parent directory" entry should be shown at the top of 
 
 #### `mobileFileListBorders`
 Type: `boolean`  
-Whethe or or not separators should be shown between file entries on mobile (small width) displays
+Whether or or not separators should be shown between file entries on mobile (small width) displays.
+
+#### `videoAutoplay`
+Type: `boolean`  
+Whether or not video file previews should autoplay when opened.
+
+#### `audioAutoplay`
+Type: `boolean`  
+Whether or not audio file previews should autoplay when opened.
 
 #### `theme`
 Type: `array`  
@@ -122,28 +141,24 @@ The name (without extension) of a theme file located in `/_cyberfiles/private/th
 **Tip:** Check out the [Material Design Tools for Picking Colours](https://material.io/design/color/the-color-system.html#tools-for-picking-colors) to make cool combinations that look nice.
 
 ## Using the API
-CyberFiles comes with an API that can be used to access anything that could otherwise be accessed by the client.
+CyberFiles comes with an API that can be used to access the file list of any publically-accessible directory that isn't overridden by another index file.
 
-To use the API, open the target folder in CyberFiles, then append add `?api` to the end of the URL. This will target the API and work in that directory.
+To use the API, open the target folder in CyberFiles, then add `?api` to the end of the URL. This will call the API in that directory.
 
-For example, `https://files.example.com/Images?api`, where `files.example.com` is your domain.
+For example, to get the index of the `/Images` folder, use `https://files.example.com/Images?api`, where `files.example.com` is your domain.
 
-### Actions
-#### `?api&type=list`
-Structure:
-* `files`: An array of [FileList Objects](#filelist-object)
+### Return structure
+* `files`: An array of [file objects](#file-object)
 * `status`: A [status code](#status-codes)
 * `processingTime` The amount of time the server took to process the request, in milliseconds (float)
 
-### Types
 #### Status Codes
 Status codes can include any of the following:
 * `GOOD`: No errors were encountered
+* `CONTENTS_HIDDEN`: No errors were encountered, but the directory contents have been hidden from view
 * `DIRECTORY_NONEXISTENT`: The current directory doesn't exist on the server
-* `UNFINISHED`: The requested action (`type=`) is unfinished and can't be used
-* `INVALID_ACTION`: The requested action (`type=`) is invalid
 
-#### FileList Object
+#### File Object
 Structure:
 * `name`: The file name
 * `modified`: The file's modification date, as a Unix timestamp

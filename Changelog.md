@@ -2,6 +2,18 @@
 # CyberFilesRewrite Changelog
 I'll try my best to keep track of all changes to CyberFilesRewrite, big and small, right here in this changelog. As things are just getting started, I'll be lumping a lot of my changes together for the sake of simplicity.
 
+## September 11th, 2021
+* Added styling to handle touch devices (using the `hover` and `pointer` media queries), so more padding is applied to interactive elements
+* Switched to self-serving just the Bootstrap grid system instead of the whole Bootstrap library
+* Added popups for a whole bunch of server and client fetch errors
+    * At this point, you should never be left staring at an infinite loading spinner when something goes wrong
+* Cleaned up the API
+* Added the `hideContentsFile` config option
+* Added a menu button to the main topbar for use later
+* Added a full file preview window when clicking on a file
+    * Online previews are available for MP4 video files, a few audio file formats, and a handful of image formats
+    * Files that can't be previewed display a prompt to download the file instead
+
 ## September 10th, 2021
 * Chnaged the max file history entry count to be length based
     * That is to say, on load, we'll remove the oldest entry from history until the overall size of history is less than a million characters.

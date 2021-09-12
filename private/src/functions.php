@@ -95,55 +95,52 @@ class ApiCall {
         $conf = $this->conf;
         $data = &$this->data;
         while (true) {
-            // Do something based on the request type
-            if ($params['type'] == "list") {
-                // Get relative and absolute directory paths
-                $dirRel = clean_path(rawurldecode(explode("?", $_SERVER['REQUEST_URI'])[0]));
-                $dir = clean_path(document_root.$dirRel);
-                // Make sure we're working with an existing directory
-                if (!is_dir($dir)) {
-                    $data['status'] = "DIRECTORY_NONEXISTENT";
-                    break;
-                }
-                // Get directory contents
-                $scandir = scandir($dir);
-                // Sort files
-                natsort($scandir);
-                //uasort($scandir, function($a, $b) {
-                //    return strcasecmp($a, $b);
-                //});
-                // Loop through files and add
-                $files = [];
-                $folders = [];
-                foreach ($scandir as $file) {
-                    // Skip files that match hidden filters
-                    foreach ($conf['hiddenFiles'] as $s) {
-                        if (fnmatch($s, $file)) continue 2;
-                    }
-                    // If it's a directory, make sure it doesn't contain files that would make it hidden
-                    $f = "$dir/$file";
-                    if (is_dir($f)) {
-                        $childDir = scandir($f);
-                        foreach ($conf['hideDirWhenContains'] as $s) {
-                            if (in_array($s, $childDir)) continue 2;
-                        }
-                    }
-                    // Get the file object
-                    $fileObject = $this->getFileObject($f);
-                    // Add to the appropriate array
-                    if (is_dir($f)) $folders[] = $fileObject;
-                    else $files[] = $fileObject;
-                }
-                // Merge the arrays and finish
-                $data['files'] = array_merge($folders, $files);
-                $data['status'] = "GOOD";
+            // Get relative and absolute directory paths
+            $dirRel = clean_path(rawurldecode(explode("?", $_SERVER['REQUEST_URI'])[0]));
+            $dir = clean_path(document_root.$dirRel);
+            // Make sure we're working with an existing directory
+            if (!is_dir($dir)) {
+                $data['status'] = "DIRECTORY_NONEXISTENT";
                 break;
-            } else if ($params['type'] == "file") {
-                // Should return the details of a single file, along with the relative next and previous files
-                $data['status'] = "UNFINISHED";
-            } else {
-                $data['status'] = "INVALID_ACTION";
             }
+            // Get directory contents
+            $scandir = scandir($dir);
+            // Check if contents are hidden
+            $data['files'] = [];
+            if (file_exists("$dir/{$conf['hideContentsFile']}")) {
+                $data['status'] = "CONTENTS_HIDDEN";
+                break;
+            }
+            // Sort files
+            natsort($scandir);
+            //uasort($scandir, function($a, $b) {
+            //    return strcasecmp($a, $b);
+            //});
+            // Loop through files and add
+            $files = [];
+            $folders = [];
+            foreach ($scandir as $file) {
+                // Skip files that match hidden filters
+                foreach ($conf['hiddenFiles'] as $s) {
+                    if (fnmatch($s, $file)) continue 2;
+                }
+                // If it's a directory, make sure it doesn't contain files that would make it hidden
+                $f = "$dir/$file";
+                if (is_dir($f)) {
+                    $childDir = scandir($f);
+                    foreach ($conf['hideDirWhenContains'] as $s) {
+                        if (in_array($s, $childDir)) continue 2;
+                    }
+                }
+                // Get the file object
+                $fileObject = $this->getFileObject($f);
+                // Add to the appropriate array
+                if (is_dir($f)) $folders[] = $fileObject;
+                else $files[] = $fileObject;
+            }
+            // Merge the arrays and finish
+            $data['files'] = array_merge($folders, $files);
+            $data['status'] = "GOOD";
             break;
         }
         // Close the database if it's open

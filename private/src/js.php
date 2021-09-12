@@ -1,6 +1,6 @@
 <?php
 
-global $conf, $lang;
+global $conf, $lang, $theme;
 
 ?>
 <script>
@@ -82,7 +82,7 @@ function _getH(id) {
 }
 
 // Function to start a direct file download
-function downloadFile(url) {
+function downloadFile(url, elThis) {
     var id = `fileDownload-${Date.now}`;
     _("body").insertAdjacentHTML('beforeend', `
         <a id="${id}" href="${url}" download></a>
@@ -90,6 +90,7 @@ function downloadFile(url) {
     console.log(`Starting direct download of "${url}"`);
     _(id).click();
     _(id).remove();
+    if (elThis) elThis.blur();
 }
 
 // Adds leading characters to a string to match a specified length
@@ -119,7 +120,9 @@ function locStoreArrayGet(key, array) {
 }
 
 // Changes the meta theme color
-function meta_themeColor(hexCode = "#fff") {
+function meta_themeColor(hexCode = null) {
+    if (hexCode === null)
+        return document.querySelector('meta[name="theme-color"]').getAttribute('content');
     document.querySelector('meta[name="theme-color"]').setAttribute('content',  hexCode);
 }
 
@@ -244,7 +247,7 @@ function dateFormatRelative(timestamp) {
 }
 
 // Loads a file list with the API
-async function loadFileList(dir = "", entryData = null) {
+async function loadFileList(dir = "", entryId = null) {
     // Set variables
     document.title = "<?= $conf['siteName'] ?>";
     if (dir == "") dir = currentDir();
@@ -257,6 +260,14 @@ async function loadFileList(dir = "", entryData = null) {
         var seamlessTimeout = setTimeout(() => {
             _("fileListLoading").style.display = "";
         }, 500);
+        var cancelLoad = function() {
+            // Hide spinner and update footer text
+            clearTimeout(seamlessTimeout);
+            _("fileListLoading").style.display = "none";
+            _("fileListHint").innerHTML = window.lang.fileListError;
+            _("fileListHint").style.display = "";
+            _("fileListHint").style.opacity = 1;
+        }
         _("fileList").style.display = "none";
         _("fileListHint").style.display = "none";
         _("fileList").style.opacity = 0;
@@ -264,10 +275,39 @@ async function loadFileList(dir = "", entryData = null) {
         _("fileListFilter").disabled = true;
         _("fileListFilter").value = "";
         _("fileListFilter").placeholder = window.lang.fileListFilterDisabled;
-        // Make the API call
-        let response = await fetch(`${dir}?api&type=list`);
-        await response.json().then(data => {
-            if (data.status == "GOOD") {
+        // Make the API call and handle errors
+        await fetch(`${dir}?api`).then((response) => {
+            // If the response was ok
+            if (response.ok) return response.json();
+            // Otherwise, handle the error
+            cancelLoad();
+            // If an error code was returned by the server
+            if (response.status >= 400 && response.status < 600) {
+                // Set the right popup body text
+                if (window.lang[`popupServerError${response.status}`]) {
+                    var errorBody = window.lang[`popupServerError${response.status}`];
+                } else {
+                    var errorBody = window.lang.popupServerErrorOther;
+                }
+                // Show the error popup
+                showPopup("serverError", window.lang.popupServerErrorTitle.replace("%0", response.status), errorBody, [{
+                    "id": "home",
+                    "text": window.lang.popupHome,
+                    "action": function() {
+                        _("topbarTitle").click();
+                        hidePopup("serverError");
+                    }
+                }, {
+                    "id": "reload",
+                    "text": window.lang.popupReload,
+                    "action": function() { window.location.href = "" }
+                }], false);
+            }
+            throw new Error("Fetch failed");
+        // Wait for the server to return file list data
+        }).then(data => {
+            // If the return status is good
+            if (data.status == "GOOD" || data.status == "CONTENTS_HIDDEN") {
                 console.log("Fetched file list:");
                 console.log(data);
                 // Update history
@@ -334,9 +374,9 @@ async function loadFileList(dir = "", entryData = null) {
                         f.typeF = window.lang.fileTypeDefault;
                         if (f.name.match(/^.*\..*$/)) {
                             var fileNameSplit = f.name.split(".");
-                            var fileExt = fileNameSplit[fileNameSplit.length-1].toUpperCase();
-                            if (typeof window.lang.fileTypes[fileExt] !== 'undefined')
-                                f.typeF = window.lang.fileTypes[fileExt];
+                            f.ext = fileNameSplit[fileNameSplit.length-1].toUpperCase();
+                            if (typeof window.lang.fileTypes[f.ext] !== 'undefined')
+                                f.typeF = window.lang.fileTypes[f.ext];
                         }
                         // Set icon based on MIME type
                         f.icon = "insert_drive_file";
@@ -378,9 +418,13 @@ async function loadFileList(dir = "", entryData = null) {
                 var loadTimeF = loadElapsed+window.lang.dtUnitShortMs;
                 if (loadElapsed >= 1000)
                     var loadTimeF = roundSmart(loadElapsed/1000, 2)+window.lang.dtUnitShortSecs;
+                // If the folder contents have been hidden
+                if (data.status == "CONTENTS_HIDDEN") {
+                    _("fileListHint").innerHTML = window.lang.fileListHidden;
                 // If there aren't any files
-                if (data.files.length == 0) {
+                } else if (data.files.length == 0) {
                     _("fileListHint").innerHTML = window.lang.fileListEmpty;
+                // Otherwise, set the footer as planned
                 } else {
                     // Handle the filter bar while we're at it
                     _("fileListFilter").disabled = false;
@@ -409,15 +453,17 @@ async function loadFileList(dir = "", entryData = null) {
                     var targetFile = $_GET("f");
                     var targetFileFound = false;
                     // Loop through file objects and search for the right one
+                    var i = 0;
                     window.fileObjects.forEach(f => {
                         if (f.name == targetFile && !targetFileFound) {
-                            showFilePreview(f);
+                            showFilePreview(i);
                             targetFileFound = true;
                         }
+                        i++;
                     });
                     // If no file was found, show a popup
                     if (!targetFileFound) {
-                        showPopup("fileNotFound", window.lang.popupErrorTitle, `<p>${window.lang.popupFileNotFound}</p>`, [{
+                        showPopup("fileNotFound", window.lang.popupErrorTitle, `<p>${window.lang.popupFileNotFound}</p><p>${window.lang.popupFileNotFound2}</p>`, [{
                             'id': "close",
                             'text': window.lang.popupOkay,
                             'action': function() { hidePopup("fileNotFound") }
@@ -427,52 +473,124 @@ async function loadFileList(dir = "", entryData = null) {
                 // Finish up
                 window.canClickEntries = true;
                 window.loadDir = dir;
-                if (dirName != "")
-                    document.title = dirName+" - <?= $conf['siteName'] ?>";
             } else {
                 console.log("Failed to fetch file list: "+data.status);
-                showPopup("fetchFailed", window.lang.popupErrorTitle, window.lang.popupFileListFetchFailed.replace("%0", `<b>${data.status}</b>`), [{
-                    'id': "close",
-                    'text': window.lang.popupOkay,
-                    'action': function() { hidePopup("fileNotFound") }
-                }], false);
+                throw new Error("Bad API return");
             }
+        }).catch(error => {
+            cancelLoad();
+            // Show a generic error message
+            showPopup("fetchError", window.lang.popupErrorTitle, `<p>${window.lang.popupFetchError}</p><p>${error}</p>`, [{
+                "id": "retry",
+                "text": window.lang.popupRetry,
+                "action": function() {
+                    hidePopup("fetchError");
+                    loadFileList(dir, entryId);
+                }
+            }], false);
+            return Promise.reject();
         });
-    } else showFilePreview(entryData);
+    // If the directory is the same, skip loading the file list and just try showing a file preview
+    } else {
+        showFilePreview(entryId);
+    }
+    if (dirName != "") document.title = dirName+" - <?= $conf['siteName'] ?>";
 }
 
 // Displays a file preview
-function showFilePreview(data = null) {
+function showFilePreview(id = null) {
     window.canClickEntries = true;
-    if ($_GET("f") !== null && data !== null) {
+    // If a file is requested and the passed object ID is set
+    if ($_GET("f") !== null && id !== null) {
+        var data = window.fileObjects[id];
+        if (data.mimeType == "directory") return;
         console.log(`Loading file preview for "${data.name}"`);
-        showPopup("fileInfo", window.lang.popupFileInfoTitle, `
-            <p>
-                <b>${window.lang.fileDetailsName}</b><br>
-                ${data.name}
-            </p><p>
-                <b>${window.lang.fileDetailsDate}</b><br>
-                ${data.modifiedFF}
-            </p><p>
-                <b>${window.lang.fileDetailsType}</b><br>
-                ${data.typeF}
-            </p><p>
-                <b>${window.lang.fileDetailsSize}</b><br>
-                ${data.sizeF}
-            </p>
-        `, [{
-            'id': "dl",
-            'text': "Download",
-            'action': function() { downloadFile(encodeURIComponent(data.name)) }
-        }, {
-            'id': "close",
-            'text': window.lang.popupClose,
-            'action': function() {
-                historyPushState('', currentDir());
-                hidePopup("fileInfo");
-            }
-        }]);
+        // Update element contents
+        _("previewFileName").innerHTML = data.name;
+        _("previewFileDesc").innerHTML = `${data.sizeF} • ${data.typeF}`;
+        if (data.ext.match(/^(MP4)$/)) {
+            _("previewFile").classList.add("previewTypeVideo");
+            _("previewFile").innerHTML = `
+                <video <?php if ($conf['videoAutoplay']) print("autoplay") ?> controls src="${encodeURIComponent(data.name)}"></video>
+            `;
+        } else if (data.ext.match(/^(MP3|OGG|WAV|M4A)$/)) {
+            _("previewFile").classList.add("previewTypeAudio");
+            _("previewFile").innerHTML = `
+                <audio <?php if ($conf['audioAutoplay']) print("autoplay") ?> controls src="${encodeURIComponent(data.name)}"></audio>
+            `;
+        } else if (data.ext.match(/^(JPG|JPEG|PNG|SVG|GIF)$/)) {
+            _("previewFile").classList.add("previewTypeImage");
+            _("previewFile").innerHTML = `
+                <img src="${encodeURIComponent(data.name)}"></img>
+            `;
+        } else {
+            _("previewFile").classList.add("previewTypeNone");
+            _("previewFile").innerHTML = `
+                <div id="previewCard">
+                    <div id="previewCardIcon">cloud_download</div>
+                    <div id="previewCardTitle">${window.lang.previewTitle}</div>
+                    <div id="previewCardDesc">${window.lang.previewDesc}</div>
+                    <div id="previewCardDownloadCont">
+                        <button id="previewCardDownload" class="buttonMain" onclick="downloadFile('${encodeURIComponent(data.name)}', this)">${window.lang.previewDownload.replace("%0", data.sizeF)}</button>
+                    </div>
+                </div>
+            `;
+        }
+        // Show
+        _("previewContainer").style.display = "block";
+        _("body").style.overflowY = "hidden";
+        setTimeout(() => {
+            _("previewContainer").style.opacity = 1;
+            meta_themeColor("<?= $theme['bgPreview'] ?>");
+            document.title = data.name+" - <?= $conf['siteName'] ?>";
+        }, 50);
+    } else {
+        hideFilePreview(false);
     }
+}
+// Hides the file preview
+function hideFilePreview(refresh = true) {
+    meta_themeColor("<?= $theme['browserTheme'] ?>");
+    _("previewContainer").style.opacity = 0;
+    _("body").style.overflowY = "";
+    historyPushState('', currentDir());
+    if (refresh) loadFileList();
+    setTimeout(() => {
+        _("previewFile").innerHTML = "";
+        _("previewContainer").style.display = "none";
+    }, 200);
+}
+
+// Shows a popup with file details
+function showFileInfoPopup(id) {
+    var data = window.fileObjects[id];
+    showPopup("fileInfo", window.lang.popupFileInfoTitle, `
+        <p>
+            <b>${window.lang.fileDetailsName}</b><br>
+            ${data.name}
+        </p><p>
+            <b>${window.lang.fileDetailsDate}</b><br>
+            ${data.modifiedFF}
+        </p><p>
+            <b>${window.lang.fileDetailsType}</b><br>
+            ${data.typeF}
+        </p><p>
+            <b>${window.lang.fileDetailsSize}</b><br>
+            ${data.sizeF}
+        </p>
+    `, [{
+        'id': "close",
+        'text': window.lang.popupClose,
+        'action': function() {
+            historyPushState('', currentDir());
+            hidePopup("fileInfo");
+        }
+    }], true);
+    /* {
+        'id': "dl",
+        'text': "Download",
+        'action': function() { downloadFile(encodeURIComponent(data.name)) }
+    } */
 }
 
 // Function to do stuff when a file entry is clicked
@@ -503,12 +621,12 @@ function fileEntryClicked(el, event) {
     } else {
         window.canClickEntries = false;
         historyPushState("<?= $conf['siteName'] ?>", `${currentDir()}/?f=${encodeURIComponent(f.name)}`.replace("//", "/"));
-        loadFileList("", f);
+        loadFileList("", el.dataset.objectindex);
     }
 }
 
 // Display a popup
-function showPopup(id = "", title = "", body = "", actions = [], clickAwayHide = true) {
+function showPopup(id = "", title = "", body = "", actions = [], clickAwayHide = true, actionClickAway = null) {
     if (!_(`popup-${id}`)) {
         _("body").insertAdjacentHTML('beforeend', `
             <div id="popup-${id}" class="popupBackground ease-in-out-100ms" style="display: none; opacity: 0"></div>
@@ -527,16 +645,20 @@ function showPopup(id = "", title = "", body = "", actions = [], clickAwayHide =
         var a = actions[i];
         var fullActionId = `popup-${id}-action-${a.id}`;
         _(`popup-${id}-actions`).insertAdjacentHTML('beforeend', `
-            <div id="${fullActionId}" class="popupButton">${a.text}</div>
+            <button id="${fullActionId}" class="popupButton">${a.text}</button>
         `);
         _(fullActionId).addEventListener("click", a.action);
     }
     if (clickAwayHide) {
         _(`popup-${id}`).addEventListener("click", function() { hidePopup(id) });
+        if (actionClickAway) {
+            _(`popup-${id}`).addEventListener("click", actionClickAway);
+        }
     }
     console.log(`Showing popup "${id}"`);
     _(`popup-${id}`).style.display = "flex";
-    setTimeout(() => {
+    clearTimeout(window.timeoutHidePopup);
+    window.timeoutShowPopup = setTimeout(() => {
         _(`popup-${id}`).style.opacity = 1;
         _("body").style.overflowY = "hidden";
     }, 50);
@@ -547,7 +669,8 @@ function hidePopup(id) {
     console.log(`Hiding popup "${id}"`);
     _(`popup-${id}`).style.opacity = 0;
     _("body").style.overflowY = "";
-    setTimeout(() => {
+    clearTimeout(window.timeoutShowPopup);
+    window.timeoutHidePopup = setTimeout(() => {
         _(`popup-${id}`).style.display = "none";
     }, 200);
 }
@@ -576,7 +699,12 @@ _("fileListFilter").addEventListener("keyup", function(event) {
                 else
                     el.style.display = "none";
             }
-            if (matches == 0) {
+            if (this.value.match(/^url=(.*)$/g)) {
+                _("fileListHint").innerHTML = window.lang.fileListFilterUrl;
+                if (event.key == "Enter" || event.keyCode == 13) {
+                    window.location.href = this.value.replace(/^url=(.*)$/g, "$1");
+                }
+            } else if (matches == 0) {
                 _("fileListHint").innerHTML = window.lang.fileListDetailsFilterNone;
             } else if (matches == 1) {
                 _("fileListHint").innerHTML = window.lang.fileListDetailsFilterSingle;
@@ -584,7 +712,8 @@ _("fileListFilter").addEventListener("keyup", function(event) {
                 _("fileListHint").innerHTML = window.lang.fileListDetailsFilterMulti.replace("%0", matches);
             }
         }
-    }, (500*Math.floor(window.fileElements.length/500)));
+    // 100ms for every 500 files
+    }, (100*Math.floor(window.fileElements.length/500)));
 });
 
 // Do this stuff whenever a state is pushed to history
