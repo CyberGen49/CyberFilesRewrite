@@ -13,6 +13,7 @@ I'll try my best to keep track of all changes to CyberFilesRewrite, big and smal
 * Added a full file preview window when clicking on a file
     * Online previews are available for MP4 video files, a few audio file formats, and a handful of image formats
     * Files that can't be previewed display a prompt to download the file instead
+* Added the `videoAutoplay` and `audioAutoplay` config options
 
 ## September 10th, 2021
 * Chnaged the max file history entry count to be length based
