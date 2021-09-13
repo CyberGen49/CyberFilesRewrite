@@ -108,6 +108,22 @@ Like `headerFileNameMarkdown`, but instead of parsing the contents as Markdown, 
 Type: `string`  
 If this file exists in a directory, the directory's contents will be hidden from view online.
 
+#### `sortFileName`
+Type: `string`
+If this file exists in a directory, its files will be sorted by name by default.
+
+#### `sortFileDate`
+Type: `string`
+If this file exists in a directory, its files will be sorted by date modified by default.
+
+#### `sortFileSize`
+Type: `string`
+If this file exists in a directory, its files will be sorted by size by default.
+
+#### `sortFileDesc`
+Type: `string`
+If this file exists in a directory, its file order will be reversed. Folders will remain on top.
+
 #### `dateFormatShort`
 Type: `string`  
 A date format containing some of [these placeholders](https://github.com/CyberGen49/CyberFilesRewrite/blob/main/README-dateTimePlaceholders.md). This should be a short, friendly date format, used in the modification date column of the file list.
@@ -147,8 +163,17 @@ To use the API, open the target folder in CyberFiles, then add `?api` to the end
 
 For example, to get the index of the `/Images` folder, use `https://files.example.com/Images?api`, where `files.example.com` is your domain.
 
+### Parameters
+* `sort`: The column to sort files by, should be `name`, `date`, or `size`, defaults to `name`
+* `desc`: If set to `true`, the sort order will be reversed
+
 ### Return structure
 * `files`: An array of [file objects](#file-object)
+* `sort`: Contains information about how the file list is sorted
+    * `type`: `name`, `date`, or `size`
+    * `desc`: `true` if the list is descending, `false` otherwise
+* `headerMarkdown`: If a header Markdown file exists in the directory, this will contain its contents  - see `[headerFileNameMarkdown](#headerfilenamemarkdown)`
+* `headerHtml`: If a header HTML file exists in the directory, this will contain its contents - see `[headerFileNameHtml](#headerfilenamehtml)`
 * `status`: A [status code](#status-codes)
 * `processingTime` The amount of time the server took to process the request, in milliseconds (float)
 

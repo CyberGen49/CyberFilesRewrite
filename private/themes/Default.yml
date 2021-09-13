@@ -16,6 +16,9 @@ accent: "#A3E7FC"
 fileSep: +bg2
 fileH: +bg2
 fileC: "#5e5d65"
+bgDirectoryHeader: +bg2
+fgDirectoryHeader: +fg
+directoryHeaderBorder: +accent
 fileListHeaders: +fg2
 fileIcon: +fg2
 fileNameCol: +fg
@@ -23,9 +26,9 @@ fileDateCol: +fg2
 fileDateMobile: +fg2
 fileSizeCol: +fg2
 fileListFooter: +fg2
-scrollbar: +bg2
-scrollbarH: "#5e5d65"
-scrollbarC: "#717179"
+scrollbar: +fg2
+scrollbarH: +fg
+scrollbarC: +accent
 bgTopbar: +accent
 fgTopbar: +bg
 fgTopbarH: +bg2
@@ -48,8 +51,14 @@ bgPreviewC: rgba(255, 255, 255, 0.2)
 bgPreviewTopbar: rgba(0, 0, 0, 0.7)
 fgPreview: +fg
 fg2Preview: +fg
-fgPreviewH: +fg2
+fgPreviewH: +accent
 fgPreviewIcon: +accent
+bgPreviewNav: +bg
+fgPreviewNav: +fg
+bgPreviewNavH: +bg2
+fgPreviewNavH: +accent
+bgPreviewNavC: +bg2
+fgPreviewNavC: +fg2
 hyperlink: +accent
 hyperlinkH: +fg2
 bgButton: +accent

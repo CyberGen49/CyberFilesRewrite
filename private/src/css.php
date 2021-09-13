@@ -34,6 +34,22 @@ p, .paragraph {
     line-height: 150%;
 }
 
+h1, h2, h3, h4, h5, h6 {
+    padding: 0px;
+    margin: 0px;
+    font-family: "Montserrat";
+    font-weight: bold;
+}
+h1 { font-size: 28px; }
+h1:not(:first-child) { padding-top: 15px; }
+h2 { font-size: 24px; }
+h2:not(:first-child) { padding-top: 10px; }
+h3 { font-size: 20px; }
+h3:not(:first-child) { padding-top: 5px; }
+h4 { font-size: 18px; }
+h4:not(:first-child) { padding-top: 3px; }
+h5, h6 { font-size: 16px; }
+
 a {
     color: <?= $theme['hyperlink'] ?>;
     text-decoration: none;
@@ -59,7 +75,7 @@ a:hover, a:focus {
 }
 
 #topbar.shadow {
-    box-shadow: 0px -20px 15px 14px rgba(0,0,0,0.7);
+    box-shadow: 0px -17px 15px 14px rgba(0,0,0,0.7);
 }
 
 #topbarTitle {
@@ -81,6 +97,7 @@ a:hover, a:focus {
 .topbarButton {
     line-height: 100%;
     padding: 8px;
+    margin: 0px 3px;
     font-family: "Material Icons Outlined", "Material Icons";
     font-size: 28px;
     color: <?= $theme['fgTopbar'] ?>;
@@ -135,6 +152,15 @@ a:hover, a:focus {
 #fileListFilter:focus {
     background: <?= $theme['filterBarBgF'] ?>;
     border-bottom: 2px solid <?= $theme['filterBarBottomF'] ?>;
+}
+
+#directoryHeader {
+    margin-bottom: 10px;
+    padding: 12px 18px;
+    color: <?= $theme['fgDirectoryHeader'] ?>;
+    background: <?= $theme['bgDirectoryHeader'] ?>;
+    border-left: 6px solid <?= $theme['directoryHeaderBorder'] ?>;
+    border-radius: 6px;
 }
 
 #fileListHeaders {
@@ -320,7 +346,6 @@ a:hover, a:focus {
     left: 0px;
     width: 100%;
     height: 100%;
-    overflow: hidden;
     background: <?= $theme['bgPreview'] ?>;
     z-index: 20;
 }
@@ -329,21 +354,22 @@ a:hover, a:focus {
     position: absolute;
     top: 0px;
     left: 0px;
-    height: 65px;
+    height: 75px;
     width: 100%;
     padding: 0px 15px;
     background: <?= $theme['bgPreviewTopbar'] ?>;
     background: linear-gradient(180deg, <?= $theme['bgPreviewTopbar'] ?> 0%, rgba(0,0,0,0) 100%);
-    padding-bottom: 10px;
+    padding-bottom: 20px;
     user-select: none;
     transition: 0.1s ease-in-out;
-    z-index: 21;
+    z-index: 22;
     pointer-events: none;
 }
 
 .previewTopbarButton {
     line-height: 100%;
     padding: 8px;
+    margin: 0px 3px;
     font-family: "Material Icons Outlined", "Material Icons";
     font-size: 28px;
     color: <?= $theme['fgPreview'] ?>;
@@ -404,7 +430,6 @@ a:hover, a:focus {
     left: 0px;
     height: 100%;
     width: 100%;
-    overflow-y: scroll;
 }
 
 .previewTypeNone,
@@ -417,8 +442,8 @@ a:hover, a:focus {
 .previewTypeImage img {
     max-width: 100%;
     max-height: 100%;
-    min-width: 256px;
-    min-height: 256px;
+    min-width: 48px;
+    min-height: 48px;
     margin: auto;
 }
 #previewCard {
@@ -439,9 +464,13 @@ a:hover, a:focus {
     outline: none;
 }
 
+.previewTypeNone {
+    overflow-y: scroll;
+}
+
 #previewCardIcon {
     font-family: "Material Icons Outlined", "Material Icons";
-    font-size: 48px;
+    font-size: 64px;
     color: <?= $theme['fgPreviewIcon'] ?>;
     line-height: 100%;
     margin-bottom: 5px;
@@ -451,6 +480,8 @@ a:hover, a:focus {
     font-family: "Montserrat", "Segoe UI", sans-serif;
     font-size: 28px;
     font-weight: bold;
+    line-height: 120%;
+    margin-bottom: 5px;
 }
 
 #previewCardDesc {
@@ -459,6 +490,63 @@ a:hover, a:focus {
 
 #previewCardDownloadCont {
     margin-top: 15px;
+}
+
+.previewNavCont {
+    position: absolute;
+    display: flex;
+    top: 0px;
+    height: 100%;
+    z-index: 21;
+    transition: 0.1s ease-in-out;
+    display: none;
+}
+#previewButtonPrevCont {
+    left: 0px;
+    margin-left: 20px;
+}
+#previewButtonNextCont {
+    right: 0px;
+    margin-right: 20px;
+}
+
+.previewNav {
+    margin: auto 0px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    border-radius: 25px;
+    font-family: "Material Icons Outlined", "Material Icons";
+    font-size: 24px;
+    line-height: 100%;
+    color: <?= $theme['fgPreviewNav'] ?>;
+    background: <?= $theme['bgPreviewNav'] ?>;
+    box-shadow: 0px 0px 15px 5px rgba(0,0,0,0.3);
+    transition: 0.1s ease-in-out;
+    user-select: none;
+    pointer-events: initial;
+}
+#previewButtonPrev {
+    padding-right: 4px;
+}
+#previewButtonNext {
+    padding-left: 4px;
+}
+
+.previewNav:hover:not(.disabled),
+.previewNav:focus:not(.disabled) {
+    color: <?= $theme['fgPreviewNavH'] ?>;
+    background: <?= $theme['bgPreviewNavH'] ?>;
+}
+.previewNav:active:not(.disabled) {
+    color: <?= $theme['fgPreviewNavC'] ?>;
+    background: <?= $theme['bgPreviewNavC'] ?>;
+}
+
+.previewNav.disabled {
+    display: none;
 }
 
 .buttonMain {
@@ -515,6 +603,12 @@ a:hover, a:focus {
     .fileEntryIcon {
         font-size: 26px;
     }
+
+    .buttonMain {
+        padding-top: 12px;
+        padding-bottom: 12px;
+        font-size: 16px;
+    }
 }
 
 /* Handle small screen widths */
@@ -525,6 +619,10 @@ a:hover, a:focus {
 
     .fileListMobile { display: inherit; }
     .fileListDesktop { display: none; }
+
+    #directoryHeader {
+        margin-bottom: <?php if (!$conf['mobileFileListBorders']) print("15px"); else print("initial"); ?>;
+    }
 
     #fileListHeaders {
         display: <?php if (!$conf['mobileFileListBorders']) print("none"); else print("initial"); ?>;
@@ -595,7 +693,7 @@ a:hover, a:focus {
 }
 ::-webkit-scrollbar-thumb {
     background: <?= $theme['scrollbar'] ?>;
-    border-radius: 3px;
+    border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
     background: <?= $theme['scrollbarH'] ?>;

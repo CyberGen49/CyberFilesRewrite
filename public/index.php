@@ -40,6 +40,38 @@ $webConf = [
     "themeColour" => $theme['browserTheme'],
 ];
 
+// Set dynamic page meta
+$dir = clean_path(urldecode(explode("?", $_SERVER['REQUEST_URI'])[0]));
+$dirExpR = array_reverse(explode("/", $dir));
+$webConf['pageTitle'] = $dirExpR[0];
+
+// Check for a file preview
+while (isset($_GET['f'])) {
+    $webConf['pageTitle'] = urldecode($_GET['f']);
+    $path = clean_path(document_root.'/'.$dir.'/'.$_GET['f']);
+    if (!file_exists($path)) break;
+    if (is_dir($path)) break;
+    // Get file details from the cache database
+    $db = new SQLite3(document_root."/_cyberfiles/private/cache.db");
+    $stmt = $db->prepare("SELECT * FROM fileCache where path = :path");
+    $stmt->bindParam(":path", $path);
+    $result = $stmt->execute();
+    $cache = $result->fetchArray();
+    $db->close();
+    // If the file has cached details
+    if ($cache) {
+        $sizeF = formatted_size($cache['size']);
+        $fileExt = strtoupper(pathinfo($path)['extension']);
+        if (isset($lang['fileTypes'][$fileExt]))
+            $typeF = $lang['fileTypes'][$fileExt];
+        else
+            $typeF = $lang['fileTypes']['fileTypeDefault'];
+        $webConf['pageDesc'] = "{$lang['fileDetailsType']}: $typeF\n{$lang['fileDetailsSize']}: $sizeF";
+    // Otherwise, use a generic description
+    } else $webConf['pageDesc'] = $lang['linkPreviewFileUncached'];
+    break;
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -95,6 +127,7 @@ $webConf = [
         </div>
         <div id="fileListContainer" class="container">
             <input id="fileListFilter" type="text" placeholder="<?= $lang['fileListFilterDisabled'] ?>" autocomplete="off" disabled>
+            <div id="directoryHeader" class="ease-in-out-100ms" style="display: none"></div>
             <div id="fileListHeaders" class="row no-gutters">
                 <div id="fileListHeaderIcon" class="fileListHeader col-auto"></div>
                 <div id="fileListHeaderName" class="fileListHeader col fileListDesktop"><?= $lang['fileDetailsName'] ?></div>
@@ -113,19 +146,33 @@ $webConf = [
             <div id="fileListHint" class="ease-in-out-100ms"></div>
         </div>
         <div id="previewContainer" class="ease-in-out-100ms" style="display: none; opacity: 0;">
-            <div id="previewTopbar" class="row no-gutters flex-nowrap">
-                <div class="col-auto d-flex align-items-center">
-                    <button id="previewButtonClose" class="previewTopbarButton" onClick='hideFilePreview()'>close</button>
+            <div id="previewInterface" class="ease-in-out-100ms">
+                <div id="previewTopbar" class="row no-gutters flex-nowrap">
+                    <div class="col-auto d-flex align-items-center">
+                        <button id="previewButtonClose" class="previewTopbarButton" onClick='hideFilePreview()'>close</button>
+                    </div>
+                    <div id="previewTitleContainer" class="col">
+                        <span id="previewFileName">-</span>
+                        <span id="previewFileDesc">-</span>
+                    </div>
+                    <div class="col-auto d-flex align-items-center">
+                        <button id="previewPrev" class="previewTopbarButton">arrow_back</button>
+                    </div>
+                    <div class="col-auto d-flex align-items-center">
+                        <button id="previewNext" class="previewTopbarButton">arrow_forward</button>
+                    </div>
+                    <div class="col-auto d-flex align-items-center">
+                        <button id="previewButtonMenu" class="previewTopbarButton">more_vert</button>
+                    </div>
                 </div>
-                <div id="previewTitleContainer" class="col">
-                    <span id="previewFileName">-</span>
-                    <span id="previewFileDesc">-</span>
+                <div id="previewButtonPrevCont" class="previewNavCont">
+                    <div id="previewButtonPrev" class="previewNav">arrow_back_ios</div>
                 </div>
-                <div class="col-auto d-flex align-items-center">
-                    <button id="previewButtonMenu" class="previewTopbarButton">more_vert</button>
+                <div id="previewButtonNextCont" class="previewNavCont">
+                    <div id="previewButtonNext" class="previewNav">arrow_forward_ios</div>
                 </div>
             </div>
-            <div id="previewFile"></div>
+            <div id="previewFile" class="ease-in-out-100ms"></div>
         </div>
 
         <noscript>

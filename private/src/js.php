@@ -128,7 +128,43 @@ function meta_themeColor(hexCode = null) {
 
 // Parses Markdown and returns HTML
 function mdToHtml(mdSource) {
-    // ...
+    // Initial replacements
+    mdSource = mdSource
+    .replace("\r", "")
+    .replace(/[^\\]\[(.*?)\]\((.*?) "(.*?)"\)/gi, " <a href=\"$2\" target=\"_blank\" title=\"$3\">$1</a>")
+    .replace(/[^\\]\[(.*?)\]\((.*?)\)/, " <a href=\"$2\" target=\"_blank\">$1</a>")
+    .replace(/[^\\]<(.*?)>/gi, " <a href=\"$1\" target=\"_blank\">$1</a>")
+    .replace("  \n", "<br>")
+    .replace(/[^\\]\*\*(.*?)\*\*/gi, " <b>$1</b>")
+    .replace(/[^\\]__(.*?)__/gi, " <b>$1</b>")
+    .replace(/[^\\]\*(.*?)\*/gi, " <em>$1</em>")
+    .replace(/[^\\]_(.*?)_/gi, " <em>$1</em>")
+    .replace(/\\\[/gi, " [")
+    .replace(/\\\*/gi, " *")
+    .replace(/\\\_/gi, " _")
+    .replace(/\\\</gi, " <");
+    // Handle block-level elements
+    var pgs = mdSource.split("\n");
+    var html = "";
+    pgs.forEach(line => {
+        if (line != "") {
+            if (line.match(/^# .*/))
+                html += line.replace(/^# (.*)/, "<h1>$1</h1>");
+            else if (line.match(/^## .*/)) 
+                html += line.replace(/^## (.*)/, "<h2>$1</h2>");
+            else if (line.match(/^### .*/)) 
+                html += line.replace(/^### (.*)/, "<h3>$1</h3>");
+            else if (line.match(/^#### .*/)) 
+                html += line.replace(/^#### (.*)/, "<h4>$1</h4>");
+            else if (line.match(/^##### .*/)) 
+                html += line.replace(/^##### (.*)/, "<h5>$1</h5>");
+            else if (line.match(/^###### .*/)) 
+                html += line.replace(/^###### (.*)/, "<h6>$1</h6>");
+            else
+                html += `<p>${line}</p>`;
+        }
+    });
+    return html;
 }
 
 // Returns a properly formatted version of the current directory
@@ -257,6 +293,7 @@ async function loadFileList(dir = "", entryId = null) {
     if (dir != window.loadDir) {
         // Prepare for loading
         var loadStart = Date.now();
+        var showGenericErrors = true;
         var seamlessTimeout = setTimeout(() => {
             _("fileListLoading").style.display = "";
         }, 500);
@@ -269,9 +306,11 @@ async function loadFileList(dir = "", entryId = null) {
             _("fileListHint").style.opacity = 1;
         }
         _("fileList").style.display = "none";
-        _("fileListHint").style.display = "none";
         _("fileList").style.opacity = 0;
+        _("fileListHint").style.display = "none";
         _("fileListHint").style.opacity = 0;
+        _("directoryHeader").style.display = "none";
+        _("directoryHeader").style.opacity = 0;
         _("fileListFilter").disabled = true;
         _("fileListFilter").value = "";
         _("fileListFilter").placeholder = window.lang.fileListFilterDisabled;
@@ -283,6 +322,7 @@ async function loadFileList(dir = "", entryId = null) {
             cancelLoad();
             // If an error code was returned by the server
             if (response.status >= 400 && response.status < 600) {
+                showGenericErrors = false;
                 // Set the right popup body text
                 if (window.lang[`popupServerError${response.status}`]) {
                     var errorBody = window.lang[`popupServerError${response.status}`];
@@ -413,6 +453,15 @@ async function loadFileList(dir = "", entryId = null) {
                     i++;
                 });
                 window.fileElements = document.getElementsByClassName("fileEntry");
+                // Parse and set the directory header, if it exists
+                var dirHeader = false;
+                if (typeof data.headerHtml !== 'undefined') {
+                    _("directoryHeader").innerHTML = data.headerHtml;
+                    dirHeader = true;
+                } else if (typeof data.headerMarkdown !== 'undefined') {
+                    _("directoryHeader").innerHTML = mdToHtml(data.headerMarkdown);
+                    dirHeader = true;
+                }
                 // Format load time
                 var loadElapsed = Date.now()-loadStart;
                 var loadTimeF = loadElapsed+window.lang.dtUnitShortMs;
@@ -443,10 +492,12 @@ async function loadFileList(dir = "", entryId = null) {
                 _("fileList").innerHTML = output;
                 _("fileList").style.display = "";
                 _("fileListHint").style.display = "";
+                if (dirHeader) _("directoryHeader").style.display = "";
                 setTimeout(() => {
                     _("fileListLoading").style.display = "none";
                     _("fileList").style.opacity = 1;
                     _("fileListHint").style.opacity = 1;
+                    _("directoryHeader").style.opacity = 1;
                 }, 50);
                 // Show a file preview if it was requested
                 if ($_GET("f") !== null) {
@@ -479,6 +530,7 @@ async function loadFileList(dir = "", entryId = null) {
             }
         }).catch(error => {
             cancelLoad();
+            if (!showGenericErrors) return Promise.reject();
             // Show a generic error message
             showPopup("fetchError", window.lang.popupErrorTitle, `<p>${window.lang.popupFetchError}</p><p>${error}</p>`, [{
                 "id": "retry",
@@ -505,9 +557,45 @@ function showFilePreview(id = null) {
         var data = window.fileObjects[id];
         if (data.mimeType == "directory") return;
         console.log(`Loading file preview for "${data.name}"`);
+        // Update history
+        fileHistory.entries.push({
+            'created': Date.now(),
+            'dir': currentDir(),
+            'name': data.name,
+            'type': data.mimeType
+        });
+        locStoreArraySet("history", fileHistory);
+        // Get previous and next items
+        _("previewPrev").classList.add("disabled");
+        _("previewNext").classList.add("disabled");
+        _("previewPrev").title = window.lang.previewFirstFile;
+        _("previewNext").title = window.lang.previewLastFile;
+        idPrev = id;
+        while (idPrev > 0) {
+            idPrev--;
+            var filePrev = window.fileObjects[idPrev];
+            if (filePrev.mimeType != "directory") {
+                _("previewPrev").classList.remove("disabled");
+                _("previewPrev").title = filePrev.name;
+                _("previewPrev").dataset.objectid = idPrev;
+                break;
+            }
+        }
+        idNext = id;
+        while (idNext < window.fileObjects.length) {
+            idNext++;
+            var fileNext = window.fileObjects[idNext];
+            if (!fileNext) break;
+            if (fileNext.mimeType != "directory") {
+                _("previewNext").classList.remove("disabled");
+                _("previewNext").title = fileNext.name;
+                _("previewNext").dataset.objectid = idNext;
+                break;
+            }
+        }
         // Update element contents
         _("previewFileName").innerHTML = data.name;
-        _("previewFileDesc").innerHTML = `${data.sizeF} • ${data.typeF}`;
+        _("previewFileDesc").innerHTML = `${window.lang.previewTitlebar2.replace("%0", data.typeF).replace("%1", data.sizeF)}`;
         if (data.ext.match(/^(MP4)$/)) {
             _("previewFile").classList.add("previewTypeVideo");
             _("previewFile").innerHTML = `
@@ -548,6 +636,26 @@ function showFilePreview(id = null) {
         hideFilePreview(false);
     }
 }
+
+// Handle moving to the next and previous file previews
+function navFilePreview(el) {
+    var f = window.fileObjects[el.dataset.objectid];
+    console.log(f);
+    if (el.classList.contains("disabled")) return;
+    if (!f) {
+        console.log("New file preview doesn't exist!");
+        return;
+    }
+    console.log("File entry navigation button clicked");
+    historyPushState("", `?f=${encodeURI(f.name)}`);
+    loadFileList("", el.dataset.objectid);
+    el.blur();
+    el.blur();
+}
+
+_("previewPrev").addEventListener("click", function() { navFilePreview(this); })
+_("previewNext").addEventListener("click", function() { navFilePreview(this); })
+
 // Hides the file preview
 function hideFilePreview(refresh = true) {
     meta_themeColor("<?= $theme['browserTheme'] ?>");

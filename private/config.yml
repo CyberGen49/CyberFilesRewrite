@@ -22,6 +22,10 @@ hideDirWhenContains:
 headerFileNameMarkdown: _cf_header.md
 headerFileNameHtml: _cf_header.html
 hideContentsFile: _cf_hideContents
+sortFileName: _cf_sortName
+sortFileDate: _cf_sortDate
+sortFileSize: _cf_sortSize
+sortFileDesc: _cf_sortDesc
 dateFormatShort: '%b %d, %Y'
 dateFormatFull: '%m/%d/%Y %I:%+M %p'
 upButtonInFileList: false

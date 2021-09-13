@@ -40,6 +40,40 @@ function clean_path(string $path, array &$arrayStore = []):string {
     return $path;
 }
 
+/**
+ * Returns the properly formatted size string from a number of bytes
+ *
+ * @param float $bytes A number of bytes
+ * @return string The formatted size representation
+ * 
+ * Bytes and KB are returned with no decimal places, MB with one decimal place, and GB and above with two decimal places.
+ */
+function formatted_size(float $bytes = 0):string {
+    $bytes = floatval($bytes);
+    $fileSizeSuffix = "Bytes";
+    $decimalPlaces = 0;
+    if ($bytes >= 1000) {
+        $bytes /= 1024;
+        $fileSizeSuffix = "KB";
+    }
+    if ($bytes >= 1000) {
+        $bytes /= 1024;
+        $fileSizeSuffix = "MB";
+        $decimalPlaces = 1;
+    }
+    if ($bytes >= 1000) {
+        $bytes /= 1024;
+        $fileSizeSuffix = "GB";
+        $decimalPlaces = 2;
+    }
+    if ($bytes >= 1000) {
+        $bytes /= 1024;
+        $fileSizeSuffix = "TB";
+        $decimalPlaces = 2;
+    }
+    return number_format($bytes, $decimalPlaces) . " " . $fileSizeSuffix;
+}
+
 class ApiCall {
     function __construct($params, $conf) {
         // Set class variables
@@ -105,17 +139,18 @@ class ApiCall {
             }
             // Get directory contents
             $scandir = scandir($dir);
+            natsort($scandir);
+            // Check for header files
+            if (file_exists("$dir/{$conf['headerFileNameMarkdown']}"))
+                $data['headerMarkdown'] = file_get_contents("$dir/{$conf['headerFileNameMarkdown']}");
+            if (file_exists("$dir/{$conf['headerFileNameHtml']}"))
+                $data['headerHtml'] = file_get_contents("$dir/{$conf['headerFileNameHtml']}");
             // Check if contents are hidden
             $data['files'] = [];
             if (file_exists("$dir/{$conf['hideContentsFile']}")) {
                 $data['status'] = "CONTENTS_HIDDEN";
                 break;
             }
-            // Sort files
-            natsort($scandir);
-            //uasort($scandir, function($a, $b) {
-            //    return strcasecmp($a, $b);
-            //});
             // Loop through files and add
             $files = [];
             $folders = [];
@@ -137,6 +172,55 @@ class ApiCall {
                 // Add to the appropriate array
                 if (is_dir($f)) $folders[] = $fileObject;
                 else $files[] = $fileObject;
+            }
+            // Check for sort override files
+            if (file_exists("$dir/{$conf['sortFileName']}"))
+                $data['sort']['type'] = "name";
+            else if (file_exists("$dir/{$conf['sortFileDate']}"))
+                $data['sort']['type'] = "date";
+            else if (file_exists("$dir/{$conf['sortFileSize']}"))
+                $data['sort']['type'] = "size";
+            else $data['sort']['type'] = "name";
+            if (file_exists("$dir/{$conf['sortFileDesc']}"))
+                $data['sort']['desc'] = true;
+            else $data['sort']['desc'] = false;
+            // Check sort parameters
+            if (isset($params['sort']) and preg_match("/^(name|date|size)$/", $params['sort']))
+                $data['sort']['type'] = $params['sort'];
+            if (isset($params['desc']) and $params['desc'] == "true")
+                $data['sort']['desc'] = true;
+            // Set sort functions
+            $funcSortDate = function($a, $b) {
+                if ($a['modified'] < $b['modified']) return -1;
+                if ($a['modified'] > $b['modified']) return 1;
+                if ($a['modified'] == $b['modified']) return 0;
+            };
+            $funcSortSize = function($a, $b) {
+                if ($a['size'] < $b['size']) return -1;
+                if ($a['size'] > $b['size']) return 1;
+                if ($a['size'] == $b['size']) return 0;
+            };
+            // Sort files
+            switch ($data['sort']['type']) {
+                case "name": {
+                    // Nothing happens
+                    break;
+                }
+                case "date": {
+                    uasort($folders, $funcSortDate);
+                    uasort($files, $funcSortDate);
+                    break;
+                }
+                case "size": {
+                    // Folders stay as-is
+                    uasort($files, $funcSortSize);
+                    break;
+                }
+            }
+            // Reverse if necessary
+            if ($data['sort']['desc']) {
+                $folders = array_reverse($folders);
+                $files = array_reverse($files);
             }
             // Merge the arrays and finish
             $data['files'] = array_merge($folders, $files);

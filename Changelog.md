@@ -2,6 +2,19 @@
 # CyberFilesRewrite Changelog
 I'll try my best to keep track of all changes to CyberFilesRewrite, big and small, right here in this changelog. As things are just getting started, I'll be lumping a lot of my changes together for the sake of simplicity.
 
+## September 12th, 2021
+* Increased the padding of the Download button in file previews on touch devices
+    * And other small styling changes
+* Started saving files to history
+* Added next and previous file buttons to file previews
+* Added the file type and size to preview (?f=) link descriptions
+    * This works by retrieving the data from cache, so we aren't spending time getting data we already have
+    * If the file isn't cached, the link preview will use generic text set in the language file
+* Added directory headers
+* Added file sorting, but there's no way to change it from online
+* Added default sort control files
+    * See the `sortFileName`, `sortFileDate`, `sortFileSize`, and `sortFileDesc` config options
+
 ## September 11th, 2021
 * Added styling to handle touch devices (using the `hover` and `pointer` media queries), so more padding is applied to interactive elements
 * Switched to self-serving just the Bootstrap grid system instead of the whole Bootstrap library
