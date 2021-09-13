@@ -172,8 +172,8 @@ For example, to get the index of the `/Images` folder, use `https://files.exampl
 * `sort`: Contains information about how the file list is sorted
     * `type`: `name`, `date`, or `size`
     * `desc`: `true` if the list is descending, `false` otherwise
-* `headerMarkdown`: If a header Markdown file exists in the directory, this will contain its contents  - see `[headerFileNameMarkdown](#headerfilenamemarkdown)`
-* `headerHtml`: If a header HTML file exists in the directory, this will contain its contents - see `[headerFileNameHtml](#headerfilenamehtml)`
+* `headerMarkdown`: If a header Markdown file exists in the directory, this will contain its contents  - see [`headerFileNameMarkdown`](#headerfilenamemarkdown)
+* `headerHtml`: If a header HTML file exists in the directory, this will contain its contents - see [`headerFileNameHtml`](#headerfilenamehtml)
 * `status`: A [status code](#status-codes)
 * `processingTime` The amount of time the server took to process the request, in milliseconds (float)
 
