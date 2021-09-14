@@ -48,7 +48,7 @@ bgPopupButtonC: rgba(163, 231, 252, 0.5)
 bgPreview: '#000'
 bgPreviewH: rgba(255, 255, 255, 0.1)
 bgPreviewC: rgba(255, 255, 255, 0.2)
-bgPreviewTopbar: rgba(0, 0, 0, 0.7)
+bgPreviewTopbar: +bg
 fgPreview: +fg
 fg2Preview: +fg
 fgPreviewH: +accent
@@ -69,5 +69,6 @@ bgButtonC: +fg2
 fgButtonC: +bg
 loadingSpinner: +accent
 browserTheme: +bgTopbar
+browserThemePreview: +bg
 textHighlightBg: +accent
 textHighlightFg: +bg

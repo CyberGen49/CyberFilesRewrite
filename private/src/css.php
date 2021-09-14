@@ -258,7 +258,7 @@ a:hover, a:focus {
 }
 
 #fileListHint {
-    margin: 25px 0px;
+    margin: 25px 0px 30px 0px;
     font-size: 14px;
     color: <?= $theme['fileListFooter'] ?>;
     text-align: center;
@@ -354,16 +354,18 @@ a:hover, a:focus {
     position: absolute;
     top: 0px;
     left: 0px;
-    height: 75px;
+    /* height: 75px; */
+    height: 55px;
     width: 100%;
     padding: 0px 15px;
     background: <?= $theme['bgPreviewTopbar'] ?>;
-    background: linear-gradient(180deg, <?= $theme['bgPreviewTopbar'] ?> 0%, rgba(0,0,0,0) 100%);
-    padding-bottom: 20px;
+    /* background: linear-gradient(180deg, <?= $theme['bgPreviewTopbar'] ?> 0%, rgba(0,0,0,0) 100%); */
+    /* padding-bottom: 20px; */
     user-select: none;
     transition: 0.1s ease-in-out;
     z-index: 22;
-    pointer-events: none;
+    /* pointer-events: none; */
+    box-shadow: 0px -17px 15px 14px rgba(0,0,0,0.7);
 }
 
 .previewTopbarButton {
@@ -398,7 +400,7 @@ a:hover, a:focus {
 }
 
 #previewTitleContainer {
-    margin-top: 7px;
+    margin-top: 6px;
     padding: 0px 10px;
     overflow: hidden;
 }
@@ -428,8 +430,9 @@ a:hover, a:focus {
     position: absolute;
     top: 0px;
     left: 0px;
-    height: 100%;
+    height: calc(100% - 55px);
     width: 100%;
+    margin-top: 55px;
 }
 
 .previewTypeNone,
@@ -438,12 +441,16 @@ a:hover, a:focus {
 .previewTypeImage {
     display: flex;
 }
-.previewTypeVideo video,
 .previewTypeImage img {
     max-width: 100%;
     max-height: 100%;
     min-width: 48px;
     min-height: 48px;
+    margin: auto;
+}
+.previewTypeVideo video {
+    width: 100%;
+    height: 100%;
     margin: auto;
 }
 #previewCard {

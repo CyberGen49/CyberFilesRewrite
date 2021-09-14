@@ -2,6 +2,15 @@
 # CyberFilesRewrite Changelog
 I'll try my best to keep track of all changes to CyberFilesRewrite, big and small, right here in this changelog. As things are just getting started, I'll be lumping a lot of my changes together for the sake of simplicity.
 
+## September 13th, 2021
+* Revamped the titlebar of file previews
+    * Now it's solid, like the main one, and preview contents appear below it, without overlapping
+* Directory headers are now hidden while filtering, if applicable
+* Fixed the broken `href` attribute of file entries who's names contain a percent sign
+* Expanded video previews to always take up the entire preview window
+    * This allows for the controls to expand beyond the video's aspect ratio
+* Made sure the current URL always ends with a slash, unless a file preview is open
+
 ## September 12th, 2021
 * Increased the padding of the Download button in file previews on touch devices
     * And other small styling changes

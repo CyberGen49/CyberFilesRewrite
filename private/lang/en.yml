@@ -36,6 +36,8 @@ previewLastFile: "This is the last file."
 linkPreviewFileUncached: "This file's details aren't available right now, but you can preview and download it online."
 popupErrorTitle: "Uh oh!"
 popupNoJsDesc: "Seems like you have Javascript disabled! The core functionality of CyberFiles requires Javascript, so you'll need to enable it to continue. See the Help link below if you're having trouble."
+popupNotImplementedTitle: Not implemented
+popupNotImplementedDesc: The action you just tried to perform hasn't been implemented yet. Check back later!
 popupFileInfoTitle: File info
 popupFileNotFound: "We couldn't find the file you requested. It was probably moved or deleted."
 popupFileNotFound2: "The directory it was in still exists, so take a look around to see if it's listed under a different name."

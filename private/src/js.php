@@ -85,8 +85,9 @@ function _getH(id) {
 function downloadFile(url, elThis) {
     var id = `fileDownload-${Date.now}`;
     _("body").insertAdjacentHTML('beforeend', `
-        <a id="${id}" href="${url}" download></a>
+        <a id="${id}" download></a>
     `);
+    _(id).href = url;
     console.log(`Starting direct download of "${url}"`);
     _(id).click();
     _(id).remove();
@@ -359,7 +360,7 @@ async function loadFileList(dir = "", entryId = null) {
                 });
                 locStoreArraySet("history", fileHistory);
                 // If we aren't in the document root
-                var output = "";
+                _("fileList").innerHTML = "";
                 if (dir != "/") {
                     // Set the appropriate parent directory name
                     if (dirSplit.length > 2)
@@ -370,7 +371,7 @@ async function loadFileList(dir = "", entryId = null) {
                     var upTitle = window.lang.fileListEntryUp.replace("%0", dirParentName);
                     // Build the HTML
                     if ('<?= $conf['upButtonInFileList'] ?>' !== '') {
-                        output += `
+                        _("fileList").insertAdjacentHTML('beforeend', `
                             <a id="fileEntryUp" class="row no-gutters fileEntry" tabindex=0 onClick='fileEntryClicked(this, event)'">
                                 <div class="col-auto fileEntryIcon material-icons">arrow_back</div>
                                 <div class="col fileEntryName">
@@ -379,7 +380,7 @@ async function loadFileList(dir = "", entryId = null) {
                                 <div class="col-auto fileEntryDate fileListDesktop">-</div>
                                 <div class="col-auto fileEntrySize fileListDesktop">-</div>
                             </a>
-                        `;
+                        `);
                     }
                     // Handle the up button in the topbar
                     _("topbarButtonUp").classList.remove("disabled");
@@ -437,9 +438,10 @@ async function loadFileList(dir = "", entryId = null) {
                         // Set mobile details
                         f.detailsMobile = window.lang.fileListMobileLine2.replace("%0", f.modifiedF).replace("%1", f.sizeF);
                     }
+                    f.nameUri = encodeURIComponent(f.name);
                     // Build HTML
-                    output += `
-                        <a class="row no-gutters fileEntry" tabindex=0 data-filename='${f.name}' data-objectindex=${i} onClick='fileEntryClicked(this, event)' title="${f.title}" href="${encodeURI(f.name)}">
+                    _("fileList").insertAdjacentHTML('beforeend', `
+                        <a id="fileEntry-${i}" class="row no-gutters fileEntry" tabindex=0 data-filename='${f.name}' data-objectindex=${i} onClick='fileEntryClicked(this, event)' title="${f.title}">
                             <div class="col-auto fileEntryIcon material-icons">${f.icon}</div>
                             <div class="col fileEntryName">
                                 <div class="fileEntryNameInner">${f.name}</div>
@@ -448,19 +450,20 @@ async function loadFileList(dir = "", entryId = null) {
                             <div class="col-auto fileEntryDate fileListDesktop">${f.modifiedF}</div>
                             <div class="col-auto fileEntrySize fileListDesktop">${f.sizeF}</div>
                         </a>
-                    `;
+                    `);
+                    _(`fileEntry-${i}`).href = f.nameUri;
                     window.fileObjects[i] = f;
                     i++;
                 });
                 window.fileElements = document.getElementsByClassName("fileEntry");
                 // Parse and set the directory header, if it exists
-                var dirHeader = false;
+                window.dirHeader = false;
                 if (typeof data.headerHtml !== 'undefined') {
                     _("directoryHeader").innerHTML = data.headerHtml;
-                    dirHeader = true;
+                    window.dirHeader = true;
                 } else if (typeof data.headerMarkdown !== 'undefined') {
                     _("directoryHeader").innerHTML = mdToHtml(data.headerMarkdown);
-                    dirHeader = true;
+                    window.dirHeader = true;
                 }
                 // Format load time
                 var loadElapsed = Date.now()-loadStart;
@@ -488,8 +491,7 @@ async function loadFileList(dir = "", entryId = null) {
                 }
                 window.fileListHint = _("fileListHint").innerHTML;
                 // Show elements
-                clearTimeout(seamlessTimeout);  
-                _("fileList").innerHTML = output;
+                clearTimeout(seamlessTimeout);
                 _("fileList").style.display = "";
                 _("fileListHint").style.display = "";
                 if (dirHeader) _("directoryHeader").style.display = "";
@@ -596,6 +598,10 @@ function showFilePreview(id = null) {
         // Update element contents
         _("previewFileName").innerHTML = data.name;
         _("previewFileDesc").innerHTML = `${window.lang.previewTitlebar2.replace("%0", data.typeF).replace("%1", data.sizeF)}`;
+        _("previewFile").classList.remove("previewTypeNone");
+        _("previewFile").classList.remove("previewTypeVideo");
+        _("previewFile").classList.remove("previewTypeImage");
+        _("previewFile").classList.remove("previewTypeAudio");
         if (data.ext.match(/^(MP4)$/)) {
             _("previewFile").classList.add("previewTypeVideo");
             _("previewFile").innerHTML = `
@@ -629,7 +635,7 @@ function showFilePreview(id = null) {
         _("body").style.overflowY = "hidden";
         setTimeout(() => {
             _("previewContainer").style.opacity = 1;
-            meta_themeColor("<?= $theme['bgPreview'] ?>");
+            meta_themeColor("<?= $theme['browserThemePreview'] ?>");
             document.title = data.name+" - <?= $conf['siteName'] ?>";
         }, 50);
     } else {
@@ -661,44 +667,12 @@ function hideFilePreview(refresh = true) {
     meta_themeColor("<?= $theme['browserTheme'] ?>");
     _("previewContainer").style.opacity = 0;
     _("body").style.overflowY = "";
-    historyPushState('', currentDir());
+    historyPushState('', `${currentDir()}/`);
     if (refresh) loadFileList();
     setTimeout(() => {
         _("previewFile").innerHTML = "";
         _("previewContainer").style.display = "none";
     }, 200);
-}
-
-// Shows a popup with file details
-function showFileInfoPopup(id) {
-    var data = window.fileObjects[id];
-    showPopup("fileInfo", window.lang.popupFileInfoTitle, `
-        <p>
-            <b>${window.lang.fileDetailsName}</b><br>
-            ${data.name}
-        </p><p>
-            <b>${window.lang.fileDetailsDate}</b><br>
-            ${data.modifiedFF}
-        </p><p>
-            <b>${window.lang.fileDetailsType}</b><br>
-            ${data.typeF}
-        </p><p>
-            <b>${window.lang.fileDetailsSize}</b><br>
-            ${data.sizeF}
-        </p>
-    `, [{
-        'id': "close",
-        'text': window.lang.popupClose,
-        'action': function() {
-            historyPushState('', currentDir());
-            hidePopup("fileInfo");
-        }
-    }], true);
-    /* {
-        'id': "dl",
-        'text': "Download",
-        'action': function() { downloadFile(encodeURIComponent(data.name)) }
-    } */
 }
 
 // Function to do stuff when a file entry is clicked
@@ -714,7 +688,9 @@ function fileEntryClicked(el, event) {
     // See if this is the up button
     if (el.id == "fileEntryUp" || (el.id == "topbarButtonUp" && !el.classList.contains("disabled"))) {
         console.log("Up entry clicked: "+currentDir(1));
-        historyPushState("<?= $conf['siteName'] ?>", currentDir(1));
+        var upPath = currentDir(1);
+        if (upPath != "/") upPath = `${currentDir(1)}/`;
+        historyPushState("<?= $conf['siteName'] ?>", upPath);
         loadFileList();
         return;
     }
@@ -724,7 +700,7 @@ function fileEntryClicked(el, event) {
     // If this is a directory, move into it
     if (f.mimeType == "directory") {
         window.canClickEntries = false;
-        historyPushState("<?= $conf['siteName'] ?>", `${currentDir()}/${f.name}`.replace("//", "/"));
+        historyPushState("<?= $conf['siteName'] ?>", `${currentDir()}/${f.name}/`.replace("//", "/"));
         loadFileList();
     } else {
         window.canClickEntries = false;
@@ -768,7 +744,7 @@ function showPopup(id = "", title = "", body = "", actions = [], clickAwayHide =
     clearTimeout(window.timeoutHidePopup);
     window.timeoutShowPopup = setTimeout(() => {
         _(`popup-${id}`).style.opacity = 1;
-        _("body").style.overflowY = "hidden";
+        //_("body").style.overflowY = "hidden";
     }, 50);
 }
 
@@ -776,16 +752,58 @@ function showPopup(id = "", title = "", body = "", actions = [], clickAwayHide =
 function hidePopup(id) {
     console.log(`Hiding popup "${id}"`);
     _(`popup-${id}`).style.opacity = 0;
-    _("body").style.overflowY = "";
+    //_("body").style.overflowY = "";
     clearTimeout(window.timeoutShowPopup);
     window.timeoutHidePopup = setTimeout(() => {
         _(`popup-${id}`).style.display = "none";
     }, 200);
 }
 
+// Prebuilt popups
+function popup_fileInfo(id) {
+    var data = window.fileObjects[id];
+    showPopup("fileInfo", window.lang.popupFileInfoTitle, `
+        <p>
+            <b>${window.lang.fileDetailsName}</b><br>
+            ${data.name}
+        </p><p>
+            <b>${window.lang.fileDetailsDate}</b><br>
+            ${data.modifiedFF}
+        </p><p>
+            <b>${window.lang.fileDetailsType}</b><br>
+            ${data.typeF}
+        </p><p>
+            <b>${window.lang.fileDetailsSize}</b><br>
+            ${data.sizeF}
+        </p>
+    `, [{
+        'id': "close",
+        'text': window.lang.popupClose,
+        'action': function() {
+            historyPushState('', currentDir());
+            hidePopup("fileInfo");
+        }
+    }], true);
+    /* {
+        'id': "dl",
+        'text': "Download",
+        'action': function() { downloadFile(encodeURIComponent(data.name)) }
+    } */
+}
+function popup_notImplemented() {
+    showPopup("notImplemented", window.lang.popupNotImplementedTitle, window.lang.popupNotImplementedDesc, [{
+        'id': "close",
+        'text': window.lang.popupClose,
+        'action': function() {
+            hidePopup("notImplemented");
+        }
+    }]);
+}
+
 // Handle the filter bar
 _("fileListFilter").addEventListener("keyup", function(event) {
     var value = this.value.toLowerCase();
+    if (event.key == "Escape" || event.keyCode == 27) this.blur();
     // To reduce system resource usage, we'll wait a set amount of time after the user hasn't typed anything to actually run the filter
     clearTimeout(window.filterInterval);
     window.filterInterval = setTimeout(() => {
@@ -796,6 +814,7 @@ _("fileListFilter").addEventListener("keyup", function(event) {
                 el.style.display = "";
             }
             _("fileListHint").innerHTML = window.fileListHint;
+            if (window.dirHeader) _("directoryHeader").style.display = "";
         } else {
             var matches = 0;
             for (i = 0; i < window.fileElements.length; i++) {
@@ -819,6 +838,7 @@ _("fileListFilter").addEventListener("keyup", function(event) {
             } else {
                 _("fileListHint").innerHTML = window.lang.fileListDetailsFilterMulti.replace("%0", matches);
             }
+            _("directoryHeader").style.display = "none";
         }
     // 100ms for every 500 files
     }, (100*Math.floor(window.fileElements.length/500)));
