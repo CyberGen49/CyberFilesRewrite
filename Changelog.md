@@ -2,6 +2,14 @@
 # CyberFilesRewrite Changelog
 I'll try my best to keep track of all changes to CyberFilesRewrite, big and small, right here in this changelog. As things are just getting started, I'll be lumping a lot of my changes together for the sake of simplicity.
 
+## September 14th, 2021
+* Removed the `Content-Type: application/json` header from API responses due to it leading to an empty response sometimes
+    * This calls for further investigation, but for now, plain text seems to work fine.
+* Added dropdown menus, one on the main topbar, and one in file previews
+    * Some options are unavailable for now, and the menu's responsiveness needs some work
+    * So far, this unlocks the ability to download files, view their file information, and copy file and directory links
+    * This is how we'll access history, either in a submenu or a new page
+
 ## September 13th, 2021
 * Revamped the titlebar of file previews
     * Now it's solid, like the main one, and preview contents appear below it, without overlapping

@@ -122,7 +122,7 @@ while (isset($_GET['f'])) {
             </div>
             <div class="col"></div>
             <div class="col-auto d-flex align-items-center">
-                <button id="topbarButtonMenu" class="topbarButton"  onclick="popup_notImplemented()">more_vert</button>
+                <button id="topbarButtonMenu" class="topbarButton">more_vert</button>
             </div>
         </div>
         <div id="fileListContainer" class="container">
@@ -162,7 +162,7 @@ while (isset($_GET['f'])) {
                         <button id="previewNext" class="previewTopbarButton">arrow_forward</button>
                     </div>
                     <div class="col-auto d-flex align-items-center">
-                        <button id="previewButtonMenu" class="previewTopbarButton" onclick="popup_notImplemented()">more_vert</button>
+                        <button id="previewButtonMenu" class="previewTopbarButton">more_vert</button>
                     </div>
                 </div>
                 <div id="previewButtonPrevCont" class="previewNavCont">

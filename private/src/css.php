@@ -280,6 +280,7 @@ a:hover, a:focus {
 
 .popupCard {
     margin: auto;
+    min-width: 200px;
     max-width: 500px;
     padding: 15px 20px;
     background: <?= $theme['bgPopup'] ?>;
@@ -556,6 +557,71 @@ a:hover, a:focus {
     display: none;
 }
 
+.dropdownHitArea {
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    z-index: 30;
+}
+
+.dropdown {
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    max-width: 300px;
+    max-height: 600px;
+    margin: 10px;
+    background: <?= $theme['bgDropdown'] ?>;
+    padding: 8px 0px;
+    border-radius: 8px;
+    box-shadow: 0px 3px 15px 0px rgba(0,0,0,0.3);
+    z-index: 31;
+    user-select: none;
+}
+
+.dropdownItem {
+    padding: 8px 12px;
+    width: 100%;
+}
+.dropdownItem:hover:not(.disabled),
+.dropdownItem:focus:not(.disabled) {
+    background: <?= $theme['bgDropdownH'] ?>;
+}
+
+.dropdownItem.disabled {
+    opacity: 50%;
+}
+
+.dropdownItemIcon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "Material Icons Outlined", "Material Icons";
+    font-size: 24px;
+    color: <?= $theme['fgDropdown'] ?>;
+}
+
+.dropdownItemName {
+    margin-left: 12px;
+    margin-right: 12px;
+    margin-top: 2px;
+    font-size: 15px;
+    color: <?= $theme['fgDropdown'] ?>;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.dropdownSep {
+    width: 100%;
+    height: 1px;
+    margin: 5px 0px;
+    background: <?= $theme['bgDropdownSep'] ?>;
+}
+
 .buttonMain {
     padding: 10px 16px;
     font-family: "Montserrat", "Segoe UI", sans-serif;
@@ -590,16 +656,18 @@ a:hover, a:focus {
     }
 
     .fileListHeader {
-        font-size: 14px;
+        font-size: 15px;
     }
 
     .fileEntryName,
     .fileEntryDate,
     .fileEntrySize {
         padding: 10px 15px 10px 15px;
-        font-size: 15px;
+        font-size: 16px;
     }
-    .fileEntryNameInner,
+    .fileEntryNameInner {
+        font-size: 16px;
+    }
     .fileEntryMobileDetails {
         font-size: 15px;
     }
@@ -615,6 +683,24 @@ a:hover, a:focus {
         padding-top: 12px;
         padding-bottom: 12px;
         font-size: 16px;
+    }
+
+    #previewTitleContainer * {
+        line-height: 140%;
+    }
+
+    .dropdownItem {
+        padding: 10px 15px;
+    }
+
+    .dropdownItemIcon {
+        font-size: 26px;
+    }
+
+    .dropdownItemName {
+        font-size: 16px;
+        margin-left: 15px;
+        margin-top: 1px;
     }
 }
 

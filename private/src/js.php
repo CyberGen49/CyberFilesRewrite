@@ -63,22 +63,22 @@ function _(id) {
 
 // Get element coordinates and dimensions
 function _getX(id) {
-    return document.getElementById(id).getBoundingClientRect.x;
+    return document.getElementById(id).getBoundingClientRect().x;
 }
 function _getY(id) {
-    return document.getElementById(id).getBoundingClientRect.y;
+    return document.getElementById(id).getBoundingClientRect().y;
 }
 function _getX2(id) {
-    return document.getElementById(id).getBoundingClientRect.right;
+    return document.getElementById(id).getBoundingClientRect().right;
 }
 function _getY2(id) {
-    return document.getElementById(id).getBoundingClientRect.bottom;
+    return document.getElementById(id).getBoundingClientRect().bottom;
 }
 function _getW(id) {
-    return document.getElementById(id).getBoundingClientRect.width;
+    return document.getElementById(id).getBoundingClientRect().width;
 }
 function _getH(id) {
-    return document.getElementById(id).getBoundingClientRect.height;
+    return document.getElementById(id).getBoundingClientRect().height;
 }
 
 // Function to start a direct file download
@@ -297,7 +297,7 @@ async function loadFileList(dir = "", entryId = null) {
         var showGenericErrors = true;
         var seamlessTimeout = setTimeout(() => {
             _("fileListLoading").style.display = "";
-        }, 500);
+        }, 300);
         var cancelLoad = function() {
             // Hide spinner and update footer text
             clearTimeout(seamlessTimeout);
@@ -541,6 +541,10 @@ async function loadFileList(dir = "", entryId = null) {
                     hidePopup("fetchError");
                     loadFileList(dir, entryId);
                 }
+            }, {
+                "id": "retry",
+                "text": window.lang.popupHome,
+                "action": function() { window.location.href = "/"; }
             }], false);
             return Promise.reject();
         });
@@ -558,6 +562,8 @@ function showFilePreview(id = null) {
     if ($_GET("f") !== null && id !== null) {
         var data = window.fileObjects[id];
         if (data.mimeType == "directory") return;
+        window.currentFile = data;
+        window.currentFileId = id;
         console.log(`Loading file preview for "${data.name}"`);
         // Update history
         fileHistory.entries.push({
@@ -667,7 +673,9 @@ function hideFilePreview(refresh = true) {
     meta_themeColor("<?= $theme['browserTheme'] ?>");
     _("previewContainer").style.opacity = 0;
     _("body").style.overflowY = "";
-    historyPushState('', `${currentDir()}/`);
+    var newPath = currentDir();
+    if (newPath != "/") newPath = `${currentDir()}/`;
+    historyPushState('', newPath);
     if (refresh) loadFileList();
     setTimeout(() => {
         _("previewFile").innerHTML = "";
@@ -800,6 +808,76 @@ function popup_notImplemented() {
     }]);
 }
 
+// Show a dropdown menu
+function showDropdown(id, data, anchorId) {
+    if (!_(`dropdown-${id}`)) {
+        _("body").insertAdjacentHTML('beforeend', `
+            <div id="dropdownArea-${id}" class="dropdownHitArea" style="display: none;"></div>
+            <div id="dropdown-${id}" class="dropdown ease-in-out-100ms" style="display: none; opacity: 0">
+        `);
+        _(`dropdownArea-${id}`).addEventListener("click", function() { hideDropdown(id) });
+    }
+    _(`dropdownArea-${id}`).style.display = "none";
+    _(`dropdown-${id}`).style.display = "none";
+    _(`dropdown-${id}`).style.opacity = 0;
+    _(`dropdown-${id}`).style.marginTop = "5px";
+    _(`dropdown-${id}`).innerHTML = "";
+    data.forEach(item => {
+        switch (item.type) {
+            case 'item':
+                _(`dropdown-${id}`).insertAdjacentHTML('beforeend', `
+                    <div id="dropdown-${id}-${item.id}" class="dropdownItem row no-gutters">
+                        <div class="col-auto dropdownItemIcon material-icons">${item.icon}</div>
+                        <div class="col dropdownItemName">${item.text}</div>
+                    </div>
+                `);
+                if (item.disabled) {
+                    _(`dropdown-${id}-${item.id}`).classList.add("disabled");
+                    _(`dropdown-${id}-${item.id}`).title = window.lang.dropdownDisabled;
+                } else {
+                    _(`dropdown-${id}-${item.id}`).addEventListener("click", item.action);
+                    _(`dropdown-${id}-${item.id}`).addEventListener("click", function() { hideDropdown(id) });
+                }
+                break;
+            case 'sep':
+                _(`dropdown-${id}`).insertAdjacentHTML('beforeend', `
+                    <div class="dropdownSep"></div>
+                `);
+                break;
+        }
+    });
+    console.log(`Showing dropdown "${id}"`);
+    _(`dropdownArea-${id}`).style.display = "block";
+    _(`dropdown-${id}`).style.display = "block";
+    if (anchorId !== null) {
+        var anchorX = _getX(anchorId)+((_getX2(anchorId)-_getX(anchorId))/2);
+        var anchorY = _getY(anchorId)+((_getY2(anchorId)-_getY(anchorId))/2);
+        var windowW = window.innerWidth;
+        _(`dropdown-${id}`).style.top = `${anchorY-5}px`;
+        if (anchorX > (windowW/2))
+            _(`dropdown-${id}`).style.left = `${anchorX-_getW(`dropdown-${id}`)-5}px`;
+        else
+            _(`dropdown-${id}`).style.left = `${anchorX+15}px`;
+    }
+    clearTimeout(window.timeoutHideDropdown);
+    window.timeoutShowDropdown = setTimeout(() => {
+        _(`dropdown-${id}`).style.opacity = 1;
+        _(`dropdown-${id}`).style.marginTop = "10px";
+    }, 100);
+}
+
+// Hide an existing dropdown
+function hideDropdown(id) {
+    console.log(`Hiding dropdown "${id}"`);
+    _(`dropdownArea-${id}`).style.display = "none";
+    _(`dropdown-${id}`).style.marginTop = "15px";
+    _(`dropdown-${id}`).style.opacity = 0;
+    clearTimeout(window.timeoutShowDropdown);
+    window.timeoutHideDropdown = setTimeout(() => {
+        _(`dropdown-${id}`).style.display = "none";
+    }, 200);
+}
+
 // Handle the filter bar
 _("fileListFilter").addEventListener("keyup", function(event) {
     var value = this.value.toLowerCase();
@@ -844,6 +922,128 @@ _("fileListFilter").addEventListener("keyup", function(event) {
     }, (100*Math.floor(window.fileElements.length/500)));
 });
 
+// Topbar title click event
+_("topbarTitle").addEventListener("click", function() {
+    historyPushState('', `/`);
+    loadFileList();
+});
+
+// Handle dropdown menu buttons
+_("topbarButtonMenu").addEventListener("click", function() {
+    this.blur();
+    data = [];
+    data.push({
+        'disabled': true,
+        'type': 'item',
+        'id': 'refresh',
+        'text': window.lang.dropdownRefreshList,
+        'icon': 'refresh',
+        'action': function() { console.log("It works") }
+    });
+    data.push({
+        'disabled': true,
+        'type': 'item',
+        'id': 'sort',
+        'text': window.lang.dropdownSortList,
+        'icon': 'sort',
+        'action': function() { console.log("It works") }
+    });
+    data.push({ 'type': 'sep' });
+    data.push({
+        'type': 'item',
+        'id': 'share',
+        'text': window.lang.dropdownShareDirectory,
+        'icon': 'share',
+        'action': function() { copyText(window.location.href) }
+    });
+    data.push({ 'type': 'sep' });
+    data.push({
+        'disabled': true,
+        'type': 'item',
+        'id': 'history',
+        'text': window.lang.dropdownHistory,
+        'icon': 'history',
+        'action': function() { console.log("It works") }
+    });
+    data.push({ 'type': 'sep' });
+    data.push({
+        'disabled': true,
+        'type': 'item',
+        'id': 'about',
+        'text': window.lang.dropdownAbout,
+        'icon': 'info',
+        'action': function() { console.log("It works") }
+    });
+    data.push({
+        'type': 'item',
+        'id': 'reload',
+        'text': window.lang.dropdownRefreshPage,
+        'icon': 'refresh',
+        'action': function() { window.location.href = "" }
+    });
+    showDropdown("mainMenu", data, this.id);
+});
+_("previewButtonMenu").addEventListener("click", function() {
+    this.blur();
+    var fileData = window.currentFile;
+    data = [];
+    data.push({
+        'type': 'item',
+        'id': 'download',
+        'text': window.lang.dropdownFileDownload.replace("%0", fileData.sizeF),
+        'icon': 'download',
+        'action': function() { downloadFile(encodeURIComponent(fileData.name)) }
+    });
+    data.push({
+        'type': 'item',
+        'id': 'fileInfo',
+        'text': window.lang.dropdownFileInfo,
+        'icon': 'description',
+        'action': function() { popup_fileInfo(window.currentFileId) }
+    });
+    data.push({ 'type': 'sep' });
+    data.push({
+        'type': 'item',
+        'id': 'share',
+        'text': window.lang.dropdownShareFilePreview,
+        'icon': 'share',
+        'action': function() { copyText(window.location.href) }
+    });
+    data.push({
+        'type': 'item',
+        'id': 'shareDirect',
+        'text': window.lang.dropdownShareFile,
+        'icon': 'link',
+        'action': function() { copyText(window.location.href.replace("?f=", "")) }
+    });
+    data.push({ 'type': 'sep' });
+    data.push({
+        'disabled': true,
+        'type': 'item',
+        'id': 'history',
+        'text': window.lang.dropdownHistory,
+        'icon': 'history',
+        'action': function() { console.log("It works") }
+    });
+    data.push({ 'type': 'sep' });
+    data.push({
+        'disabled': true,
+        'type': 'item',
+        'id': 'about',
+        'text': window.lang.dropdownAbout,
+        'icon': 'info',
+        'action': function() { console.log("It works") }
+    });
+    data.push({
+        'type': 'item',
+        'id': 'reload',
+        'text': window.lang.dropdownRefreshPage,
+        'icon': 'refresh',
+        'action': function() { window.location.href = "" }
+    });
+    showDropdown("previewMenu", data, this.id);
+});
+
 // Do this stuff whenever a state is pushed to history
 window.addEventListener("popstate", function(event) {
     console.log("Browser navigation buttons were used");
@@ -857,12 +1057,6 @@ document.addEventListener("scroll", function(event) {
         _("topbar").classList.add("shadow");
     else
         _("topbar").classList.remove("shadow");
-});
-
-// Topbar title click event
-_("topbarTitle").addEventListener("click", function() {
-    historyPushState('', `/`);
-    loadFileList();
 });
 
 // On load

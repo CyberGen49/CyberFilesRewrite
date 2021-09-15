@@ -129,6 +129,7 @@ class ApiCall {
         $conf = $this->conf;
         $data = &$this->data;
         while (true) {
+            //header('Content-Type: application/json');
             // Get relative and absolute directory paths
             $dirRel = clean_path(rawurldecode(explode("?", $_SERVER['REQUEST_URI'])[0]));
             $dir = clean_path(document_root.$dirRel);
@@ -232,7 +233,6 @@ class ApiCall {
         // Set processing time
         $data['processingTime'] = abs(ceil(microtime(true)*1000)-$this->startTime);
         // Send the data
-        header('Content-Type: application/json');
         print(json_encode($data));
         exit;
     }

@@ -45,6 +45,12 @@ fgPopup: +fg
 fgPopupButton: +accent
 bgPopupButtonH: rgba(163, 231, 252, 0.3)
 bgPopupButtonC: rgba(163, 231, 252, 0.5)
+bgDropdown: +fg
+bgDropdownH: +fg2H
+bgDropdownC: +fg2
+bgDropdownSep: rgba(0, 0, 0, 0.15)
+fgDropdown: +bg
+fgDropdownD: +bg2
 bgPreview: '#000'
 bgPreviewH: rgba(255, 255, 255, 0.1)
 bgPreviewC: rgba(255, 255, 255, 0.2)
