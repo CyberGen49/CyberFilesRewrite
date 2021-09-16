@@ -116,7 +116,7 @@ function locStoreArraySet(key, array) {
 }
 
 // Retrieves an array from localstorage
-function locStoreArrayGet(key, array) {
+function locStoreArrayGet(key) {
     return JSON.parse(localStorage.getItem(key));
 }
 
@@ -233,8 +233,8 @@ function dateFormat(timestamp, format) {
         .replace("%M", date.getMinutes())
         .replace("%+M", addLeadingZeroes(date.getMinutes(), 2))
         .replace("%p", function() {
-            if (date.getHours() >= 12) return window.lang.dtPM;
-            else return window.lang.dtAM;
+            if (date.getHours() >= 12) return window.lang.dtPeriodPM;
+            else return window.lang.dtPeriodAM;
         })
         .replace("%S", date.getSeconds())
         .replace("%+S", addLeadingZeroes(date.getSeconds(), 2))
@@ -275,23 +275,23 @@ function dateFormatRelative(timestamp) {
     if (time < 180)
         return window.lang[`dtRel${future}Min`].replace("%0", Math.round(time));
     time /= 60;
-    if (time < 72)
+    if (time < 48)
         return window.lang[`dtRel${future}Hour`].replace("%0", Math.round(time));
     time /= 24;
-    if (time < 30)
+    if (time < 60)
         return window.lang[`dtRel${future}Day`].replace("%0", Math.round(time));
     return dateFormatPreset(timestamp);
 }
 
 // Loads a file list with the API
-async function loadFileList(dir = "", entryId = null) {
+async function loadFileList(dir = "", entryId = null, forceReload = false) {
     // Set variables
     document.title = "<?= $conf['siteName'] ?>";
     if (dir == "") dir = currentDir();
     var dirSplit = dir.split("/");
     var dirName = decodeURI(dirSplit[dirSplit.length-1]);
     // If the directory has changed since the last load
-    if (dir != window.loadDir) {
+    if (dir != window.loadDir || forceReload) {
         // Prepare for loading
         var loadStart = Date.now();
         var showGenericErrors = true;
@@ -336,7 +336,6 @@ async function loadFileList(dir = "", entryId = null) {
                     "text": window.lang.popupHome,
                     "action": function() {
                         _("topbarTitle").click();
-                        hidePopup("serverError");
                     }
                 }, {
                     "id": "reload",
@@ -375,7 +374,7 @@ async function loadFileList(dir = "", entryId = null) {
                             <a id="fileEntryUp" class="row no-gutters fileEntry" tabindex=0 onClick='fileEntryClicked(this, event)'">
                                 <div class="col-auto fileEntryIcon material-icons">arrow_back</div>
                                 <div class="col fileEntryName">
-                                    <div class="fileEntryNameInner">${upTitle}</div>
+                                    <div class="fileEntryNameInner noBoost">${upTitle}</div>
                                 </div>
                                 <div class="col-auto fileEntryDate fileListDesktop">-</div>
                                 <div class="col-auto fileEntrySize fileListDesktop">-</div>
@@ -444,11 +443,11 @@ async function loadFileList(dir = "", entryId = null) {
                         <a id="fileEntry-${i}" class="row no-gutters fileEntry" tabindex=0 data-filename='${f.name}' data-objectindex=${i} onClick='fileEntryClicked(this, event)' title="${f.title}">
                             <div class="col-auto fileEntryIcon material-icons">${f.icon}</div>
                             <div class="col fileEntryName">
-                                <div class="fileEntryNameInner">${f.name}</div>
-                                <div class="fileEntryMobileDetails fileListMobile">${f.detailsMobile}</div>
+                                <div class="fileEntryNameInner noBoost">${f.name}</div>
+                                <div class="fileEntryMobileDetails fileListMobile noBoost">${f.detailsMobile}</div>
                             </div>
-                            <div class="col-auto fileEntryDate fileListDesktop">${f.modifiedF}</div>
-                            <div class="col-auto fileEntrySize fileListDesktop">${f.sizeF}</div>
+                            <div class="col-auto fileEntryDate fileListDesktop noBoost">${f.modifiedF}</div>
+                            <div class="col-auto fileEntrySize fileListDesktop noBoost">${f.sizeF}</div>
                         </a>
                     `);
                     _(`fileEntry-${i}`).href = f.nameUri;
@@ -518,8 +517,7 @@ async function loadFileList(dir = "", entryId = null) {
                     if (!targetFileFound) {
                         showPopup("fileNotFound", window.lang.popupErrorTitle, `<p>${window.lang.popupFileNotFound}</p><p>${window.lang.popupFileNotFound2}</p>`, [{
                             'id': "close",
-                            'text': window.lang.popupOkay,
-                            'action': function() { hidePopup("fileNotFound") }
+                            'text': window.lang.popupOkay
                         }], false);
                     }
                 }
@@ -538,7 +536,6 @@ async function loadFileList(dir = "", entryId = null) {
                 "id": "retry",
                 "text": window.lang.popupRetry,
                 "action": function() {
-                    hidePopup("fetchError");
                     loadFileList(dir, entryId);
                 }
             }, {
@@ -739,7 +736,8 @@ function showPopup(id = "", title = "", body = "", actions = [], clickAwayHide =
         _(`popup-${id}-actions`).insertAdjacentHTML('beforeend', `
             <button id="${fullActionId}" class="popupButton">${a.text}</button>
         `);
-        _(fullActionId).addEventListener("click", a.action);
+        _(fullActionId).addEventListener("click", function() { hidePopup(id) });
+        if (a.action) _(fullActionId).addEventListener("click", a.action);
     }
     if (clickAwayHide) {
         _(`popup-${id}`).addEventListener("click", function() { hidePopup(id) });
@@ -786,11 +784,7 @@ function popup_fileInfo(id) {
         </p>
     `, [{
         'id': "close",
-        'text': window.lang.popupClose,
-        'action': function() {
-            historyPushState('', currentDir());
-            hidePopup("fileInfo");
-        }
+        'text': window.lang.popupClose
     }], true);
     /* {
         'id': "dl",
@@ -798,29 +792,55 @@ function popup_fileInfo(id) {
         'action': function() { downloadFile(encodeURIComponent(data.name)) }
     } */
 }
+function popup_clearHistory() {
+    showPopup("clearHistory", window.lang.popupClearHistoryTitle, window.lang.popupClearHistoryDesc, [{
+        'id': "yes",
+        'text': window.lang.popupYes,
+        'action': function() {
+            localStorage.removeItem('history');
+            window.location.href = "";
+        }
+    }, {
+        'id': "no",
+        'text': window.lang.popupNo
+    }]);
+}
 function popup_notImplemented() {
     showPopup("notImplemented", window.lang.popupNotImplementedTitle, window.lang.popupNotImplementedDesc, [{
         'id': "close",
-        'text': window.lang.popupClose,
-        'action': function() {
-            hidePopup("notImplemented");
-        }
+        'text': window.lang.popupClose
+    }]);
+}
+function popup_about() {
+    showPopup("about", window.lang.popupAboutTitle, `
+        <p>${window.lang.popupAboutDesc}</p>
+        <p>${window.lang.popupAboutDesc2}</p>
+        <p><a href="https://github.com/CyberGen49/CyberFilesRewrite" target="_blank">${window.lang.popupAboutDescLink}</a></p>
+    `, [{
+        'id': "close",
+        'text': window.lang.popupClose
     }]);
 }
 
 // Show a dropdown menu
+var timeoutShowDropdown = [];
+var timeoutHideDropdown = [];
 function showDropdown(id, data, anchorId) {
     if (!_(`dropdown-${id}`)) {
         _("body").insertAdjacentHTML('beforeend', `
             <div id="dropdownArea-${id}" class="dropdownHitArea" style="display: none;"></div>
-            <div id="dropdown-${id}" class="dropdown ease-in-out-100ms" style="display: none; opacity: 0">
+            <div id="dropdown-${id}" class="dropdown" style="display: none; opacity: 0">
         `);
         _(`dropdownArea-${id}`).addEventListener("click", function() { hideDropdown(id) });
     }
     _(`dropdownArea-${id}`).style.display = "none";
+    _(`dropdown-${id}`).classList.remove("ease-in-out-100ms");
     _(`dropdown-${id}`).style.display = "none";
     _(`dropdown-${id}`).style.opacity = 0;
     _(`dropdown-${id}`).style.marginTop = "5px";
+    _(`dropdown-${id}`).style.top = "";
+    _(`dropdown-${id}`).style.left = "";
+    _(`dropdown-${id}`).style.right = "";
     _(`dropdown-${id}`).innerHTML = "";
     data.forEach(item => {
         switch (item.type) {
@@ -850,20 +870,33 @@ function showDropdown(id, data, anchorId) {
     _(`dropdownArea-${id}`).style.display = "block";
     _(`dropdown-${id}`).style.display = "block";
     if (anchorId !== null) {
-        var anchorX = _getX(anchorId)+((_getX2(anchorId)-_getX(anchorId))/2);
-        var anchorY = _getY(anchorId)+((_getY2(anchorId)-_getY(anchorId))/2);
+        // Position the dropdown
+        var anchorX = _getX2(anchorId);
+        var anchorY = _getY(anchorId);
         var windowW = window.innerWidth;
+        var windowH = window.innerHeight;
         _(`dropdown-${id}`).style.top = `${anchorY-5}px`;
         if (anchorX > (windowW/2))
-            _(`dropdown-${id}`).style.left = `${anchorX-_getW(`dropdown-${id}`)-5}px`;
+            _(`dropdown-${id}`).style.left = `${anchorX-_getW(`dropdown-${id}`)-10}px`;
         else
-            _(`dropdown-${id}`).style.left = `${anchorX+15}px`;
+            _(`dropdown-${id}`).style.left = `${anchorX+10}px`;
+        // Check for height and scrolling
+        var elY = _getY(`dropdown-${id}`);
+        var elH = _getH(`dropdown-${id}`);
+        if ((elY+elH) > windowH-20) {
+            _(`dropdown-${id}`).style.height = `calc(100% - ${elY}px - 20px)`;
+        } else {
+            _(`dropdown-${id}`).style.height = "";
+        }
     }
-    clearTimeout(window.timeoutHideDropdown);
-    window.timeoutShowDropdown = setTimeout(() => {
+    try {
+        clearTimeout(window.timeoutShowDropdown[id]);
+    } catch (error) {}
+    window.timeoutShowDropdown[id] = setTimeout(() => {
+        _(`dropdown-${id}`).classList.add("ease-in-out-100ms");
         _(`dropdown-${id}`).style.opacity = 1;
         _(`dropdown-${id}`).style.marginTop = "10px";
-    }, 100);
+    }, 50);
 }
 
 // Hide an existing dropdown
@@ -872,11 +905,240 @@ function hideDropdown(id) {
     _(`dropdownArea-${id}`).style.display = "none";
     _(`dropdown-${id}`).style.marginTop = "15px";
     _(`dropdown-${id}`).style.opacity = 0;
-    clearTimeout(window.timeoutShowDropdown);
-    window.timeoutHideDropdown = setTimeout(() => {
+    try {
+        clearTimeout(window.timeoutHideDropdown[id]);
+    } catch (error) {}
+    window.timeoutHideDropdown[id] = setTimeout(() => {
         _(`dropdown-${id}`).style.display = "none";
     }, 200);
 }
+
+// Prebuilt dropdown menus
+function showDropdown_sort() {
+    data = [];
+    data.push({
+        'disabled': true,
+        'type': 'item',
+        'id': 'name',
+        'text': window.lang.dropdownSortListName,
+        'icon': 'sort',
+        'action': function() { console.log("It works") }
+    });
+    data.push({
+        'disabled': true,
+        'type': 'item',
+        'id': 'nameDesc',
+        'text': window.lang.dropdownSortListNameDesc,
+        'icon': 'sort',
+        'action': function() { console.log("It works") }
+    });
+    data.push({
+        'disabled': true,
+        'type': 'item',
+        'id': 'date',
+        'text': window.lang.dropdownSortListDate,
+        'icon': 'sort',
+        'action': function() { console.log("It works") }
+    });
+    data.push({
+        'disabled': true,
+        'type': 'item',
+        'id': 'dateDesc',
+        'text': window.lang.dropdownSortListDateDesc,
+        'icon': 'sort',
+        'action': function() { console.log("It works") }
+    });
+    data.push({
+        'disabled': true,
+        'type': 'item',
+        'id': 'size',
+        'text': window.lang.dropdownSortListSize,
+        'icon': 'sort',
+        'action': function() { console.log("It works") }
+    });
+    data.push({
+        'disabled': true,
+        'type': 'item',
+        'id': 'sizeDesc',
+        'text': window.lang.dropdownSortListSizeDesc,
+        'icon': 'sort',
+        'action': function() { console.log("It works") }
+    });
+    data.push({ 'type': 'sep' });
+    data.push({
+        'disabled': true,
+        'type': 'item',
+        'id': 'default',
+        'text': window.lang.dropdownSortListDefault,
+        'icon': 'public',
+        'action': function() { console.log("It works") }
+    });
+    showDropdown("sort", data, "topbarButtonMenu");
+}
+function showDropdown_recents() {
+    data = [];
+    data.push({
+        'disabled': true,
+        'type': 'item',
+        'id': 'viewFull',
+        'text': window.lang.dropdownRecentsViewFull,
+        'icon': 'history',
+        'action': function() { console.log("It works") }
+    });
+    data.push({
+        'type': 'item',
+        'id': 'clear',
+        'text': window.lang.dropdownRecentsClearHistory,
+        'icon': 'delete',
+        'action': function() { popup_clearHistory() }
+    });
+    data.push({ 'type': 'sep' });
+    var getUrl = function(f) {
+        if (f.type == "directory") return f.dir;
+        else return `${f.dir}/?f=${encodeURIComponent(f.name)}`;
+    }
+    var uniqueEntries = [];
+    var entries = locStoreArrayGet("history").entries;
+    entries.reverse();
+    uniqueEntries.push(getUrl(entries[0]));
+    var i = 0;
+    entries.forEach(f => {
+        if (uniqueEntries.length-1 <= 50) {
+            var url = getUrl(f);
+            if (!uniqueEntries.includes(url)) {
+                var icon = "insert_drive_file";
+                if (f.type == "directory") icon = "folder";
+                if (f.name == "") {
+                    f.name = window.lang.fileListRootName;
+                    icon = "home";
+                }
+                data.push({
+                    'type': 'item',
+                    'id': i,
+                    'text': f.name,
+                    'icon': icon,
+                    'action': function() {
+                        historyPushState('', url);
+                        loadFileList("", null, true);
+                    }
+                });
+                uniqueEntries.push(url);
+                i++;
+            }
+        }
+    });
+    showDropdown("recents", data, "topbarButtonMenu");
+}
+
+// Handle dropdown menu buttons
+_("topbarButtonMenu").addEventListener("click", function() {
+    this.blur();
+    data = [];
+    data.push({
+        'type': 'item',
+        'id': 'refresh',
+        'text': window.lang.dropdownRefreshList,
+        'icon': 'refresh',
+        'action': function() { loadFileList("", null, true) }
+    });
+    data.push({
+        'type': 'item',
+        'id': 'sort',
+        'text': window.lang.dropdownSortList,
+        'icon': 'sort',
+        'action': function() { showDropdown_sort() }
+    });
+    data.push({ 'type': 'sep' });
+    data.push({
+        'type': 'item',
+        'id': 'share',
+        'text': window.lang.dropdownShareDirectory,
+        'icon': 'share',
+        'action': function() { copyText(window.location.href) }
+    });
+    data.push({ 'type': 'sep' });
+    data.push({
+        'type': 'item',
+        'id': 'history',
+        'text': window.lang.dropdownRecents,
+        'icon': 'history',
+        'action': function() { showDropdown_recents() }
+    });
+    data.push({ 'type': 'sep' });
+    data.push({
+        'type': 'item',
+        'id': 'about',
+        'text': window.lang.dropdownAbout,
+        'icon': 'info',
+        'action': function() { popup_about() }
+    });
+    data.push({
+        'type': 'item',
+        'id': 'reload',
+        'text': window.lang.dropdownRefreshPage,
+        'icon': 'refresh',
+        'action': function() { window.location.href = "" }
+    });
+    showDropdown("mainMenu", data, this.id);
+});
+_("previewButtonMenu").addEventListener("click", function() {
+    this.blur();
+    var fileData = window.currentFile;
+    data = [];
+    data.push({
+        'type': 'item',
+        'id': 'download',
+        'text': window.lang.dropdownFileDownload.replace("%0", fileData.sizeF),
+        'icon': 'download',
+        'action': function() { downloadFile(encodeURIComponent(fileData.name)) }
+    });
+    data.push({
+        'type': 'item',
+        'id': 'fileInfo',
+        'text': window.lang.dropdownFileInfo,
+        'icon': 'description',
+        'action': function() { popup_fileInfo(window.currentFileId) }
+    });
+    data.push({ 'type': 'sep' });
+    data.push({
+        'type': 'item',
+        'id': 'share',
+        'text': window.lang.dropdownShareFilePreview,
+        'icon': 'share',
+        'action': function() { copyText(window.location.href) }
+    });
+    data.push({
+        'type': 'item',
+        'id': 'shareDirect',
+        'text': window.lang.dropdownShareFile,
+        'icon': 'link',
+        'action': function() { copyText(window.location.href.replace("?f=", "")) }
+    });
+    data.push({ 'type': 'sep' });
+    data.push({
+        'type': 'item',
+        'id': 'history',
+        'text': window.lang.dropdownRecents,
+        'icon': 'history',
+        'action': function() { showDropdown_recents() }
+    });
+    data.push({ 'type': 'sep' });
+    data.push({
+        'type': 'item',
+        'id': 'about',
+        'text': window.lang.dropdownAbout,
+        'icon': 'info',
+        'action': function() { popup_about() }
+    });
+    data.push({
+        'type': 'item',
+        'id': 'reload',
+        'text': window.lang.dropdownRefreshPage,
+        'icon': 'refresh',
+        'action': function() { window.location.href = "" }
+    });
+    showDropdown("previewMenu", data, this.id);
+});
 
 // Handle the filter bar
 _("fileListFilter").addEventListener("keyup", function(event) {
@@ -928,120 +1190,18 @@ _("topbarTitle").addEventListener("click", function() {
     loadFileList();
 });
 
-// Handle dropdown menu buttons
-_("topbarButtonMenu").addEventListener("click", function() {
-    this.blur();
-    data = [];
-    data.push({
-        'disabled': true,
-        'type': 'item',
-        'id': 'refresh',
-        'text': window.lang.dropdownRefreshList,
-        'icon': 'refresh',
-        'action': function() { console.log("It works") }
-    });
-    data.push({
-        'disabled': true,
-        'type': 'item',
-        'id': 'sort',
-        'text': window.lang.dropdownSortList,
-        'icon': 'sort',
-        'action': function() { console.log("It works") }
-    });
-    data.push({ 'type': 'sep' });
-    data.push({
-        'type': 'item',
-        'id': 'share',
-        'text': window.lang.dropdownShareDirectory,
-        'icon': 'share',
-        'action': function() { copyText(window.location.href) }
-    });
-    data.push({ 'type': 'sep' });
-    data.push({
-        'disabled': true,
-        'type': 'item',
-        'id': 'history',
-        'text': window.lang.dropdownHistory,
-        'icon': 'history',
-        'action': function() { console.log("It works") }
-    });
-    data.push({ 'type': 'sep' });
-    data.push({
-        'disabled': true,
-        'type': 'item',
-        'id': 'about',
-        'text': window.lang.dropdownAbout,
-        'icon': 'info',
-        'action': function() { console.log("It works") }
-    });
-    data.push({
-        'type': 'item',
-        'id': 'reload',
-        'text': window.lang.dropdownRefreshPage,
-        'icon': 'refresh',
-        'action': function() { window.location.href = "" }
-    });
-    showDropdown("mainMenu", data, this.id);
-});
-_("previewButtonMenu").addEventListener("click", function() {
-    this.blur();
-    var fileData = window.currentFile;
-    data = [];
-    data.push({
-        'type': 'item',
-        'id': 'download',
-        'text': window.lang.dropdownFileDownload.replace("%0", fileData.sizeF),
-        'icon': 'download',
-        'action': function() { downloadFile(encodeURIComponent(fileData.name)) }
-    });
-    data.push({
-        'type': 'item',
-        'id': 'fileInfo',
-        'text': window.lang.dropdownFileInfo,
-        'icon': 'description',
-        'action': function() { popup_fileInfo(window.currentFileId) }
-    });
-    data.push({ 'type': 'sep' });
-    data.push({
-        'type': 'item',
-        'id': 'share',
-        'text': window.lang.dropdownShareFilePreview,
-        'icon': 'share',
-        'action': function() { copyText(window.location.href) }
-    });
-    data.push({
-        'type': 'item',
-        'id': 'shareDirect',
-        'text': window.lang.dropdownShareFile,
-        'icon': 'link',
-        'action': function() { copyText(window.location.href.replace("?f=", "")) }
-    });
-    data.push({ 'type': 'sep' });
-    data.push({
-        'disabled': true,
-        'type': 'item',
-        'id': 'history',
-        'text': window.lang.dropdownHistory,
-        'icon': 'history',
-        'action': function() { console.log("It works") }
-    });
-    data.push({ 'type': 'sep' });
-    data.push({
-        'disabled': true,
-        'type': 'item',
-        'id': 'about',
-        'text': window.lang.dropdownAbout,
-        'icon': 'info',
-        'action': function() { console.log("It works") }
-    });
-    data.push({
-        'type': 'item',
-        'id': 'reload',
-        'text': window.lang.dropdownRefreshPage,
-        'icon': 'refresh',
-        'action': function() { window.location.href = "" }
-    });
-    showDropdown("previewMenu", data, this.id);
+// Do this stuff when the window is resized
+window.addEventListener("resize", function(event) {
+    // Loop through dropdown menus
+    var els = document.getElementsByClassName("dropdown");
+    for (i = 0; i < els.length; i++) {
+        var el = els[i];
+        // If this dropdown is visible, hide it
+        if (el.style.display != "none") {
+            var id = el.id.replace(/^dropdown-(.*)$/, "$1");
+            hideDropdown(id);
+        }
+    }
 });
 
 // Do this stuff whenever a state is pushed to history

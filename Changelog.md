@@ -1,6 +1,20 @@
 
 # CyberFilesRewrite Changelog
-I'll try my best to keep track of all changes to CyberFilesRewrite, big and small, right here in this changelog. As things are just getting started, I'll be lumping a lot of my changes together for the sake of simplicity.
+I'll try my best to keep track of all changes to CyberFilesRewrite, big and small, right here in this changelog. I do most of my web development late at night, so the dates here tend to extend into the following day.
+
+## September 15th, 2021
+* Fixed a problem where the file info popup would reset the URL, removing the file preview portion
+* Added styling to make sure font sizes stay consistent across browsers
+    * TIL font boosting is a thing, where some browsers (like mobile Chrome, for example) will make font sizes larger without caring about the CSS behind it - something that's been bugging me forever
+    * Now that things are consistent, I can make font sizes vary depending on input device (like making it larger on touch devices)
+* Made dropdown menus scrollable on small screen heights
+* Made dropdown menus hide when the window is resized
+    * In addition, their positioning is reset every time they're shown, just to be sure they're displayed right every time
+    * Things get kinda janky otherwise
+* Sorted `en.yml` alphabetically
+* Enabled the **Refresh files** menu option
+* Added the **Recents** menu, where you can access the last 50 files and folders you've visited
+    * This differs from normal history in that duplicate entries are omitted, so you only see the most recent occurance of each entry
 
 ## September 14th, 2021
 * Removed the `Content-Type: application/json` header from API responses due to it leading to an empty response sometimes

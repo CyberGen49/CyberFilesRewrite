@@ -143,33 +143,25 @@ while (isset($_GET['f'])) {
                 </div>
             </div>
             <div id="fileList" class="ease-in-out-100ms"></div>
-            <div id="fileListHint" class="ease-in-out-100ms"></div>
+            <div id="fileListHint" class="ease-in-out-100ms noBoost"></div>
         </div>
         <div id="previewContainer" class="ease-in-out-100ms" style="display: none; opacity: 0;">
-            <div id="previewInterface" class="ease-in-out-100ms">
-                <div id="previewTopbar" class="row no-gutters flex-nowrap">
-                    <div class="col-auto d-flex align-items-center">
-                        <button id="previewButtonClose" class="previewTopbarButton" onClick='hideFilePreview()'>close</button>
-                    </div>
-                    <div id="previewTitleContainer" class="col">
-                        <span id="previewFileName">-</span>
-                        <span id="previewFileDesc">-</span>
-                    </div>
-                    <div class="col-auto d-flex align-items-center">
-                        <button id="previewPrev" class="previewTopbarButton">arrow_back</button>
-                    </div>
-                    <div class="col-auto d-flex align-items-center">
-                        <button id="previewNext" class="previewTopbarButton">arrow_forward</button>
-                    </div>
-                    <div class="col-auto d-flex align-items-center">
-                        <button id="previewButtonMenu" class="previewTopbarButton">more_vert</button>
-                    </div>
+            <div id="previewTopbar" class="row no-gutters flex-nowrap">
+                <div class="col-auto d-flex align-items-center">
+                    <button id="previewButtonClose" class="previewTopbarButton" onClick='hideFilePreview()'>close</button>
                 </div>
-                <div id="previewButtonPrevCont" class="previewNavCont">
-                    <div id="previewButtonPrev" class="previewNav">arrow_back_ios</div>
+                <div id="previewTitleContainer" class="col">
+                    <span id="previewFileName">-</span>
+                    <span id="previewFileDesc">-</span>
                 </div>
-                <div id="previewButtonNextCont" class="previewNavCont">
-                    <div id="previewButtonNext" class="previewNav">arrow_forward_ios</div>
+                <div class="col-auto d-flex align-items-center">
+                    <button id="previewPrev" class="previewTopbarButton">arrow_back</button>
+                </div>
+                <div class="col-auto d-flex align-items-center">
+                    <button id="previewNext" class="previewTopbarButton">arrow_forward</button>
+                </div>
+                <div class="col-auto d-flex align-items-center">
+                    <button id="previewButtonMenu" class="previewTopbarButton">more_vert</button>
                 </div>
             </div>
             <div id="previewFile" class="ease-in-out-100ms"></div>

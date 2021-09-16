@@ -6,12 +6,12 @@ This project is a complete rewrite of my previous file index, which was a lot mo
 *Things are still under very heavy development, so they could be vastly changing over short spans of time. Keep an eye on [Changelog.md](https://github.com/CyberGen49/CyberFilesRewrite/blob/main/Changelog.md) to see updates.*
 
 ## Features
-* An extremely responsive interface
+* An extremely responsive, mobile-friendly interface
 * View videos, audio files, and images without leaving the page
 * Completely customizable colours, no CSS tinkering required
 * Completely customizable language files
 * File caching (via SQLite), making for blistering fast load speeds
-* Hide files with name patterns
+* Hide files matching name patterns
 * Hide directories from their parent file lists
 
 ## Installation

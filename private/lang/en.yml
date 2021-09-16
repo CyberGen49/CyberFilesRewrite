@@ -5,55 +5,119 @@
 # Don't edit this file!
 # If you want to customize these language variables, create a new language file, copy over the variables you want to change, and then change the 'language' config option to the name of your new file.
 
-topbarTitleTooltip: Go home
-topbarButtonUpLimitTooltip: This is the root directory.
-fileListFilter: Filter files in this folder...
-fileListFilterDisabled: Filtering is unavailable right now
-fileListFilterUrl: Type a URL and press Enter to navigate.
-fileDetailsName: Name
+dropdownAbout: "About CyberFiles..."
+dropdownDisabled: "This option isn't available yet."
+dropdownFileDownload: "Download (%0)"
+dropdownFileInfo: "File info..."
+dropdownRecents: "Recents..."
+dropdownRecentsViewFull: "View full history..."
+dropdownRecentsClearHistory: "Clear history..."
+dropdownRefreshList: "Refresh files"
+dropdownRefreshPage: "Refresh page"
+dropdownShareDirectory: "Copy directory URL"
+dropdownShareFile: "Copy file URL"
+dropdownShareFilePreview: "Copy file preview URL"
+dropdownSortList: "Sort files..."
+dropdownSortListName: Name
+dropdownSortListNameDesc: Name (Descending)
+dropdownSortListDate: Modified
+dropdownSortListDateDesc: Modified (Descending)
+dropdownSortListSize: Size
+dropdownSortListSizeDesc: Size (Descending)
+dropdownSortListDefault: Use global default
+dtMonth10: October
+dtMonth10Short: Oct
+dtMonth11: November
+dtMonth11Short: Nov
+dtMonth12: December
+dtMonth12Short: Dec
+dtMonth1: January
+dtMonth1Short: Jan
+dtMonth2: February
+dtMonth2Short: Feb
+dtMonth3: March
+dtMonth3Short: Mar
+dtMonth4: April
+dtMonth4Short: Apr
+dtMonth5: May
+dtMonth5Short: May
+dtMonth6: June
+dtMonth6Short: Jun
+dtMonth7: July
+dtMonth7Short: Jul
+dtMonth8: August
+dtMonth8Short: Aug
+dtMonth9: September
+dtMonth9Short: Sep
+dtPeriodAM: AM
+dtPeriodPM: PM
+dtRelDay: '%0 days ago'
+dtRelFutureDay: '%0 days from now'
+dtRelFutureHour: '%0 hours from now'
+dtRelFutureMin: '%0 mins from now'
+dtRelHour: '%0 hours ago'
+dtRelMin: '%0 mins ago'
+dtRelNow: Just now
+dtUnitShortMs: ms
+dtUnitShortSecs: ' secs'
+dtWeekday1: Sunday
+dtWeekday1Short: Sun
+dtWeekday2: Monday
+dtWeekday2Short: Mon
+dtWeekday3: Tuesday
+dtWeekday3Short: Tue
+dtWeekday4: Wednesday
+dtWeekday4Short: Wed
+dtWeekday5: Thursday
+dtWeekday5Short: Thu
+dtWeekday6: Friday
+dtWeekday6Short: Fri
+dtWeekday7: Saturday
+dtWeekday7Short: Sat
 fileDetailsDate: Last modified
+fileDetailsName: Name
 fileDetailsSize: File size
 fileDetailsType: File type
 fileListColumnGeneric: "File list"
-fileListMobileLine2: "%0 • %1"
-fileListDetails1Single: "1 file in %0"
 fileListDetails1Multi: "%0 files in %1"
+fileListDetails1Single: "1 file in %0"
 fileListDetails2: "Total size: %0"
-fileListDetailsFilterSingle: "Filtered 1 file"
 fileListDetailsFilterMulti: "Filtered %0 files"
 fileListDetailsFilterNone: "No files match your filter"
+fileListDetailsFilterSingle: "Filtered 1 file"
 fileListEmpty: There's nothing here.
-fileListHidden: This folder's contents have been hidden.
-fileListError: An error occurred.
 fileListEntryUp: "Up to %0"
+fileListError: An error occurred.
+fileListFilter: Filter files in this folder...
+fileListFilterDisabled: Filtering is unavailable right now
+fileListFilterUrl: Type a URL and press Enter to navigate.
+fileListHidden: This folder's contents have been hidden.
+fileListMobileLine2: "%0 • %1"
 fileListRootName: "Home"
-previewTitlebar2: "%0 • %1"
-previewTitle: "This file can't be previewed!"
-previewDesc: "You'll have to download it to view its contents."
-previewDownload: "Download file (%0)"
-previewFirstFile: "This is the first file."
-previewLastFile: "This is the last file."
 linkPreviewFileUncached: "This file's details aren't available right now, but you can preview and download it online."
-dropdownDisabled: "This option isn't available yet."
-dropdownRefreshList: "Refresh files"
-dropdownSortList: "Sort files..."
-dropdownHistory: "History..."
-dropdownRefreshPage: "Refresh page"
-dropdownAbout: "About CyberFiles..."
-dropdownShareDirectory: "Copy directory URL"
-dropdownShareFilePreview: "Copy file preview URL"
-dropdownShareFile: "Copy file URL"
-dropdownFileInfo: "File info..."
-dropdownFileDownload: "Download (%0)"
+popupAboutDesc2: "Built with love by CyberGen49"
+popupAboutDesc: "CyberFiles is an open-sourced, capable, and customizable file index that makes it easy to view and share files stored on the server."
+popupAboutDescLink: "Check it out on GitHub"
+popupAboutTitle: About CyberFiles
+popupBack: "Back"
+popupClose: "Close"
 popupErrorTitle: "Uh oh!"
-popupNoJsDesc: "Seems like you have Javascript disabled! The core functionality of CyberFiles requires Javascript, so you'll need to enable it to continue. See the Help link below if you're having trouble."
-popupNotImplementedTitle: Not implemented
-popupNotImplementedDesc: The action you just tried to perform hasn't been implemented yet. Check back later!
-popupFileInfoTitle: File info
-popupFileNotFound: "We couldn't find the file you requested. It was probably moved or deleted."
-popupFileNotFound2: "The directory it was in still exists, so take a look around to see if it's listed under a different name."
 popupFetchError: "Something went wrong while fetching the file list. Check your internet connection and try again."
-popupServerErrorTitle: "Server error %0"
+popupFileInfoTitle: File info
+popupFileNotFound2: "The directory it was in still exists, so take a look around to see if it's listed under a different name."
+popupFileNotFound: "We couldn't find the file you requested. It was probably moved or deleted."
+popupHelp: "Help"
+popupHome: "Home"
+popupNoJsDesc: "Seems like you have Javascript disabled! The core functionality of CyberFiles requires Javascript, so you'll need to enable it to continue. See the Help link below if you're having trouble."
+popupNotImplementedDesc: The action you just tried to perform hasn't been implemented yet. Check back later!
+popupNotImplementedTitle: Not implemented
+popupClearHistoryTitle: Clear history
+popupClearHistoryDesc: Are you sure you want to clear your history? (This only affects CyberFiles)
+popupOkay: "Okay"
+popupReload: "Reload"
+popupRetry: "Try again"
+popupYes: "Yes"
+popupNo: "No"
 popupServerError400: "The server refused to fufill the request. This could be a problem on your end, so try doing some searching if it continues."
 popupServerError401: "We couldn't verify your cridentials. Try refreshing the page to log in again."
 popupServerError403: "You don't have permission to access this resource."
@@ -72,67 +136,20 @@ popupServerError522: "The proxy server timed out while connecting to the origin 
 popupServerError523: "The proxy server failed to connect to the origin server."
 popupServerError524: "The proxy server timed out while waiting for a response from the origin server."
 popupServerErrorOther: "The server encountered an error. Search for the error code above for more info."
-popupOkay: "Okay"
-popupClose: "Close"
-popupHelp: "Help"
-popupReload: "Reload"
-popupRetry: "Try again"
-popupHome: "Home"
-popupBack: "Back"
-dtUnitShortMs: ms
-dtUnitShortSecs: ' secs'
-dtMonth1: January
-dtMonth2: February
-dtMonth3: March
-dtMonth4: April
-dtMonth5: May
-dtMonth6: June
-dtMonth7: July
-dtMonth8: August
-dtMonth9: September
-dtMonth10: October
-dtMonth11: November
-dtMonth12: December
-dtMonth1Short: Jan
-dtMonth2Short: Feb
-dtMonth3Short: Mar
-dtMonth4Short: Apr
-dtMonth5Short: May
-dtMonth6Short: Jun
-dtMonth7Short: Jul
-dtMonth8Short: Aug
-dtMonth9Short: Sep
-dtMonth10Short: Oct
-dtMonth11Short: Nov
-dtMonth12Short: Dec
-dtWeekday1: Sunday
-dtWeekday2: Monday
-dtWeekday3: Tuesday
-dtWeekday4: Wednesday
-dtWeekday5: Thursday
-dtWeekday6: Friday
-dtWeekday7: Saturday
-dtWeekday1Short: Sun
-dtWeekday2Short: Mon
-dtWeekday3Short: Tue
-dtWeekday4Short: Wed
-dtWeekday5Short: Thu
-dtWeekday6Short: Fri
-dtWeekday7Short: Sat
-dtAM: AM
-dtPM: PM
-dtRelNow: Just now
-dtRelMin: '%0 mins ago'
-dtRelHour: '%0 hours ago'
-dtRelDay: '%0 days ago'
-dtRelFutureMin: '%0 mins from now'
-dtRelFutureHour: '%0 hours from now'
-dtRelFutureDay: '%0 days from now'
+popupServerErrorTitle: "Server error %0"
+previewDesc: "You'll have to download it to view its contents."
+previewDownload: "Download file (%0)"
+previewFirstFile: "This is the first file."
+previewLastFile: "This is the last file."
+previewTitle: "This file can't be previewed!"
+previewTitlebar2: "%0 • %1"
 sizeUnitBytes: Bytes
+sizeUnitGB: GB
 sizeUnitKB: KB
 sizeUnitMB: MB
-sizeUnitGB: GB
 sizeUnitTB: TB
+topbarButtonUpLimitTooltip: This is the root directory.
+topbarTitleTooltip: Go home
 fileTypeDefault: File
 fileTypeDirectory: Folder
 fileTypes:

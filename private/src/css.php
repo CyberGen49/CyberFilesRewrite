@@ -25,13 +25,15 @@ body {
     margin: 0px;
 }
 
-p, .paragraph {
+p {
     margin: 0px;
     padding: 0px;
     padding-bottom: 5px;
     text-size-adjust: none;
     font-size: 15px;
     line-height: 150%;
+    /* This serves to prevent font boosting on mobile browsers */
+    max-height: 9000px;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -39,6 +41,8 @@ h1, h2, h3, h4, h5, h6 {
     margin: 0px;
     font-family: "Montserrat";
     font-weight: bold;
+    /* This serves to prevent font boosting on mobile browsers */
+    max-height: 9000px;
 }
 h1 { font-size: 28px; }
 h1:not(:first-child) { padding-top: 15px; }
@@ -264,83 +268,6 @@ a:hover, a:focus {
     text-align: center;
 }
 
-.popupBackground {
-    position: fixed;
-    display: flex;
-    top: 0px;
-    left: 0px;
-    width: 100%;
-    height: 100%;
-    padding: 10px;
-    overflow-x: hidden;
-    overflow-y: scroll;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 50;
-}
-
-.popupCard {
-    margin: auto;
-    min-width: 200px;
-    max-width: 500px;
-    padding: 15px 20px;
-    background: <?= $theme['bgPopup'] ?>;
-    border-radius: 12px;
-    box-shadow: 0px 4px 20px 8px rgba(0,0,0,0.3);
-}
-
-.popupTitle {
-    font-family: "Montserrat", "Segoe UI", sans-serif;
-    font-weight: bold;
-    font-size: 20px;
-    color: <?= $theme['fgPopup'] ?>;
-    padding-bottom: 5px;
-}
-
-.popupContent {
-    color: <?= $theme['fgPopup'] ?>;
-}
-
-.popupContent p:last-of-type {
-    padding-bottom: 0px;
-    margin-bottom: 0px;
-}
-
-.popupActions {
-    margin: -5px -10px;
-    padding-top: 15px;
-    display: flex;
-    justify-content: right;
-    flex-wrap: wrap;
-    user-select: none;
-}
-
-.popupButton {
-    line-height: 100%;
-    margin: 1px;
-    padding: 12px 14px;
-    font-family: "Montserrat", "Segoe UI", sans-serif;
-    font-weight: bold;
-    font-size: 15px;
-    color: <?= $theme['fgPopupButton'] ?>;
-    background: none;
-    border: none;
-    border-radius: 6px;
-    cursor: default;
-    transition: 0.1s ease-in-out;
-}
-
-.popupButton:hover,
-.popupButton:focus {
-    background: <?= $theme['bgPopupButtonH'] ?>;
-    color: <?= $theme['fgPopupButton'] ?>;
-    text-decoration: none;
-}
-
-.popupButton:active {
-    background: <?= $theme['bgPopupButtonC'] ?>;
-    color: <?= $theme['fgPopupButton'] ?>;
-}
-
 #previewContainer {
     position: fixed;
     top: 0px;
@@ -500,61 +427,81 @@ a:hover, a:focus {
     margin-top: 15px;
 }
 
-.previewNavCont {
-    position: absolute;
+.popupBackground {
+    position: fixed;
     display: flex;
     top: 0px;
-    height: 100%;
-    z-index: 21;
-    transition: 0.1s ease-in-out;
-    display: none;
-}
-#previewButtonPrevCont {
     left: 0px;
-    margin-left: 20px;
-}
-#previewButtonNextCont {
-    right: 0px;
-    margin-right: 20px;
+    width: 100%;
+    height: 100%;
+    padding: 10px;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 50;
 }
 
-.previewNav {
-    margin: auto 0px;
+.popupCard {
+    margin: auto;
+    min-width: 200px;
+    max-width: 600px;
+    padding: 15px 20px;
+    background: <?= $theme['bgPopup'] ?>;
+    border-radius: 12px;
+    box-shadow: 0px 4px 20px 8px rgba(0,0,0,0.3);
+}
+
+.popupTitle {
+    font-family: "Montserrat", "Segoe UI", sans-serif;
+    font-weight: bold;
+    font-size: 20px;
+    color: <?= $theme['fgPopup'] ?>;
+    padding-bottom: 5px;
+}
+
+.popupContent {
+    color: <?= $theme['fgPopup'] ?>;
+}
+
+.popupContent p:last-of-type {
+    padding-bottom: 0px;
+    margin-bottom: 0px;
+}
+
+.popupActions {
+    margin: -5px -10px;
+    padding-top: 15px;
     display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 50px;
-    height: 50px;
-    border-radius: 25px;
-    font-family: "Material Icons Outlined", "Material Icons";
-    font-size: 24px;
-    line-height: 100%;
-    color: <?= $theme['fgPreviewNav'] ?>;
-    background: <?= $theme['bgPreviewNav'] ?>;
-    box-shadow: 0px 0px 15px 5px rgba(0,0,0,0.3);
-    transition: 0.1s ease-in-out;
+    justify-content: right;
+    flex-wrap: wrap;
     user-select: none;
-    pointer-events: initial;
-}
-#previewButtonPrev {
-    padding-right: 4px;
-}
-#previewButtonNext {
-    padding-left: 4px;
 }
 
-.previewNav:hover:not(.disabled),
-.previewNav:focus:not(.disabled) {
-    color: <?= $theme['fgPreviewNavH'] ?>;
-    background: <?= $theme['bgPreviewNavH'] ?>;
-}
-.previewNav:active:not(.disabled) {
-    color: <?= $theme['fgPreviewNavC'] ?>;
-    background: <?= $theme['bgPreviewNavC'] ?>;
+.popupButton {
+    line-height: 100%;
+    margin: 1px;
+    padding: 10px 16px;
+    font-family: "Montserrat", "Segoe UI", sans-serif;
+    font-weight: bold;
+    font-size: 15px;
+    color: <?= $theme['fgPopupButton'] ?>;
+    background: none;
+    border: none;
+    border-radius: 6px;
+    cursor: default;
+    transition: 0.1s ease-in-out;
 }
 
-.previewNav.disabled {
-    display: none;
+.popupButton:hover,
+.popupButton:focus {
+    background: <?= $theme['bgPopupButtonH'] ?>;
+    color: <?= $theme['fgPopupButton'] ?>;
+    text-decoration: none;
+}
+
+.popupButton:active {
+    background: <?= $theme['bgPopupButtonC'] ?>;
+    color: <?= $theme['fgPopupButton'] ?>;
 }
 
 .dropdownHitArea {
@@ -580,6 +527,11 @@ a:hover, a:focus {
     box-shadow: 0px 3px 15px 0px rgba(0,0,0,0.3);
     z-index: 31;
     user-select: none;
+    overflow-y: scroll;
+}
+
+.dropdown::-webkit-scrollbar {
+    width: 0px;
 }
 
 .dropdownItem {
@@ -606,7 +558,7 @@ a:hover, a:focus {
 
 .dropdownItemName {
     margin-left: 12px;
-    margin-right: 12px;
+    margin-right: 6px;
     margin-top: 2px;
     font-size: 15px;
     color: <?= $theme['fgDropdown'] ?>;
@@ -649,6 +601,10 @@ a:hover, a:focus {
         line-height: 150%;
     }
 
+    p {
+        font-size: 17px;
+    }
+
     #fileListFilter {
         padding-top: 12px;
         padding-bottom: 12px;
@@ -665,11 +621,9 @@ a:hover, a:focus {
         padding: 10px 15px 10px 15px;
         font-size: 16px;
     }
-    .fileEntryNameInner {
-        font-size: 16px;
-    }
+    .fileEntryNameInner,
     .fileEntryMobileDetails {
-        font-size: 15px;
+        font-size: 16px;
     }
 
     #fileListHeaderIcon, .fileEntryIcon {
@@ -677,6 +631,15 @@ a:hover, a:focus {
     }
     .fileEntryIcon {
         font-size: 26px;
+    }
+    
+    #fileListHint { font-size: 15px; }
+
+    .popupTitle { font-size: 22px; }
+
+    .popupButton {
+        padding: 12px 20px;
+        font-size: 17px;
     }
 
     .buttonMain {
@@ -698,7 +661,7 @@ a:hover, a:focus {
     }
 
     .dropdownItemName {
-        font-size: 16px;
+        font-size: 17px;
         margin-left: 15px;
         margin-top: 1px;
     }
@@ -706,10 +669,6 @@ a:hover, a:focus {
 
 /* Handle small screen widths */
 @media only screen and (max-width: 600px) {
-    #topbarTitle {
-        font-size: 22px;
-    }
-
     .fileListMobile { display: inherit; }
     .fileListDesktop { display: none; }
 
@@ -762,6 +721,13 @@ a:hover, a:focus {
 /* Transition animation classes */
 .ease-in-out-100ms {
     transition: 0.1s ease-in-out;
+}
+
+
+/* Prevent font boosting on mobile browsers */
+/* https://developpaper.com/question/why-do-fonts-of-the-same-size-display-different-sizes-in-different-browsers/ */
+.noBoost {
+    max-height: 9000px;
 }
 
 /* Custom placeholder text colour */
