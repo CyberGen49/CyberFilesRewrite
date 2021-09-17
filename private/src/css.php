@@ -392,6 +392,77 @@ a:hover, a:focus {
     outline: none;
 }
 
+#videoControls {
+    display: none;
+    user-select: none;
+}
+
+#videoBottomBar {
+    position: absolute;
+    bottom: 0px;
+    left: 0px;
+    width: calc(100% - 30px);
+    margin: 15px;
+}
+
+.videoPill {
+    padding: 8px 16px !important;
+    background: <?= $theme['bg'] ?>;
+    border-radius: 10px;
+    box-shadow: 0px 3px 15px 0px rgba(0,0,0,0.3);
+}
+
+#videoPlayPauseSmall {
+    display: flex;
+    align-items: center;
+    margin-right: 8px;
+    font-family: "Material Icons";
+    font-size: 20px;
+}
+
+#videoProgressTime {
+    display: flex;
+    align-items: center;
+    margin-right: 8px;
+    font-size: 15px;
+}
+
+#videoProgressBarTrack,
+#videoProgressBarTrackFilled {
+    position: absolute;
+    margin-top: 8px;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 5px;
+    border-radius: 2px;
+    background: <?= $theme['bg2'] ?>;
+}
+#videoProgressBarTrackFilled {
+    width: 0px;
+    background: <?= $theme['accent'] ?>;
+}
+
+#videoProgressBar {
+    position: absolute;
+    margin-top: 4px;
+    top: 0px;
+    left: 0px;
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    outline: none;
+    background: none;
+}
+#videoProgressBar::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    background: <?= $theme['accent'] ?>;
+    width: 12px;
+    height: 12px;
+    border-radius: 6px;
+    transition: 0.1s ease-in-out;
+}
+
 .previewTypeAudio audio {
     margin: auto;
 }
@@ -435,8 +506,7 @@ a:hover, a:focus {
     width: 100%;
     height: 100%;
     padding: 10px;
-    overflow-x: hidden;
-    overflow-y: scroll;
+    overflow: hidden;
     background: rgba(0, 0, 0, 0.5);
     z-index: 50;
 }
@@ -445,10 +515,15 @@ a:hover, a:focus {
     margin: auto;
     min-width: 200px;
     max-width: 600px;
+    max-height: 100%;
     padding: 15px 20px;
     background: <?= $theme['bgPopup'] ?>;
     border-radius: 12px;
     box-shadow: 0px 4px 20px 8px rgba(0,0,0,0.3);
+    overflow-y: scroll;
+}
+.popupCard::-webkit-scrollbar {
+    width: 0px;
 }
 
 .popupTitle {
@@ -574,6 +649,28 @@ a:hover, a:focus {
     background: <?= $theme['bgDropdownSep'] ?>;
 }
 
+.toastContainer {
+    position: fixed;
+    bottom: 0px;
+    left: 0px;
+    width: 100%;
+    display: flex;
+    padding: 10px;
+    padding-bottom: 20px;
+    z-index: 70;
+    pointer-events: none;
+}
+
+.toast {
+    margin: 0px auto;
+    padding: 15px;
+    color: <?= $theme['fgToast'] ?>;
+    background: <?= $theme['bgToast'] ?>;
+    border-left: 8px solid <?= $theme['bgToastBorder'] ?>;
+    border-radius: 8px;
+    box-shadow: 0px 3px 15px 0px rgba(0,0,0,0.3);
+}
+
 .buttonMain {
     padding: 10px 16px;
     font-family: "Montserrat", "Segoe UI", sans-serif;
@@ -601,8 +698,8 @@ a:hover, a:focus {
         line-height: 150%;
     }
 
-    p {
-        font-size: 17px;
+    p, .toast {
+        font-size: 16px;
     }
 
     #fileListFilter {
@@ -636,6 +733,8 @@ a:hover, a:focus {
     #fileListHint { font-size: 15px; }
 
     .popupTitle { font-size: 22px; }
+
+    .popupContent { font-size: 16px; }
 
     .popupButton {
         padding: 12px 20px;
@@ -721,6 +820,9 @@ a:hover, a:focus {
 /* Transition animation classes */
 .ease-in-out-100ms {
     transition: 0.1s ease-in-out;
+}
+.ease-in-out-200ms {
+    transition: 0.2s ease-in-out;
 }
 
 

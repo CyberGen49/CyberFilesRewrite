@@ -25,6 +25,10 @@ dropdownSortListDateDesc: Modified (Descending)
 dropdownSortListSize: Size
 dropdownSortListSizeDesc: Size (Descending)
 dropdownSortListDefault: Use global default
+toastCopyDirectoryLink: Copied directory URL to clipboard.
+toastCopyFilePreviewLink: Copied file preview URL to clipboard.
+toastCopyFileLink: Copied direct file URL to clipboard.
+toastFileDownload: Downloading file...
 dtMonth10: October
 dtMonth10Short: Oct
 dtMonth11: November
@@ -95,6 +99,7 @@ fileListHidden: This folder's contents have been hidden.
 fileListMobileLine2: "%0 • %1"
 fileListRootName: "Home"
 linkPreviewFileUncached: "This file's details aren't available right now, but you can preview and download it online."
+popupAboutVersion: "Version: %0"
 popupAboutDesc2: "Built with love by CyberGen49"
 popupAboutDesc: "CyberFiles is an open-sourced, capable, and customizable file index that makes it easy to view and share files stored on the server."
 popupAboutDescLink: "Check it out on GitHub"
@@ -112,12 +117,13 @@ popupNoJsDesc: "Seems like you have Javascript disabled! The core functionality 
 popupNotImplementedDesc: The action you just tried to perform hasn't been implemented yet. Check back later!
 popupNotImplementedTitle: Not implemented
 popupClearHistoryTitle: Clear history
-popupClearHistoryDesc: Are you sure you want to clear your history? (This only affects CyberFiles)
+popupClearHistoryDesc: Are you sure you want to clear your history?
+popupClearHistoryDesc2: This only affects CyberFiles
 popupOkay: "Okay"
 popupReload: "Reload"
 popupRetry: "Try again"
-popupYes: "Yes"
-popupNo: "No"
+popupYes: "Yep"
+popupNo: "Nope"
 popupServerError400: "The server refused to fufill the request. This could be a problem on your end, so try doing some searching if it continues."
 popupServerError401: "We couldn't verify your cridentials. Try refreshing the page to log in again."
 popupServerError403: "You don't have permission to access this resource."

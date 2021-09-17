@@ -2,6 +2,15 @@
 # CyberFilesRewrite Changelog
 I'll try my best to keep track of all changes to CyberFilesRewrite, big and small, right here in this changelog. I do most of my web development late at night, so the dates here tend to extend into the following day.
 
+## September 16th, 2021
+* Made font sizes consistent across all popups
+    * Some don't use `<p>` elements
+* Reorganized the buttons in the Recents menu
+* Added toast notifications for events like copying text and starting file downloads
+    * These are unobtrusive little popups that show up at the bottom of the screen to provide feedback on actions
+    * They stay on screen for 3 seconds, and you can still click things under them
+* Added version to the about popup - hopefully I can remember to update it
+
 ## September 15th, 2021
 * Fixed a problem where the file info popup would reset the URL, removing the file preview portion
 * Added styling to make sure font sizes stay consistent across browsers
@@ -11,7 +20,6 @@ I'll try my best to keep track of all changes to CyberFilesRewrite, big and smal
 * Made dropdown menus hide when the window is resized
     * In addition, their positioning is reset every time they're shown, just to be sure they're displayed right every time
     * Things get kinda janky otherwise
-* Sorted `en.yml` alphabetically
 * Enabled the **Refresh files** menu option
 * Added the **Recents** menu, where you can access the last 50 files and folders you've visited
     * This differs from normal history in that duplicate entries are omitted, so you only see the most recent occurance of each entry

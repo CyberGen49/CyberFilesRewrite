@@ -10,6 +10,7 @@ This project is a complete rewrite of my previous file index, which was a lot mo
 * View videos, audio files, and images without leaving the page
 * Completely customizable colours, no CSS tinkering required
 * Completely customizable language files
+* Get back to where you left off quickly with recents
 * File caching (via SQLite), making for blistering fast load speeds
 * Hide files matching name patterns
 * Hide directories from their parent file lists

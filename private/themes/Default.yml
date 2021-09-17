@@ -51,6 +51,9 @@ bgDropdownC: +fg2
 bgDropdownSep: rgba(0, 0, 0, 0.15)
 fgDropdown: +bg
 fgDropdownD: +bg2
+bgToast: +bg2
+fgToast: +fg
+bgToastBorder: +accent
 bgPreview: '#000'
 bgPreviewH: rgba(255, 255, 255, 0.1)
 bgPreviewC: rgba(255, 255, 255, 0.2)

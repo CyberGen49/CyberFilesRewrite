@@ -608,7 +608,26 @@ function showFilePreview(id = null) {
         if (data.ext.match(/^(MP4)$/)) {
             _("previewFile").classList.add("previewTypeVideo");
             _("previewFile").innerHTML = `
-                <video <?php if ($conf['videoAutoplay']) print("autoplay") ?> controls src="${encodeURIComponent(data.name)}"></video>
+                <div id="videoContainer">
+                    <video <?php if ($conf['videoAutoplay']) print("autoplay") ?> src="${encodeURIComponent(data.name)}" controls></video>
+                    <div id="videoControls">
+                        <div id="videoBottomBar" class="row no-gutters">
+                            <div id="videoPlayPauseSmall" class="videoPill col-auto row no-gutters material-icons">play_arrow</div>
+                            <div id="videoProgressTime" class="videoPill col-auto">
+                                <span id="timeIntoVideo">-:--</span> / <span id="timeOfVideo">-:--</span>
+                            </div>
+                            <div id="videoProgress" class="videoPill col row no-gutters">
+                                <div id="videoProgressBarCont" class="col">
+                                    <div id="videoProgressBarInner">
+                                        <div id="videoProgressBarTrack"></div>
+                                        <div id="videoProgressBarTrackFilled"></div>
+                                        <input type="range" min="0" max="999" value="0" id="videoProgressBar">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             `;
         } else if (data.ext.match(/^(MP3|OGG|WAV|M4A)$/)) {
             _("previewFile").classList.add("previewTypeAudio");
@@ -793,7 +812,7 @@ function popup_fileInfo(id) {
     } */
 }
 function popup_clearHistory() {
-    showPopup("clearHistory", window.lang.popupClearHistoryTitle, window.lang.popupClearHistoryDesc, [{
+    showPopup("clearHistory", window.lang.popupClearHistoryTitle, `<p>${window.lang.popupClearHistoryDesc}</p><p>${window.lang.popupClearHistoryDesc2}</p>`, [{
         'id': "yes",
         'text': window.lang.popupYes,
         'action': function() {
@@ -813,6 +832,7 @@ function popup_notImplemented() {
 }
 function popup_about() {
     showPopup("about", window.lang.popupAboutTitle, `
+        <p>${window.lang.popupAboutVersion.replace("%0", "<b><?= $conf['version'] ?></b>")}</p>
         <p>${window.lang.popupAboutDesc}</p>
         <p>${window.lang.popupAboutDesc2}</p>
         <p><a href="https://github.com/CyberGen49/CyberFilesRewrite" target="_blank">${window.lang.popupAboutDescLink}</a></p>
@@ -977,22 +997,14 @@ function showDropdown_sort() {
 }
 function showDropdown_recents() {
     data = [];
-    data.push({
+    /*data.push({
         'disabled': true,
         'type': 'item',
         'id': 'viewFull',
         'text': window.lang.dropdownRecentsViewFull,
         'icon': 'history',
         'action': function() { console.log("It works") }
-    });
-    data.push({
-        'type': 'item',
-        'id': 'clear',
-        'text': window.lang.dropdownRecentsClearHistory,
-        'icon': 'delete',
-        'action': function() { popup_clearHistory() }
-    });
-    data.push({ 'type': 'sep' });
+    });*/
     var getUrl = function(f) {
         if (f.type == "directory") return f.dir;
         else return `${f.dir}/?f=${encodeURIComponent(f.name)}`;
@@ -1027,6 +1039,14 @@ function showDropdown_recents() {
             }
         }
     });
+    data.push({ 'type': 'sep' });
+    data.push({
+        'type': 'item',
+        'id': 'clear',
+        'text': window.lang.dropdownRecentsClearHistory,
+        'icon': 'delete',
+        'action': function() { popup_clearHistory() }
+    });
     showDropdown("recents", data, "topbarButtonMenu");
 }
 
@@ -1054,7 +1074,10 @@ _("topbarButtonMenu").addEventListener("click", function() {
         'id': 'share',
         'text': window.lang.dropdownShareDirectory,
         'icon': 'share',
-        'action': function() { copyText(window.location.href) }
+        'action': function() {
+            copyText(window.location.href);
+            showToast(window.lang.toastCopyDirectoryLink);
+        }
     });
     data.push({ 'type': 'sep' });
     data.push({
@@ -1087,17 +1110,20 @@ _("previewButtonMenu").addEventListener("click", function() {
     data = [];
     data.push({
         'type': 'item',
-        'id': 'download',
-        'text': window.lang.dropdownFileDownload.replace("%0", fileData.sizeF),
-        'icon': 'download',
-        'action': function() { downloadFile(encodeURIComponent(fileData.name)) }
-    });
-    data.push({
-        'type': 'item',
         'id': 'fileInfo',
         'text': window.lang.dropdownFileInfo,
         'icon': 'description',
         'action': function() { popup_fileInfo(window.currentFileId) }
+    });
+    data.push({
+        'type': 'item',
+        'id': 'download',
+        'text': window.lang.dropdownFileDownload.replace("%0", fileData.sizeF),
+        'icon': 'download',
+        'action': function() {
+            showToast(window.lang.toastFileDownload);
+            downloadFile(encodeURIComponent(fileData.name));
+        }
     });
     data.push({ 'type': 'sep' });
     data.push({
@@ -1105,14 +1131,20 @@ _("previewButtonMenu").addEventListener("click", function() {
         'id': 'share',
         'text': window.lang.dropdownShareFilePreview,
         'icon': 'share',
-        'action': function() { copyText(window.location.href) }
+        'action': function() {
+            copyText(window.location.href);
+            showToast(window.lang.toastCopyFilePreviewLink);
+        }
     });
     data.push({
         'type': 'item',
         'id': 'shareDirect',
         'text': window.lang.dropdownShareFile,
         'icon': 'link',
-        'action': function() { copyText(window.location.href.replace("?f=", "")) }
+        'action': function() {
+            copyText(window.location.href.replace("?f=", ""));
+            showToast(window.lang.toastCopyFileLink);
+        }
     });
     data.push({ 'type': 'sep' });
     data.push({
@@ -1139,6 +1171,30 @@ _("previewButtonMenu").addEventListener("click", function() {
     });
     showDropdown("previewMenu", data, this.id);
 });
+
+// Show a toast notification
+function showToast(text) {
+    var id = Date.now();
+    _("body").insertAdjacentHTML('beforeend', `
+        <div id="toast-${id}" class="toastContainer ease-in-out-100ms" style="display: none;">
+            <div class="toast">${text}</div>
+        </div>
+    `);
+    _(`toast-${id}`).style.opacity = 0;
+    _(`toast-${id}`).style.bottom = "-20px";
+    _(`toast-${id}`).style.display = "flex";
+    setTimeout(() => {
+        _(`toast-${id}`).style.bottom = "0px";
+        _(`toast-${id}`).style.opacity = 1;
+        setTimeout(() => {
+            _(`toast-${id}`).style.opacity = 0;
+            _(`toast-${id}`).style.bottom = "-20px";
+            setTimeout(() => {
+                _(`toast-${id}`).remove();
+            }, 200);
+        }, 3000);
+    }, 100);
+}
 
 // Handle the filter bar
 _("fileListFilter").addEventListener("keyup", function(event) {

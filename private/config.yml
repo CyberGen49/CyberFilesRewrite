@@ -35,3 +35,6 @@ audioAutoplay: true
 
 # Colour settings
 theme: Default
+
+# Other things
+version: "2021.09.16"
