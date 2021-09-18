@@ -207,7 +207,7 @@ function formattedSize(bytes) {
     return "-";
 }
 
-// Returns a formatted interpritation of a date
+// Returns a formatted interpretation of a date
 // Format should use custom variables mapped to those provided by the Date class
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date
 function dateFormat(timestamp, format) {
@@ -247,7 +247,7 @@ function dateFormat(timestamp, format) {
     return format;
 }
 
-// Returns a formatted interpritation of a date
+// Returns a formatted interpretation of a date
 function dateFormatPreset(timestamp, format = "short") {
     try {
         if (format == "short") {
@@ -261,7 +261,7 @@ function dateFormatPreset(timestamp, format = "short") {
     }
 }
 
-// Returns the relative interpritation of a date
+// Returns the relative interpretation of a date
 function dateFormatRelative(timestamp) {
     time = Date.now()-convertTimestamp(timestamp);
     var future = "";
@@ -281,6 +281,25 @@ function dateFormatRelative(timestamp) {
     if (time < 60)
         return window.lang[`dtRel${future}Day`].replace("%0", Math.round(time));
     return dateFormatPreset(timestamp);
+}
+
+// Returns an icon specific to the given MIME type
+function getFileTypeIcon(mimeType) {
+    if (mimeType.match(/^directory$/gi))
+        return "folder";
+    if (mimeType.match(/^video\/.*$/gi))
+        return "movie";
+    if (mimeType.match(/^text\/.*$/gi))
+        return "text_snippet";
+    if (mimeType.match(/^audio\/.*$/gi))
+        return "headset";
+    if (mimeType.match(/^image\/.*$/gi))
+        return "image";
+    if (mimeType.match(/^application\/.*$/gi))
+        return "widgets";
+    if (mimeType.match(/^application\/(zip|x-7z-compressed)$/gi))
+        return "archive";
+    return "insert_drive_file";
 }
 
 // Loads a file list with the API
@@ -358,6 +377,8 @@ async function loadFileList(dir = "", entryId = null, forceReload = false) {
                     'type': 'directory'
                 });
                 locStoreArraySet("history", fileHistory);
+                // Update global sort variable
+                window.fileListSort = data.sort;
                 // If we aren't in the document root
                 _("fileList").innerHTML = "";
                 if (dir != "/") {
@@ -401,7 +422,7 @@ async function loadFileList(dir = "", entryId = null, forceReload = false) {
                         // Set texts
                         f.sizeF = "-";
                         f.typeF = window.lang.fileTypeDirectory;
-                        f.icon = "folder";
+                        f.icon = getFileTypeIcon(f.mimeType);
                         // Set tooltip
                         f.title = `${f.name}\n${window.lang.fileDetailsDate}: ${f.modifiedFF}\n${window.lang.fileDetailsType}: ${f.typeF}`;
                         // Set mobile details
@@ -419,19 +440,7 @@ async function loadFileList(dir = "", entryId = null, forceReload = false) {
                                 f.typeF = window.lang.fileTypes[f.ext];
                         }
                         // Set icon based on MIME type
-                        f.icon = "insert_drive_file";
-                        if (f.mimeType.match(/^video\/.*$/gi))
-                            f.icon = "movie";
-                        if (f.mimeType.match(/^text\/.*$/gi))
-                            f.icon = "text_snippet";
-                        if (f.mimeType.match(/^audio\/.*$/gi))
-                            f.icon = "headset";
-                        if (f.mimeType.match(/^image\/.*$/gi))
-                            f.icon = "image";
-                        if (f.mimeType.match(/^application\/.*$/gi))
-                            f.icon = "widgets";
-                        if (f.mimeType.match(/^application\/(zip|x-7z-compressed)$/gi))
-                            f.icon = "archive";
+                        f.icon = getFileTypeIcon(f.mimeType);
                         // Set tooltip
                         f.title = `${f.name}\n${window.lang.fileDetailsDate}: ${f.modifiedFF}\n${window.lang.fileDetailsType}: ${f.typeF}\n${window.lang.fileDetailsSize}: ${f.sizeF}" href="${f.name}`;
                         // Set mobile details
@@ -608,8 +617,8 @@ function showFilePreview(id = null) {
         if (data.ext.match(/^(MP4)$/)) {
             _("previewFile").classList.add("previewTypeVideo");
             _("previewFile").innerHTML = `
+                <video <?php if ($conf['videoAutoplay']) print("autoplay") ?> src="${encodeURIComponent(data.name)}" controls></video>
                 <div id="videoContainer">
-                    <video <?php if ($conf['videoAutoplay']) print("autoplay") ?> src="${encodeURIComponent(data.name)}" controls></video>
                     <div id="videoControls">
                         <div id="videoBottomBar" class="row no-gutters">
                             <div id="videoPlayPauseSmall" class="videoPill col-auto row no-gutters material-icons">play_arrow</div>
@@ -867,7 +876,7 @@ function showDropdown(id, data, anchorId) {
             case 'item':
                 _(`dropdown-${id}`).insertAdjacentHTML('beforeend', `
                     <div id="dropdown-${id}-${item.id}" class="dropdownItem row no-gutters">
-                        <div class="col-auto dropdownItemIcon material-icons">${item.icon}</div>
+                        <div id="dropdown-${id}-${item.id}-icon" class="col-auto dropdownItemIcon material-icons">${item.icon}</div>
                         <div class="col dropdownItemName">${item.text}</div>
                     </div>
                 `);
@@ -917,6 +926,7 @@ function showDropdown(id, data, anchorId) {
         _(`dropdown-${id}`).style.opacity = 1;
         _(`dropdown-${id}`).style.marginTop = "10px";
     }, 50);
+    return `dropdown-${id}`;
 }
 
 // Hide an existing dropdown
@@ -941,7 +951,7 @@ function showDropdown_sort() {
         'type': 'item',
         'id': 'name',
         'text': window.lang.dropdownSortListName,
-        'icon': 'sort',
+        'icon': 'check',
         'action': function() { console.log("It works") }
     });
     data.push({
@@ -949,7 +959,7 @@ function showDropdown_sort() {
         'type': 'item',
         'id': 'nameDesc',
         'text': window.lang.dropdownSortListNameDesc,
-        'icon': 'sort',
+        'icon': 'check',
         'action': function() { console.log("It works") }
     });
     data.push({
@@ -957,7 +967,7 @@ function showDropdown_sort() {
         'type': 'item',
         'id': 'date',
         'text': window.lang.dropdownSortListDate,
-        'icon': 'sort',
+        'icon': 'check',
         'action': function() { console.log("It works") }
     });
     data.push({
@@ -965,7 +975,7 @@ function showDropdown_sort() {
         'type': 'item',
         'id': 'dateDesc',
         'text': window.lang.dropdownSortListDateDesc,
-        'icon': 'sort',
+        'icon': 'check',
         'action': function() { console.log("It works") }
     });
     data.push({
@@ -973,7 +983,7 @@ function showDropdown_sort() {
         'type': 'item',
         'id': 'size',
         'text': window.lang.dropdownSortListSize,
-        'icon': 'sort',
+        'icon': 'check',
         'action': function() { console.log("It works") }
     });
     data.push({
@@ -981,7 +991,7 @@ function showDropdown_sort() {
         'type': 'item',
         'id': 'sizeDesc',
         'text': window.lang.dropdownSortListSizeDesc,
-        'icon': 'sort',
+        'icon': 'check',
         'action': function() { console.log("It works") }
     });
     data.push({ 'type': 'sep' });
@@ -993,7 +1003,36 @@ function showDropdown_sort() {
         'icon': 'public',
         'action': function() { console.log("It works") }
     });
-    showDropdown("sort", data, "topbarButtonMenu");
+    var dropdownId = showDropdown("sort", data, "topbarButtonMenu");
+    // Hide all icons
+    _(`${dropdownId}-name-icon`).style.opacity = 0;
+    _(`${dropdownId}-nameDesc-icon`).style.opacity = 0;
+    _(`${dropdownId}-date-icon`).style.opacity = 0;
+    _(`${dropdownId}-dateDesc-icon`).style.opacity = 0;
+    _(`${dropdownId}-size-icon`).style.opacity = 0;
+    _(`${dropdownId}-sizeDesc-icon`).style.opacity = 0;
+    var sortString = `${window.fileListSort.type}-${window.fileListSort.desc.toString()}`;
+    // Show the icon of the sort item matching the current file list
+    switch (sortString) {
+        case 'name-false':
+            _(`${dropdownId}-name-icon`).style.opacity = 1;
+            break;
+        case 'name-true':
+            _(`${dropdownId}-nameDesc-icon`).style.opacity = 1;
+            break;
+        case 'date-false':
+            _(`${dropdownId}-date-icon`).style.opacity = 1;
+            break;
+        case 'date-true':
+            _(`${dropdownId}-dateDesc-icon`).style.opacity = 1;
+            break;
+        case 'size-false':
+            _(`${dropdownId}-size-icon`).style.opacity = 1;
+            break;
+        case 'size-true':
+            _(`${dropdownId}-sizeDesc-icon`).style.opacity = 1;
+            break;
+    }
 }
 function showDropdown_recents() {
     data = [];
@@ -1028,7 +1067,7 @@ function showDropdown_recents() {
                     'type': 'item',
                     'id': i,
                     'text': f.name,
-                    'icon': icon,
+                    'icon': getFileTypeIcon(f.type),
                     'action': function() {
                         historyPushState('', url);
                         loadFileList("", null, true);

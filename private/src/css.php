@@ -695,7 +695,7 @@ a:hover, a:focus {
 /* Handle touch devices */
 @media (hover: none) and (pointer: coarse) {
     * {
-        line-height: 150%;
+        line-height: 145%;
     }
 
     p, .toast {

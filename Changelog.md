@@ -2,6 +2,12 @@
 # CyberFilesRewrite Changelog
 I'll try my best to keep track of all changes to CyberFilesRewrite, big and small, right here in this changelog. I do most of my web development late at night, so the dates here tend to extend into the following day.
 
+## September 17th, 2021
+* Fixed video preview centering after I broke it yesterday
+* Added file type-specific icons to the recents menu
+* Added a checkmark next to the current sort order in the sort menu
+    * The options are still disabled
+
 ## September 16th, 2021
 * Made font sizes consistent across all popups
     * Some don't use `<p>` elements
@@ -22,7 +28,7 @@ I'll try my best to keep track of all changes to CyberFilesRewrite, big and smal
     * Things get kinda janky otherwise
 * Enabled the **Refresh files** menu option
 * Added the **Recents** menu, where you can access the last 50 files and folders you've visited
-    * This differs from normal history in that duplicate entries are omitted, so you only see the most recent occurance of each entry
+    * This differs from normal history in that duplicate entries are omitted, so you only see the most recent occurrence of each entry
 
 ## September 14th, 2021
 * Removed the `Content-Type: application/json` header from API responses due to it leading to an empty response sometimes
@@ -68,7 +74,7 @@ I'll try my best to keep track of all changes to CyberFilesRewrite, big and smal
 * Added the `videoAutoplay` and `audioAutoplay` config options
 
 ## September 10th, 2021
-* Chnaged the max file history entry count to be length based
+* Changed the max file history entry count to be length based
     * That is to say, on load, we'll remove the oldest entry from history until the overall size of history is less than a million characters.
     * For some context, LocalStorage allows up to 5 MB (~5.2 million ASCII characters) per origin (domain). After a very basic test, I've concluded that 1000 entries comes out to about 80k characters, which is only 1.5% of our available space.
 * Added some comments at the top of the default theme
@@ -105,7 +111,7 @@ I'll try my best to keep track of all changes to CyberFilesRewrite, big and smal
     * This prevents the quick spinner flash between fast loads
 * Started work on the handling of non-directory file entries (actual files!)
 * Added a CSS breakpoint at 600px for mobile devices
-    * At screen widths smaller than this amount, the file list will condence into one column, with modification date and size moving to a second line, beneath the file name.
+    * At screen widths smaller than this amount, the file list will condense into one column, with modification date and size moving to a second line, beneath the file name.
 
 ## September 7th, 2021
 * Added file icons (via Google Material Icons)

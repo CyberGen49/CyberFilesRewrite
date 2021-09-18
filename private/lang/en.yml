@@ -18,13 +18,13 @@ dropdownShareDirectory: "Copy directory URL"
 dropdownShareFile: "Copy file URL"
 dropdownShareFilePreview: "Copy file preview URL"
 dropdownSortList: "Sort files..."
-dropdownSortListName: Name
-dropdownSortListNameDesc: Name (Descending)
-dropdownSortListDate: Modified
-dropdownSortListDateDesc: Modified (Descending)
-dropdownSortListSize: Size
-dropdownSortListSizeDesc: Size (Descending)
-dropdownSortListDefault: Use global default
+dropdownSortListName: Name (A-Z)
+dropdownSortListNameDesc: Name (Z-A)
+dropdownSortListDate: Modified (Oldest first)
+dropdownSortListDateDesc: Modified (Newest first)
+dropdownSortListSize: Size (Smallest first)
+dropdownSortListSizeDesc: Size (Largest first)
+dropdownSortListDefault: Use folder default
 toastCopyDirectoryLink: Copied directory URL to clipboard.
 toastCopyFilePreviewLink: Copied file preview URL to clipboard.
 toastCopyFileLink: Copied direct file URL to clipboard.

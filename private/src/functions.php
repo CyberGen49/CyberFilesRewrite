@@ -1,5 +1,8 @@
 <?php
 
+// CyberFiles PHP functions
+// See the APICall class at the bottom for the CyberFiles API
+
 /**
  * Requires a file and outputs an error if it fails
  *
@@ -74,6 +77,9 @@ function formatted_size(float $bytes = 0):string {
     return number_format($bytes, $decimalPlaces) . " " . $fileSizeSuffix;
 }
 
+/**
+ * Handles CyberFiles API calls
+ */
 class ApiCall {
     function __construct($params, $conf) {
         // Set class variables
