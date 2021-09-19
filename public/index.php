@@ -160,6 +160,9 @@ while (isset($_GET['f'])) {
                 <div class="col-auto d-flex align-items-center">
                     <button id="previewNext" class="previewTopbarButton">arrow_forward</button>
                 </div>
+                <!-- <div class="col-auto d-flex align-items-center fileListDesktop">
+                    <button id="previewButtonDownload" class="previewTopbarButton">download</button>
+                </div> -->
                 <div class="col-auto d-flex align-items-center">
                     <button id="previewButtonMenu" class="previewTopbarButton">more_vert</button>
                 </div>

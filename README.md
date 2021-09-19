@@ -48,11 +48,12 @@ In the text editor, paste this example configuration:
     DocumentRoot ${dRoot}
     DirectoryIndex index.html index.php /_cyberfiles/public/index.php
     # Set error documents
-    ErrorDocument 400 /_cyberfiles/public/index.php?error=400
-    ErrorDocument 401 /_cyberfiles/public/index.php?error=401
-    ErrorDocument 403 /_cyberfiles/public/index.php?error=403
-    ErrorDocument 404 /_cyberfiles/public/index.php?error=404
-    ErrorDocument 500 /_cyberfiles/public/index.php?error=500
+    # Feel free to add more of these to handle more error codes
+    ErrorDocument 400 /_cyberfiles/public/index.php
+    ErrorDocument 401 /_cyberfiles/public/index.php
+    ErrorDocument 403 /_cyberfiles/public/index.php
+    ErrorDocument 404 /_cyberfiles/public/index.php
+    ErrorDocument 500 /_cyberfiles/public/index.php
     # Always allow access to the root directory
     <Directory "${dRoot}">
         Require all granted
@@ -148,6 +149,13 @@ Whether or not video file previews should autoplay when opened.
 #### `audioAutoplay`
 Type: `boolean`  
 Whether or not audio file previews should autoplay when opened.
+
+#### `videoProgressSave`
+Options for video progress saving. When enabled, users will be given the option to pick up where they left off previewing a video file. This data, like history, is stored on the user's computer only.
+* `enable`: If `true`, video progress saving is enabled
+* `minDuration`: The minimum duration, in seconds, a video needs to be for progress to be saved
+* `minPercent`: Video progress will only be saved once the user is this far into a video, as a percentage. For example, when set to 10, progress will start saving 2 minutes into a 20 minute video.
+* `maxPercent`: Video progress will stop saving after the user is this far into a video. Functions the same as `minPercent`.
 
 #### `theme`
 Type: `array`  

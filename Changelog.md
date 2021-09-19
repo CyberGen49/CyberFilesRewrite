@@ -2,6 +2,13 @@
 # CyberFilesRewrite Changelog
 I'll try my best to keep track of all changes to CyberFilesRewrite, big and small, right here in this changelog. I do most of my web development late at night, so the dates here tend to extend into the following day.
 
+## September 18th, 2021
+* Now, when accessing a recent directory while previewing a file, the file preview will close, instead of staying open
+* Now, the current directory is hidden from Recents while a file preview is open
+    * Meaning that, when previewing, both the current file and current directory are hidden in Recents
+* Added config options for video progress saving
+    * The actual functionality isn't here yet
+
 ## September 17th, 2021
 * Fixed video preview centering after I broke it yesterday
 * Added file type-specific icons to the recents menu

@@ -32,9 +32,14 @@ upButtonInFileList: false
 mobileFileListBorders: false
 videoAutoplay: true
 audioAutoplay: true
+videoProgressSave:
+  enable: true
+  minDuration: 600
+  minPercent: 10
+  maxPercent: 90
 
 # Colour settings
 theme: Default
 
 # Other things
-version: 15
+version: 16

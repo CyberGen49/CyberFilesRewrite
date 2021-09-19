@@ -528,8 +528,9 @@ async function loadFileList(dir = "", entryId = null, forceReload = false) {
                             'id': "close",
                             'text': window.lang.popupOkay
                         }], false);
+                        hideFilePreview();
                     }
-                }
+                } else hideFilePreview();
                 // Finish up
                 window.canClickEntries = true;
                 window.loadDir = dir;
@@ -670,7 +671,7 @@ function showFilePreview(id = null) {
             document.title = data.name+" - <?= $conf['siteName'] ?>";
         }, 50);
     } else {
-        hideFilePreview(false);
+        hideFilePreview();
     }
 }
 
@@ -694,14 +695,13 @@ _("previewPrev").addEventListener("click", function() { navFilePreview(this); })
 _("previewNext").addEventListener("click", function() { navFilePreview(this); })
 
 // Hides the file preview
-function hideFilePreview(refresh = true) {
+function hideFilePreview() {
     meta_themeColor("<?= $theme['browserTheme'] ?>");
     _("previewContainer").style.opacity = 0;
     _("body").style.overflowY = "";
     var newPath = currentDir();
     if (newPath != "/") newPath = `${currentDir()}/`;
     historyPushState('', newPath);
-    if (refresh) loadFileList();
     setTimeout(() => {
         _("previewFile").innerHTML = "";
         _("previewContainer").style.display = "none";
@@ -1046,15 +1046,17 @@ function showDropdown_recents() {
     });*/
     var getUrl = function(f) {
         if (f.type == "directory") return f.dir;
-        else return `${f.dir}/?f=${encodeURIComponent(f.name)}`;
+        if (f.dir == "/") return `/?f=${encodeURIComponent(f.name)}`;
+        return `${f.dir}/?f=${encodeURIComponent(f.name)}`;
     }
     var uniqueEntries = [];
     var entries = locStoreArrayGet("history").entries;
     entries.reverse();
+    uniqueEntries.push(entries[0].dir);
     uniqueEntries.push(getUrl(entries[0]));
     var i = 0;
     entries.forEach(f => {
-        if (uniqueEntries.length-1 <= 50) {
+        if (uniqueEntries.length-2 <= 50) {
             var url = getUrl(f);
             if (!uniqueEntries.includes(url)) {
                 var icon = "insert_drive_file";
