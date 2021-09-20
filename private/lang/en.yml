@@ -18,66 +18,17 @@ dropdownShareDirectory: "Copy directory URL"
 dropdownShareFile: "Copy file URL"
 dropdownShareFilePreview: "Copy file preview URL"
 dropdownSortList: "Sort files..."
-dropdownSortListName: Name (A-Z)
-dropdownSortListNameDesc: Name (Z-A)
-dropdownSortListDate: Modified (Oldest first)
-dropdownSortListDateDesc: Modified (Newest first)
-dropdownSortListSize: Size (Smallest first)
-dropdownSortListSizeDesc: Size (Largest first)
+dropdownSortListName: Name A-Z
+dropdownSortListNameDesc: Name Z-A
+dropdownSortListDate: Oldest first
+dropdownSortListDateDesc: Newest first
+dropdownSortListSize: Smallest first
+dropdownSortListSizeDesc: Largest first
 dropdownSortListDefault: Use folder default
 toastCopyDirectoryLink: Copied directory URL to clipboard.
 toastCopyFilePreviewLink: Copied file preview URL to clipboard.
 toastCopyFileLink: Copied direct file URL to clipboard.
 toastFileDownload: Downloading file...
-dtMonth10: October
-dtMonth10Short: Oct
-dtMonth11: November
-dtMonth11Short: Nov
-dtMonth12: December
-dtMonth12Short: Dec
-dtMonth1: January
-dtMonth1Short: Jan
-dtMonth2: February
-dtMonth2Short: Feb
-dtMonth3: March
-dtMonth3Short: Mar
-dtMonth4: April
-dtMonth4Short: Apr
-dtMonth5: May
-dtMonth5Short: May
-dtMonth6: June
-dtMonth6Short: Jun
-dtMonth7: July
-dtMonth7Short: Jul
-dtMonth8: August
-dtMonth8Short: Aug
-dtMonth9: September
-dtMonth9Short: Sep
-dtPeriodAM: AM
-dtPeriodPM: PM
-dtRelDay: '%0 days ago'
-dtRelFutureDay: '%0 days from now'
-dtRelFutureHour: '%0 hours from now'
-dtRelFutureMin: '%0 mins from now'
-dtRelHour: '%0 hours ago'
-dtRelMin: '%0 mins ago'
-dtRelNow: Just now
-dtUnitShortMs: ms
-dtUnitShortSecs: ' secs'
-dtWeekday1: Sunday
-dtWeekday1Short: Sun
-dtWeekday2: Monday
-dtWeekday2Short: Mon
-dtWeekday3: Tuesday
-dtWeekday3Short: Tue
-dtWeekday4: Wednesday
-dtWeekday4Short: Wed
-dtWeekday5: Thursday
-dtWeekday5Short: Thu
-dtWeekday6: Friday
-dtWeekday6Short: Fri
-dtWeekday7: Saturday
-dtWeekday7Short: Sat
 fileDetailsDate: Last modified
 fileDetailsName: Name
 fileDetailsSize: File size
@@ -89,41 +40,49 @@ fileListDetails2: "Total size: %0"
 fileListDetailsFilterMulti: "Filtered %0 files"
 fileListDetailsFilterNone: "No files match your filter"
 fileListDetailsFilterSingle: "Filtered 1 file"
+fileListError: An error occurred.
 fileListEmpty: There's nothing here.
 fileListEntryUp: "Up to %0"
-fileListError: An error occurred.
 fileListFilter: Filter files in this folder...
 fileListFilterDisabled: Filtering is unavailable right now
 fileListFilterUrl: Type a URL and press Enter to navigate.
 fileListHidden: This folder's contents have been hidden.
 fileListMobileLine2: "%0 • %1"
 fileListRootName: "Home"
-linkPreviewFileUncached: "This file's details aren't available right now, but you can preview and download it online."
+previewTitlebar2: "%0 • %1"
+previewTitle: "This file can't be previewed!"
+previewDesc: "You'll have to download it to view its contents."
+previewDownload: "Download file (%0)"
+previewFirstFile: "This is the first file."
+previewLastFile: "This is the last file."
 popupAboutVersion: "Version: %0"
 popupAboutDesc2: "Built with love by CyberGen49"
 popupAboutDesc: "CyberFiles is an open-sourced, capable, and customizable file index that makes it easy to view and share files stored on the server."
 popupAboutDescLink: "Check it out on GitHub"
 popupAboutTitle: About CyberFiles
-popupBack: "Back"
-popupClose: "Close"
 popupErrorTitle: "Uh oh!"
 popupFetchError: "Something went wrong while fetching the file list. Check your internet connection and try again."
 popupFileInfoTitle: File info
-popupFileNotFound2: "The directory it was in still exists, so take a look around to see if it's listed under a different name."
 popupFileNotFound: "We couldn't find the file you requested. It was probably moved or deleted."
-popupHelp: "Help"
-popupHome: "Home"
+popupFileNotFound2: "The directory it was in still exists, so take a look around to see if it's listed under a different name."
 popupNoJsDesc: "Seems like you have Javascript disabled! The core functionality of CyberFiles requires Javascript, so you'll need to enable it to continue. See the Help link below if you're having trouble."
-popupNotImplementedDesc: The action you just tried to perform hasn't been implemented yet. Check back later!
-popupNotImplementedTitle: Not implemented
 popupClearHistoryTitle: Clear history
 popupClearHistoryDesc: Are you sure you want to clear your history?
 popupClearHistoryDesc2: This only affects CyberFiles
+popupNotImplementedTitle: Not implemented
+popupNotImplementedDesc: The action you just tried to perform hasn't been implemented yet. Check back later!
+popupBack: "Back"
+popupClose: "Close"
+popupHelp: "Help"
+popupHome: "Home"
 popupOkay: "Okay"
 popupReload: "Reload"
 popupRetry: "Try again"
 popupYes: "Yep"
 popupNo: "Nope"
+popupYes2: "Sure"
+popupNo2: "Nah"
+popupServerErrorTitle: "Server error %0"
 popupServerError400: "The server refused to fufill the request. This could be a problem on your end, so try doing some searching if it continues."
 popupServerError401: "We couldn't verify your cridentials. Try refreshing the page to log in again."
 popupServerError403: "You don't have permission to access this resource."
@@ -142,13 +101,56 @@ popupServerError522: "The proxy server timed out while connecting to the origin 
 popupServerError523: "The proxy server failed to connect to the origin server."
 popupServerError524: "The proxy server timed out while waiting for a response from the origin server."
 popupServerErrorOther: "The server encountered an error. Search for the error code above for more info."
-popupServerErrorTitle: "Server error %0"
-previewDesc: "You'll have to download it to view its contents."
-previewDownload: "Download file (%0)"
-previewFirstFile: "This is the first file."
-previewLastFile: "This is the last file."
-previewTitle: "This file can't be previewed!"
-previewTitlebar2: "%0 • %1"
+linkPreviewFileUncached: "This file's details aren't available right now, but you can preview and download it online."
+dtMonth1: January
+dtMonth1Short: Jan
+dtMonth2: February
+dtMonth2Short: Feb
+dtMonth3: March
+dtMonth3Short: Mar
+dtMonth4: April
+dtMonth4Short: Apr
+dtMonth5: May
+dtMonth5Short: May
+dtMonth6: June
+dtMonth6Short: Jun
+dtMonth7: July
+dtMonth7Short: Jul
+dtMonth8: August
+dtMonth8Short: Aug
+dtMonth9: September
+dtMonth9Short: Sep
+dtMonth10: October
+dtMonth10Short: Oct
+dtMonth11: November
+dtMonth11Short: Nov
+dtMonth12: December
+dtMonth12Short: Dec
+dtWeekday1: Sunday
+dtWeekday1Short: Sun
+dtWeekday2: Monday
+dtWeekday2Short: Mon
+dtWeekday3: Tuesday
+dtWeekday3Short: Tue
+dtWeekday4: Wednesday
+dtWeekday4Short: Wed
+dtWeekday5: Thursday
+dtWeekday5Short: Thu
+dtWeekday6: Friday
+dtWeekday6Short: Fri
+dtWeekday7: Saturday
+dtWeekday7Short: Sat
+dtPeriodAM: AM
+dtPeriodPM: PM
+dtRelDay: '%0 days ago'
+dtRelFutureDay: '%0 days from now'
+dtRelFutureHour: '%0 hours from now'
+dtRelFutureMin: '%0 mins from now'
+dtRelHour: '%0 hours ago'
+dtRelMin: '%0 mins ago'
+dtRelNow: Just now
+dtUnitShortMs: ms
+dtUnitShortSecs: ' secs'
 sizeUnitBytes: Bytes
 sizeUnitGB: GB
 sizeUnitKB: KB

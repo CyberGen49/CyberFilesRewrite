@@ -37,9 +37,10 @@ videoProgressSave:
   minDuration: 600
   minPercent: 10
   maxPercent: 90
+  expire: 168
 
 # Colour settings
 theme: Default
 
 # Other things
-version: 16
+version: 17

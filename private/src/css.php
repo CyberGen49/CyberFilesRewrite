@@ -41,15 +41,16 @@ h1, h2, h3, h4, h5, h6 {
     margin: 0px;
     font-family: "Montserrat";
     font-weight: bold;
+    line-height: 120%;
     /* This serves to prevent font boosting on mobile browsers */
     max-height: 9000px;
 }
 h1 { font-size: 28px; }
-h1:not(:first-child) { padding-top: 15px; }
+h1:not(:first-child) { padding-top: 18px; }
 h2 { font-size: 24px; }
-h2:not(:first-child) { padding-top: 10px; }
+h2:not(:first-child) { padding-top: 12px; }
 h3 { font-size: 20px; }
-h3:not(:first-child) { padding-top: 5px; }
+h3:not(:first-child) { padding-top: 6px; }
 h4 { font-size: 18px; }
 h4:not(:first-child) { padding-top: 3px; }
 h5, h6 { font-size: 16px; }

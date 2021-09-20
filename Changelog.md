@@ -2,6 +2,10 @@
 # CyberFilesRewrite Changelog
 I'll try my best to keep track of all changes to CyberFilesRewrite, big and small, right here in this changelog. I do most of my web development late at night, so the dates here tend to extend into the following day.
 
+## September 19th, 2021
+* Reduced line height and increased top padding of h1-h6 elements (used in directory headers)
+* Added the `videoProgressSave.expire` config option
+
 ## September 18th, 2021
 * Now, when accessing a recent directory while previewing a file, the file preview will close, instead of staying open
 * Now, the current directory is hidden from Recents while a file preview is open

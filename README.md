@@ -156,6 +156,7 @@ Options for video progress saving. When enabled, users will be given the option 
 * `minDuration`: The minimum duration, in seconds, a video needs to be for progress to be saved
 * `minPercent`: Video progress will only be saved once the user is this far into a video, as a percentage. For example, when set to 10, progress will start saving 2 minutes into a 20 minute video.
 * `maxPercent`: Video progress will stop saving after the user is this far into a video. Functions the same as `minPercent`.
+* `expire`: The time, in hours, after which a video's saved progress can't be resumed anymore. 
 
 #### `theme`
 Type: `array`  
