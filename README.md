@@ -1,17 +1,19 @@
 # CyberFilesRewrite
 A capable and customizable file index for the web, based in PHP.
 
-This project is a complete rewrite of my previous file index, which was a lot more primitive than this one. 
+This project is a complete rewrite of my previous file index, with improvements in nearly every aspect. 
 
 *Things are still under very heavy development, so they could be vastly changing over short spans of time. Keep an eye on [Changelog.md](https://github.com/CyberGen49/CyberFilesRewrite/blob/main/Changelog.md) to see updates.*
 
 ## Features
-* An extremely responsive, mobile-friendly interface
-* View videos, audio files, and images without leaving the page
+* A responsive, mobile-friendly interface
+* View videos, audio files, images, and documents without leaving the page
 * Completely customizable colours, no CSS tinkering required
-* Completely customizable language files
+* Completely customizable text, stored in language files
 * Get back to where you left off quickly with recents
-* File caching (via SQLite), making for blistering fast load speeds
+* Resume videos where you left off with video progress saving
+* Add custom text headers to directories in either Markdown or HTML
+* File list caching (via SQLite), making for blistering fast load speeds
 * Hide files matching name patterns
 * Hide directories from their parent file lists
 
@@ -159,7 +161,7 @@ Options for video progress saving. When enabled, users will be given the option 
 * `expire`: The time, in hours, after which a video's saved progress can't be resumed anymore. 
 
 #### `theme`
-Type: `array`  
+Type: `string`  
 The name (without extension) of a theme file located in `/_cyberfiles/private/themes`. File free to edit the existing themes or create your own to customize the experience.
 
 **Remember:** Hashtags/pound symbols are comment characters in YAML, so if you're using hex codes, be sure to enclose them in quotation marks.

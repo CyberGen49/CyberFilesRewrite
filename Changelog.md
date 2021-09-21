@@ -2,6 +2,12 @@
 # CyberFilesRewrite Changelog
 I'll try my best to keep track of all changes to CyberFilesRewrite, big and small, right here in this changelog. I do most of my web development late at night, so the dates here tend to extend into the following day.
 
+## September 20th, 2021
+* Added more padding to the bottom of h1-h6 elements to go along with yesterday's line height changes
+* Added PDF file previews
+* Added video progress saving, respecting all of the `videoProgressSave` config options
+    * On unfinished videos, users will be asked if they want to resume the video at the timestamp they stopped at
+
 ## September 19th, 2021
 * Reduced line height and increased top padding of h1-h6 elements (used in directory headers)
 * Added the `videoProgressSave.expire` config option

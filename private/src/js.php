@@ -5,12 +5,11 @@ global $conf, $lang, $theme;
 ?>
 <script>
 
-// Hide the Javascript warning popup
-if (document.getElementById("popupNoJs"))
-    document.getElementById("popupNoJs").style.display = "none";
-
-// Language variables dumped from the server
-var lang = JSON.parse(`<?= json_encode($lang) ?>`);
+// Variables from the server
+// These are encoded as base64 on the PHP side and dumped in here to be converted to Javascript objects for the client
+// I might use Fetch for this later, but for now, this solution works 100% of the time
+var lang = JSON.parse(atob(`<?= base64_encode(json_encode($lang)) ?>`));
+var vidProgConf = JSON.parse(atob(`<?= base64_encode(json_encode($conf['videoProgressSave'])) ?>`));
 
 // Initialize file history
 var fileHistoryTargetVersion = 1;
@@ -29,6 +28,33 @@ while (JSON.stringify(fileHistory).length > 1000000) {
     i++;
 }
 if (i > 0) console.log(`Removed ${i} of the oldest file history entries`);
+console.log(`Loaded a total of ${fileHistory.entries.length} file history entries`);
+
+// Initialize video progress saving
+var vidProgTargetVersion = 2;
+if (vidProgConf.enable) {
+    var vidProg = locStoreArrayGet("vidprog");
+    if (vidProg === null || vidProg.version != vidProgTargetVersion) {
+        vidProg = {
+            'version': vidProgTargetVersion,
+            'entries': {}
+        };
+        locStoreArraySet("vidprog", vidProg);
+        console.log("Video progress has been wiped because the version changed");
+    }
+    var i = 0;
+    Object.keys(vidProg.entries).forEach(e => {
+        var entry = vidProg.entries[e];
+        if ((Date.now()-entry.updated) > (vidProgConf.expire*2*60*60*1000)) {
+            delete vidProg.entries[e];
+            i++;
+        }
+    });
+    if (i > 0) {
+        locStoreArraySet("vidprog", vidProg);
+        console.log(`Removed ${i} expired video progress entries`);
+    }
+}
 
 // Copies the specified text to the clipboard
 function copyText(value) {
@@ -283,8 +309,30 @@ function dateFormatRelative(timestamp) {
     return dateFormatPreset(timestamp);
 }
 
+// Returns a formatted interpretation of a number of seconds
+function secondsFormat(secs) {
+    if (secs < 60) {
+        return `0:${addLeadingZeroes(secs, 2)}`;
+    } else if (secs < 3600) {
+        var mins = Math.floor(secs/60);
+        secs = secs-(mins*60);
+        return `${mins}:${addLeadingZeroes((secs), 2)}`;
+    } else {
+        var mins = Math.floor(secs/60);
+        var hours = Math.floor(mins/60);
+        mins = mins-(hours*60);
+        secs = secs-(mins*60);
+        return `${hours}:${addLeadingZeroes((mins), 2)}:${addLeadingZeroes((secs), 2)}`;
+    }
+    return secs;
+}
+
 // Returns an icon specific to the given MIME type
 function getFileTypeIcon(mimeType) {
+    if (mimeType.match(/^application\/(zip|x-7z-compressed)$/gi))
+        return "archive";
+    if (mimeType.match(/^application\/pdf$/gi))
+        return "picture_as_pdf";
     if (mimeType.match(/^directory$/gi))
         return "folder";
     if (mimeType.match(/^video\/.*$/gi))
@@ -297,8 +345,6 @@ function getFileTypeIcon(mimeType) {
         return "image";
     if (mimeType.match(/^application\/.*$/gi))
         return "widgets";
-    if (mimeType.match(/^application\/(zip|x-7z-compressed)$/gi))
-        return "archive";
     return "insert_drive_file";
 }
 
@@ -615,10 +661,11 @@ function showFilePreview(id = null) {
         _("previewFile").classList.remove("previewTypeVideo");
         _("previewFile").classList.remove("previewTypeImage");
         _("previewFile").classList.remove("previewTypeAudio");
+        _("previewFile").classList.remove("previewTypeEmbed");
         if (data.ext.match(/^(MP4)$/)) {
             _("previewFile").classList.add("previewTypeVideo");
             _("previewFile").innerHTML = `
-                <video <?php if ($conf['videoAutoplay']) print("autoplay") ?> src="${encodeURIComponent(data.name)}" controls></video>
+                <video id="videoPreview" <?php if ($conf['videoAutoplay']) print("autoplay") ?> src="${encodeURIComponent(data.name)}" controls></video>
                 <div id="videoContainer">
                     <div id="videoControls">
                         <div id="videoBottomBar" class="row no-gutters">
@@ -639,6 +686,62 @@ function showFilePreview(id = null) {
                     </div>
                 </div>
             `;
+            // Variables
+            var vid = _("videoPreview");
+            window.vidProgLastSave = 0;
+            window.vidProgCanSave = false;
+            // Do this stuff when the video metadata is loaded (duration, etc.)
+            vid.addEventListener("loadedmetadata", function(event) {
+                console.log("Video metadata has loaded");
+                // If video progress saving is enabled
+                if (window.vidProgConf.enable) {
+                    // If the video duration is longer than the minimum to save
+                    if (vid.duration >= window.vidProgConf.minDuration) {
+                        // If this video has saved progress, and if it hasn't expired, and if it's later than the minimum, and if its earlier than the maximum
+                        if (typeof vidProg.entries[vid.src] !== 'undefined'
+                          && Date.now()-vidProg.entries[vid.src].updated < (window.vidProgConf.expire*60*60*1000)
+                          && vidProg.entries[vid.src].progress > (vid.duration*(window.vidProgConf.minPercent/100))
+                          && vidProg.entries[vid.src].progress < (vid.duration*(window.vidProgConf.maxPercent/100))) {
+                            // Pause the video
+                            vid.pause();
+                            // Prompt the user about resuming
+                            showPopup("vidResume", window.lang.popupVideoResumeTitle, `<p>${window.lang.popupVideoResumeDesc.replace("%0", `<b>${secondsFormat(vidProg.entries[vid.src].progress)}</b>`)}</p>`, [{
+                                'id': "cancel",
+                                'text': window.lang.popupNo2,
+                                'action': function() {
+                                    window.vidProgCanSave = true;
+                                    vid.play();
+                                }
+                            }, {
+                                'id': "resume",
+                                'text': window.lang.popupYes2,
+                                'action': function() {
+                                    vid.currentTime = vidProg.entries[vid.src].progress;
+                                    window.vidProgCanSave = true;
+                                    vid.play();
+                                }
+                            }]);
+                        } else window.vidProgCanSave = true;
+                    }
+                }
+            });
+            // Do this stuff when the video progress changes
+            vid.addEventListener("timeupdate", function(event) {
+                // If the last saved progress doesn't match the current progress, and saving is enabled, and if the current progress is later than the minimum, and if its earlier than the maximum
+                if (Math.floor(vid.currentTime) != Math.floor(window.vidProgLastSave)
+                  && window.vidProgCanSave
+                  && vid.currentTime > (vid.duration*(window.vidProgConf.minPercent/100))
+                  && vid.currentTime < (vid.duration*(window.vidProgConf.maxPercent/100))) {
+                    // Save the new progress
+                    window.vidProgLastSave = Math.floor(vid.currentTime);
+                    vidProg.entries[vid.src] = {
+                        'updated': Date.now(),
+                        'progress': Math.floor(vid.currentTime),
+                    };
+                    locStoreArraySet("vidprog", vidProg);
+                    console.log("Saved video progress");
+                }
+            });
         } else if (data.ext.match(/^(MP3|OGG|WAV|M4A)$/)) {
             _("previewFile").classList.add("previewTypeAudio");
             _("previewFile").innerHTML = `
@@ -648,6 +751,11 @@ function showFilePreview(id = null) {
             _("previewFile").classList.add("previewTypeImage");
             _("previewFile").innerHTML = `
                 <img src="${encodeURIComponent(data.name)}"></img>
+            `;
+        } else if (data.ext.match(/^(PDF)$/)) {
+            _("previewFile").classList.add("previewTypeEmbed");
+            _("previewFile").innerHTML = `
+                <iframe src="${encodeURIComponent(data.name)}"></iframe>
             `;
         } else {
             _("previewFile").classList.add("previewTypeNone");

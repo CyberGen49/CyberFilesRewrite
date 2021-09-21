@@ -42,6 +42,7 @@ h1, h2, h3, h4, h5, h6 {
     font-family: "Montserrat";
     font-weight: bold;
     line-height: 120%;
+    padding-bottom: 5px;
     /* This serves to prevent font boosting on mobile browsers */
     max-height: 9000px;
 }
@@ -381,6 +382,13 @@ a:hover, a:focus {
     width: 100%;
     height: 100%;
     margin: auto;
+}
+.previewTypeEmbed iframe {
+    width: 100%;
+    height: 100%;
+    margin: auto;
+    outline: none;
+    border: none;
 }
 #previewCard {
     margin: auto;

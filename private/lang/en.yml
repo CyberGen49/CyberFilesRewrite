@@ -71,6 +71,8 @@ popupClearHistoryDesc: Are you sure you want to clear your history?
 popupClearHistoryDesc2: This only affects CyberFiles
 popupNotImplementedTitle: Not implemented
 popupNotImplementedDesc: The action you just tried to perform hasn't been implemented yet. Check back later!
+popupVideoResumeTitle: Resume video
+popupVideoResumeDesc: You left off at %0 on this video. Do you want to resume from there?
 popupBack: "Back"
 popupClose: "Close"
 popupHelp: "Help"
