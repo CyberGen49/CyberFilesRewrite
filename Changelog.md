@@ -2,6 +2,17 @@
 # CyberFilesRewrite Changelog
 I'll try my best to keep track of all changes to CyberFilesRewrite, big and small, right here in this changelog. I do most of my web development late at night, so the dates here tend to extend into the following day.
 
+## 1.5.0 - September 21st, 2021
+* Fixed the Home icon in recents
+* Added the `videoProgressSave.prompt` config option
+* Added the `defaultSort` config options
+* Added file list sorting
+    * You can change the sort order from the Sort menu or by clicking a column header
+        * Clicking the header of the current sort column will reverse the direction of the sort
+    * The chosen sort order is stored per-directory, and remains until changed
+* Increased the max width of the file list from 1000px to 1200px
+    * This is in preporation for a file type column that'll only appear at larger widths
+
 ## 1.4.0 - September 20th, 2021
 * Added more padding to the bottom of h1-h6 elements to go along with yesterday's line height changes
 * Added PDF file previews

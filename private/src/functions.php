@@ -194,8 +194,12 @@ class ApiCall {
             // Check sort parameters
             if (isset($params['sort']) and preg_match("/^(name|date|size)$/", $params['sort']))
                 $data['sort']['type'] = $params['sort'];
-            if (isset($params['desc']) and $params['desc'] == "true")
-                $data['sort']['desc'] = true;
+            if (isset($params['desc'])) {
+                if ($params['desc'] == "true")
+                    $data['sort']['desc'] = true;
+                else if ($params['desc'] == "false")
+                    $data['sort']['desc'] = false;
+            }
             // Set sort functions
             $funcSortDate = function($a, $b) {
                 if ($a['modified'] < $b['modified']) return -1;

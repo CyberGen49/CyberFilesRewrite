@@ -130,9 +130,9 @@ while (isset($_GET['f'])) {
             <div id="directoryHeader" class="ease-in-out-100ms" style="display: none"></div>
             <div id="fileListHeaders" class="row no-gutters">
                 <div id="fileListHeaderIcon" class="fileListHeader col-auto"></div>
-                <div id="fileListHeaderName" class="fileListHeader col fileListDesktop"><?= $lang['fileDetailsName'] ?></div>
-                <div id="fileListHeaderDate" class="fileListHeader col-auto fileListDesktop"><?= $lang['fileDetailsDate'] ?></div>
-                <div id="fileListHeaderSize" class="fileListHeader col-auto fileListDesktop"><?= $lang['fileDetailsSize'] ?></div>
+                <div id="fileListHeaderName" class="fileListHeader col fileListDesktop"><?= $lang['fileDetailsName'] ?><span id="sortIndicatorName" class="fileListSortIndicator material-icons"></span></div>
+                <div id="fileListHeaderDate" class="fileListHeader col-auto fileListDesktop"><?= $lang['fileDetailsDate'] ?><span id="sortIndicatorDate" class="fileListSortIndicator material-icons"></span></div>
+                <div id="fileListHeaderSize" class="fileListHeader col-auto fileListDesktop"><?= $lang['fileDetailsSize'] ?><span id="sortIndicatorSize" class="fileListSortIndicator material-icons"></span></div>
                 <div id="fileListHeaderMobile" class="fileListHeader col fileListMobile"><?= $lang['fileListColumnGeneric'] ?></div>
             </div>
             <div id="fileListLoading">

@@ -26,6 +26,9 @@ sortFileName: _cf_sortName
 sortFileDate: _cf_sortDate
 sortFileSize: _cf_sortSize
 sortFileDesc: _cf_sortDesc
+defaultSort:
+  type: name
+  desc: false
 dateFormatShort: '%b %d, %Y'
 dateFormatFull: '%m/%d/%Y %I:%+M %p'
 upButtonInFileList: false
@@ -38,9 +41,10 @@ videoProgressSave:
   minPercent: 10
   maxPercent: 90
   expire: 168 # 7 days
+  prompt: true
 
 # Colour settings
 theme: Default
 
 # Other things
-version: v1.4.0
+version: v1.5.0

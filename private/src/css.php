@@ -135,7 +135,7 @@ a:hover, a:focus {
 }
 
 #fileListContainer {
-    max-width: 1000px;
+    max-width: 1200px;
     margin-top: 80px;
 }
 
@@ -172,6 +172,15 @@ a:hover, a:focus {
 #fileListHeaders {
     border-bottom: 1px solid <?= $theme['fileSep'] ?>;
     user-select: none;
+}
+
+#fileListHeaderName:hover,
+#fileListHeaderName:focus,
+#fileListHeaderDate:hover,
+#fileListHeaderDate:focus,
+#fileListHeaderSize:hover,
+#fileListHeaderSize:focus {
+    color: <?= $theme['fileListHeadersH'] ?>;
 }
 
 .fileListMobile { display: none; }
@@ -212,6 +221,15 @@ a:hover, a:focus {
 
 #fileListHeaderSize, .fileEntrySize {
     width: 80px;
+}
+
+.fileListSortIndicator {
+    margin-bottom: -10px;
+    margin-top: 1px;
+    margin-left: 4px;
+    font-family: "Material Icons Outlined", "Material Icons";
+    font-size: 18px;
+    color: inherit;
 }
 
 #fileList {

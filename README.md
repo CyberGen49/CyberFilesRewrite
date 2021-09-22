@@ -128,6 +128,11 @@ If this file exists in a directory, its files will be sorted by size by default.
 Type: `string`
 If this file exists in a directory, its file order will be reversed. Folders will remain on top.
 
+#### `defaultSort`
+Defines the global default sort type and direction. This can be overridden by the sort files above, the user's chosen sort order takes priority over everything.
+* `type`: `name`, `date`, or `size`
+* `desc`: Set to `true` to reverse the order of the file list, keeping folders on top
+
 #### `dateFormatShort`
 Type: `string`  
 A date format containing some of [these placeholders](https://github.com/CyberGen49/CyberFilesRewrite/blob/main/README-dateTimePlaceholders.md). This should be a short, friendly date format, used in the modification date column of the file list.
@@ -159,6 +164,7 @@ Options for video progress saving. When enabled, users will be given the option 
 * `minPercent`: Video progress will only be saved once the user is this far into a video, as a percentage. For example, when set to 10, progress will start saving 2 minutes into a 20 minute video.
 * `maxPercent`: Video progress will stop saving after the user is this far into a video. Functions the same as `minPercent`.
 * `expire`: The time, in hours, after which a video's saved progress can't be resumed anymore. 
+* `prompt`: If `true`, the user will be given the option to resume or not. If `false`, the video will be resumed automatically, and the user will see a toast notification about it.
 
 #### `theme`
 Type: `string`  

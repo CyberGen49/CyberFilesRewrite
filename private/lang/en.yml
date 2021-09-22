@@ -6,7 +6,7 @@
 # If you want to customize these language variables, create a new language file, copy over the variables you want to change, and then change the 'language' config option to the name of your new file.
 
 dropdownAbout: "About CyberFiles..."
-dropdownDisabled: "This option isn't available yet."
+dropdownDisabled: "This option isn't available right now."
 dropdownFileDownload: "Download (%0)"
 dropdownFileInfo: "File info..."
 dropdownRecents: "Recents..."
@@ -29,6 +29,7 @@ toastCopyDirectoryLink: Copied directory URL to clipboard.
 toastCopyFilePreviewLink: Copied file preview URL to clipboard.
 toastCopyFileLink: Copied direct file URL to clipboard.
 toastFileDownload: Downloading file...
+toastVideoResumed: Resumed video at %0
 fileDetailsDate: Last modified
 fileDetailsName: Name
 fileDetailsSize: File size

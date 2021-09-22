@@ -10,6 +10,7 @@ global $conf, $lang, $theme;
 // I might use Fetch for this later, but for now, this solution works 100% of the time
 var lang = JSON.parse(atob(`<?= base64_encode(json_encode($lang)) ?>`));
 var vidProgConf = JSON.parse(atob(`<?= base64_encode(json_encode($conf['videoProgressSave'])) ?>`));
+var defaultSort = JSON.parse(atob(`<?= base64_encode(json_encode($conf['defaultSort'])) ?>`));
 
 // Initialize file history
 var fileHistoryTargetVersion = 1;
@@ -54,6 +55,13 @@ if (vidProgConf.enable) {
         locStoreArraySet("vidprog", vidProg);
         console.log(`Removed ${i} expired video progress entries`);
     }
+}
+
+// Initialize directory sort orders
+var dirSort = locStoreArrayGet("dirsort");
+if (dirSort === null) {
+    dirSort = {};
+    locStoreArraySet("dirsort", dirSort);
 }
 
 // Copies the specified text to the clipboard
@@ -349,6 +357,7 @@ function getFileTypeIcon(mimeType) {
 }
 
 // Loads a file list with the API
+window.fileListLoaded = false;
 async function loadFileList(dir = "", entryId = null, forceReload = false) {
     // Set variables
     document.title = "<?= $conf['siteName'] ?>";
@@ -359,6 +368,7 @@ async function loadFileList(dir = "", entryId = null, forceReload = false) {
     if (dir != window.loadDir || forceReload) {
         // Prepare for loading
         var loadStart = Date.now();
+        window.fileListLoaded = false;
         var showGenericErrors = true;
         var seamlessTimeout = setTimeout(() => {
             _("fileListLoading").style.display = "";
@@ -380,8 +390,22 @@ async function loadFileList(dir = "", entryId = null, forceReload = false) {
         _("fileListFilter").disabled = true;
         _("fileListFilter").value = "";
         _("fileListFilter").placeholder = window.lang.fileListFilterDisabled;
+        _("sortIndicatorName").innerHTML = "";
+        _("sortIndicatorDate").innerHTML = "";
+        _("sortIndicatorSize").innerHTML = "";
+        // Get sort order
+        var sortType = defaultSort.type;
+        var sortDesc = defaultSort.desc.toString();
+        var customSort = dirSort[currentDir()];
+        var sortString = '';
+        if (typeof customSort !== 'undefined') {
+            sortType = customSort.type;
+            sortDesc = customSort.desc.toString();
+            console.log(`Using custom sort: ${sortType} ${sortDesc}`);
+            sortString = `&sort=${sortType}&desc=${sortDesc}`;
+        }
         // Make the API call and handle errors
-        await fetch(`${dir}?api`).then((response) => {
+        await fetch(`${dir}?api${sortString}`).then((response) => {
             // If the response was ok
             if (response.ok) return response.json();
             // Otherwise, handle the error
@@ -519,6 +543,17 @@ async function loadFileList(dir = "", entryId = null, forceReload = false) {
                     _("directoryHeader").innerHTML = mdToHtml(data.headerMarkdown);
                     window.dirHeader = true;
                 }
+                // Show the appropriate sort indicator
+                if (data.sort.type == 'name')
+                    var sortIndicator = _("sortIndicatorName");
+                if (data.sort.type == 'date')
+                    var sortIndicator = _("sortIndicatorDate");
+                if (data.sort.type == 'size')
+                    var sortIndicator = _("sortIndicatorSize");
+                if (data.sort.desc)
+                    sortIndicator.innerHTML = "keyboard_arrow_up";
+                else
+                    sortIndicator.innerHTML = "keyboard_arrow_down";
                 // Format load time
                 var loadElapsed = Date.now()-loadStart;
                 var loadTimeF = loadElapsed+window.lang.dtUnitShortMs;
@@ -579,6 +614,7 @@ async function loadFileList(dir = "", entryId = null, forceReload = false) {
                 } else hideFilePreview();
                 // Finish up
                 window.canClickEntries = true;
+                window.fileListLoaded = true;
                 window.loadDir = dir;
             } else {
                 console.log("Failed to fetch file list: "+data.status);
@@ -607,6 +643,48 @@ async function loadFileList(dir = "", entryId = null, forceReload = false) {
     }
     if (dirName != "") document.title = dirName+" - <?= $conf['siteName'] ?>";
 }
+
+// Change this directory's sort order
+function sortFileList(type, desc) {
+    if (type === null || !type.match(/^(name|date|size)$/)) {
+        delete window.dirSort[currentDir()];
+    } else {
+        if (desc === null) {
+            desc = false;
+            if (typeof window.dirSort[currentDir()] !== 'undefined') {
+                if (window.dirSort[currentDir()].type == type) {
+                    if (!window.dirSort[currentDir()].desc) desc = true;
+                }
+            } else {
+                if (window.defaultSort.type == type) {
+                    if (!window.defaultSort.desc) desc = true;
+                }
+            }
+        }
+        window.dirSort[currentDir()] = {
+            'type': type,
+            'desc': desc,
+        };
+    }
+    locStoreArraySet('dirsort', window.dirSort);
+    loadFileList('', null, true);
+}
+
+_("fileListHeaderName").addEventListener("click", function() {
+    if (window.fileListLoaded) {
+        sortFileList('name', null);
+    }
+});
+_("fileListHeaderDate").addEventListener("click", function() {
+    if (window.fileListLoaded) {
+        sortFileList('date', null);
+    }
+});
+_("fileListHeaderSize").addEventListener("click", function() {
+    if (window.fileListLoaded) {
+        sortFileList('size', null);
+    }
+});
 
 // Displays a file preview
 function showFilePreview(id = null) {
@@ -702,25 +780,33 @@ function showFilePreview(id = null) {
                           && Date.now()-vidProg.entries[vid.src].updated < (window.vidProgConf.expire*60*60*1000)
                           && vidProg.entries[vid.src].progress > (vid.duration*(window.vidProgConf.minPercent/100))
                           && vidProg.entries[vid.src].progress < (vid.duration*(window.vidProgConf.maxPercent/100))) {
-                            // Pause the video
-                            vid.pause();
-                            // Prompt the user about resuming
-                            showPopup("vidResume", window.lang.popupVideoResumeTitle, `<p>${window.lang.popupVideoResumeDesc.replace("%0", `<b>${secondsFormat(vidProg.entries[vid.src].progress)}</b>`)}</p>`, [{
-                                'id': "cancel",
-                                'text': window.lang.popupNo2,
-                                'action': function() {
-                                    window.vidProgCanSave = true;
-                                    vid.play();
-                                }
-                            }, {
-                                'id': "resume",
-                                'text': window.lang.popupYes2,
-                                'action': function() {
-                                    vid.currentTime = vidProg.entries[vid.src].progress;
-                                    window.vidProgCanSave = true;
-                                    vid.play();
-                                }
-                            }]);
+                            // If the user should be prompted to resume
+                            if (window.vidProgConf.prompt) {
+                                // Pause the video
+                                vid.pause();
+                                // Prompt the user about resuming
+                                showPopup("vidResume", window.lang.popupVideoResumeTitle, `<p>${window.lang.popupVideoResumeDesc.replace("%0", `<b>${secondsFormat(vidProg.entries[vid.src].progress)}</b>`)}</p>`, [{
+                                    'id': "cancel",
+                                    'text': window.lang.popupNo2,
+                                    'action': function() {
+                                        window.vidProgCanSave = true;
+                                        vid.play();
+                                    }
+                                }, {
+                                    'id': "resume",
+                                    'text': window.lang.popupYes2,
+                                    'action': function() {
+                                        vid.currentTime = vidProg.entries[vid.src].progress;
+                                        window.vidProgCanSave = true;
+                                        vid.play();
+                                    }
+                                }]);
+                            // If prompt is disabled, resume automatically
+                            } else {
+                                vid.currentTime = vidProg.entries[vid.src].progress;
+                                window.vidProgCanSave = true;
+                                showToast(window.lang.toastVideoResumed.replace("%0", `<b>${secondsFormat(vidProg.entries[vid.src].progress)}</b>`));
+                            }
                         } else window.vidProgCanSave = true;
                     }
                 }
@@ -1055,62 +1141,57 @@ function hideDropdown(id) {
 function showDropdown_sort() {
     data = [];
     data.push({
-        'disabled': true,
         'type': 'item',
         'id': 'name',
         'text': window.lang.dropdownSortListName,
         'icon': 'check',
-        'action': function() { console.log("It works") }
+        'action': function() { sortFileList('name', false) }
     });
     data.push({
-        'disabled': true,
         'type': 'item',
         'id': 'nameDesc',
         'text': window.lang.dropdownSortListNameDesc,
         'icon': 'check',
-        'action': function() { console.log("It works") }
+        'action': function() { sortFileList('name', true) }
     });
     data.push({
-        'disabled': true,
         'type': 'item',
         'id': 'date',
         'text': window.lang.dropdownSortListDate,
         'icon': 'check',
-        'action': function() { console.log("It works") }
+        'action': function() { sortFileList('date', false) }
     });
     data.push({
-        'disabled': true,
         'type': 'item',
         'id': 'dateDesc',
         'text': window.lang.dropdownSortListDateDesc,
         'icon': 'check',
-        'action': function() { console.log("It works") }
+        'action': function() { sortFileList('date', true) }
     });
     data.push({
-        'disabled': true,
         'type': 'item',
         'id': 'size',
         'text': window.lang.dropdownSortListSize,
         'icon': 'check',
-        'action': function() { console.log("It works") }
+        'action': function() { sortFileList('size', false) }
     });
     data.push({
-        'disabled': true,
         'type': 'item',
         'id': 'sizeDesc',
         'text': window.lang.dropdownSortListSizeDesc,
         'icon': 'check',
-        'action': function() { console.log("It works") }
+        'action': function() { sortFileList('size', true) }
     });
-    data.push({ 'type': 'sep' });
-    data.push({
-        'disabled': true,
-        'type': 'item',
-        'id': 'default',
-        'text': window.lang.dropdownSortListDefault,
-        'icon': 'public',
-        'action': function() { console.log("It works") }
-    });
+    if (typeof window.dirSort[currentDir()] !== 'undefined') {
+        data.push({ 'type': 'sep' });
+        data.push({
+            'type': 'item',
+            'id': 'default',
+            'text': window.lang.dropdownSortListDefault,
+            'icon': 'public',
+            'action': function() { sortFileList(null, null) }
+        });
+    }
     var dropdownId = showDropdown("sort", data, "topbarButtonMenu");
     // Hide all icons
     _(`${dropdownId}-name-icon`).style.opacity = 0;
@@ -1172,12 +1253,12 @@ function showDropdown_recents() {
                 if (f.name == "") {
                     f.name = window.lang.fileListRootName;
                     icon = "home";
-                }
+                } else icon = getFileTypeIcon(f.type);
                 data.push({
                     'type': 'item',
                     'id': i,
                     'text': f.name,
-                    'icon': getFileTypeIcon(f.type),
+                    'icon': icon,
                     'action': function() {
                         historyPushState('', url);
                         loadFileList("", null, true);

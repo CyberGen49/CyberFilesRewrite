@@ -20,6 +20,7 @@ bgDirectoryHeader: +bg2
 fgDirectoryHeader: +fg
 directoryHeaderBorder: +accent
 fileListHeaders: +fg2
+fileListHeadersH: +accent
 fileIcon: +fg2
 fileNameCol: +fg
 fileDateCol: +fg2
