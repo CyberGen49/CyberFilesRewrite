@@ -390,9 +390,8 @@ async function loadFileList(dir = "", entryId = null, forceReload = false) {
         _("fileListFilter").disabled = true;
         _("fileListFilter").value = "";
         _("fileListFilter").placeholder = window.lang.fileListFilterDisabled;
-        _("sortIndicatorName").innerHTML = "";
-        _("sortIndicatorDate").innerHTML = "";
-        _("sortIndicatorSize").innerHTML = "";
+        var sortIndicators = document.getElementsByClassName("fileListSortIndicator");
+        for (i = 0; i < sortIndicators.length; i++) sortIndicators[i].innerHTML = "";
         // Get sort order
         var sortType = defaultSort.type;
         var sortDesc = defaultSort.desc.toString();
@@ -468,6 +467,7 @@ async function loadFileList(dir = "", entryId = null, forceReload = false) {
                                     <div class="fileEntryNameInner noBoost">${upTitle}</div>
                                 </div>
                                 <div class="col-auto fileEntryDate fileListDesktop">-</div>
+                                <div class="col-auto fileEntryType fileListDesktopBig noBoost"><div class="fileEntryTypeInner noBoost">-</div></div>
                                 <div class="col-auto fileEntrySize fileListDesktop">-</div>
                             </a>
                         `);
@@ -526,6 +526,9 @@ async function loadFileList(dir = "", entryId = null, forceReload = false) {
                                 <div class="fileEntryMobileDetails fileListMobile noBoost">${f.detailsMobile}</div>
                             </div>
                             <div class="col-auto fileEntryDate fileListDesktop noBoost">${f.modifiedF}</div>
+                            <div class="col-auto fileEntryType fileListDesktopBig noBoost">
+                                <div class="fileEntryTypeInner noBoost">${f.typeF}</div>
+                            </div>
                             <div class="col-auto fileEntrySize fileListDesktop noBoost">${f.sizeF}</div>
                         </a>
                     `);
@@ -544,16 +547,17 @@ async function loadFileList(dir = "", entryId = null, forceReload = false) {
                     window.dirHeader = true;
                 }
                 // Show the appropriate sort indicator
+                var sortIndicator = _("sortIndicatorName");
                 if (data.sort.type == 'name')
-                    var sortIndicator = _("sortIndicatorName");
-                if (data.sort.type == 'date')
-                    var sortIndicator = _("sortIndicatorDate");
-                if (data.sort.type == 'size')
-                    var sortIndicator = _("sortIndicatorSize");
-                if (data.sort.desc)
-                    sortIndicator.innerHTML = "keyboard_arrow_up";
-                else
-                    sortIndicator.innerHTML = "keyboard_arrow_down";
+                    sortIndicator = _("sortIndicatorName");
+                else if (data.sort.type == 'date')
+                    sortIndicator = _("sortIndicatorDate");
+                else if (data.sort.type == 'ext')
+                    sortIndicator = _("sortIndicatorType");
+                else if (data.sort.type == 'size')
+                    sortIndicator = _("sortIndicatorSize");
+                if (data.sort.desc) sortIndicator.innerHTML = "keyboard_arrow_up";
+                else sortIndicator.innerHTML = "keyboard_arrow_down";
                 // Format load time
                 var loadElapsed = Date.now()-loadStart;
                 var loadTimeF = loadElapsed+window.lang.dtUnitShortMs;
@@ -646,30 +650,44 @@ async function loadFileList(dir = "", entryId = null, forceReload = false) {
 
 // Change this directory's sort order
 function sortFileList(type, desc) {
-    if (type === null || !type.match(/^(name|date|size)$/)) {
+    // If type is null or invalid, delete the sort entry
+    if (type === null || !type.match(/^(name|date|size|ext)$/)) {
         delete window.dirSort[currentDir()];
     } else {
+        // If descending is null (initiated by a column header)
         if (desc === null) {
+            // Default it to false
             desc = false;
+            // If a custom sort order is set
             if (typeof window.dirSort[currentDir()] !== 'undefined') {
+                // If the current sort order matches the requested sort order
                 if (window.dirSort[currentDir()].type == type) {
+                    // If descending is currently false, set it to true
                     if (!window.dirSort[currentDir()].desc) desc = true;
                 }
+            // If a custom order isn't set, but the default type was reselected
             } else {
                 if (window.defaultSort.type == type) {
+                    // If desc is false by default, set it to true
                     if (!window.defaultSort.desc) desc = true;
                 }
             }
         }
+        // Add/update the custom sort
         window.dirSort[currentDir()] = {
             'type': type,
             'desc': desc,
         };
+        // If the default sort has been reselected, delete the custom sort
+        //if (type == window.defaultSort.type && desc == window.defaultSort.desc)
+        //    delete window.dirSort[currentDir()];
     }
+    // Commit to local storage and reload the file list
     locStoreArraySet('dirsort', window.dirSort);
     loadFileList('', null, true);
 }
 
+// File list column header click event listeners
 _("fileListHeaderName").addEventListener("click", function() {
     if (window.fileListLoaded) {
         sortFileList('name', null);
@@ -678,6 +696,11 @@ _("fileListHeaderName").addEventListener("click", function() {
 _("fileListHeaderDate").addEventListener("click", function() {
     if (window.fileListLoaded) {
         sortFileList('date', null);
+    }
+});
+_("fileListHeaderType").addEventListener("click", function() {
+    if (window.fileListLoaded) {
+        sortFileList('ext', null);
     }
 });
 _("fileListHeaderSize").addEventListener("click", function() {
@@ -1170,6 +1193,20 @@ function showDropdown_sort() {
     });
     data.push({
         'type': 'item',
+        'id': 'ext',
+        'text': window.lang.dropdownSortListType,
+        'icon': 'check',
+        'action': function() { sortFileList('ext', false) }
+    });
+    data.push({
+        'type': 'item',
+        'id': 'extDesc',
+        'text': window.lang.dropdownSortListTypeDesc,
+        'icon': 'check',
+        'action': function() { sortFileList('ext', true) }
+    });
+    data.push({
+        'type': 'item',
         'id': 'size',
         'text': window.lang.dropdownSortListSize,
         'icon': 'check',
@@ -1198,6 +1235,8 @@ function showDropdown_sort() {
     _(`${dropdownId}-nameDesc-icon`).style.opacity = 0;
     _(`${dropdownId}-date-icon`).style.opacity = 0;
     _(`${dropdownId}-dateDesc-icon`).style.opacity = 0;
+    _(`${dropdownId}-ext-icon`).style.opacity = 0;
+    _(`${dropdownId}-extDesc-icon`).style.opacity = 0;
     _(`${dropdownId}-size-icon`).style.opacity = 0;
     _(`${dropdownId}-sizeDesc-icon`).style.opacity = 0;
     var sortString = `${window.fileListSort.type}-${window.fileListSort.desc.toString()}`;
@@ -1214,6 +1253,12 @@ function showDropdown_sort() {
             break;
         case 'date-true':
             _(`${dropdownId}-dateDesc-icon`).style.opacity = 1;
+            break;
+        case 'ext-false':
+            _(`${dropdownId}-ext-icon`).style.opacity = 1;
+            break;
+        case 'ext-true':
+            _(`${dropdownId}-extDesc-icon`).style.opacity = 1;
             break;
         case 'size-false':
             _(`${dropdownId}-size-icon`).style.opacity = 1;

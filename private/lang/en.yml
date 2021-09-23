@@ -22,6 +22,8 @@ dropdownSortListName: Name A-Z
 dropdownSortListNameDesc: Name Z-A
 dropdownSortListDate: Oldest first
 dropdownSortListDateDesc: Newest first
+dropdownSortListType: Extension A-Z
+dropdownSortListTypeDesc: Extension Z-A
 dropdownSortListSize: Smallest first
 dropdownSortListSizeDesc: Largest first
 dropdownSortListDefault: Use folder default
@@ -105,6 +107,13 @@ popupServerError523: "The proxy server failed to connect to the origin server."
 popupServerError524: "The proxy server timed out while waiting for a response from the origin server."
 popupServerErrorOther: "The server encountered an error. Search for the error code above for more info."
 linkPreviewFileUncached: "This file's details aren't available right now, but you can preview and download it online."
+loggerTypeAccess: Access
+loggerTypeGeneric: Info
+loggerTypePhpError: PHP %0
+loggerPageLoad: "[%0] Freshly loaded CyberFiles in \"%1\""
+loggerApiCall: "[%0] Made an API request in \"%1\" with arguments '%2'"
+loggerFileCached: "Saved file to cache: \"%0\""
+loggerPhpError: "%0 (%1:%2)"
 dtMonth1: January
 dtMonth1Short: Jan
 dtMonth2: February

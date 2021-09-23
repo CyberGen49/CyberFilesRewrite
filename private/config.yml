@@ -7,14 +7,10 @@ language: en
 siteName: CyberFiles
 siteDesc: Browse and preview server files with ease.
 hiddenFiles:
-  - '.'
-  - '..'
   - '*.php'
   - '*.html'
   - '.*'
   - '_*'
-  - 'conf.yml'
-  - 'robots.txt'
 hideDirWhenContains:
   - 'index.php'
   - 'index.html'
@@ -24,6 +20,7 @@ headerFileNameHtml: _cf_header.html
 hideContentsFile: _cf_hideContents
 sortFileName: _cf_sortName
 sortFileDate: _cf_sortDate
+sortFileExt: _cf_sortType
 sortFileSize: _cf_sortSize
 sortFileDesc: _cf_sortDesc
 defaultSort:
@@ -31,7 +28,7 @@ defaultSort:
   desc: false
 dateFormatShort: '%b %d, %Y'
 dateFormatFull: '%m/%d/%Y %I:%+M %p'
-upButtonInFileList: false
+upButtonInFileList: true
 mobileFileListBorders: false
 videoAutoplay: true
 audioAutoplay: true
@@ -42,9 +39,11 @@ videoProgressSave:
   maxPercent: 90
   expire: 168 # 7 days
   prompt: true
+logTimezone: America/Chicago
+logUserIpHeader: REMOTE_ADDR
 
 # Colour settings
 theme: Default
 
 # Other things
-version: v1.5.0
+version: v1.6.0

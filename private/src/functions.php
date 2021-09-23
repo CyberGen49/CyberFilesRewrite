@@ -3,6 +3,39 @@
 // CyberFiles PHP functions
 // See the APICall class at the bottom for the CyberFiles API
 
+// Get relative and absolute directory paths
+$dirRel = clean_path(rawurldecode(explode("?", $_SERVER['REQUEST_URI'])[0]));
+$dir = clean_path(document_root.$dirRel);
+
+// Try to include configs
+try {
+    // Import config
+    $conf = yaml_parse_file(document_root."/_cyberfiles/private/config.yml");
+    if (file_exists(document_root."/_cyberfiles/private/configUser.yml"))
+        $conf = array_merge($conf, yaml_parse_file(document_root."/_cyberfiles/private/configUser.yml"));
+    $themeDef = yaml_parse_file(document_root."/_cyberfiles/private/themes/Default.yml");
+    $theme = yaml_parse_file(document_root."/_cyberfiles/private/themes/{$conf['theme']}.yml");
+    array_merge($themeDef, $theme);
+    // Parse variables within theme variables
+    foreach (array_keys($theme) as $v) {
+        if (preg_match("/\+(.*)/", $theme[$v], $matches)) {
+            $theme[$v] = $theme[$matches[1]];
+        }
+    }
+    // Import language
+    $lang = yaml_parse_file(document_root."/_cyberfiles/private/lang/en.yml");
+    if ($conf['language'] != "en") {
+        if (file_exists(document_root."/_cyberfiles/private/lang/${$conf['language']}.yml")) {
+            $lang = array_merge($lang, yaml_parse_file(document_root."/_cyberfiles/private/lang/${$conf['language']}.yml"));
+        } else {
+            trigger_error("[CyberFiles] Failed to load a nonexistent language file. Check your config.", E_USER_WARNING);
+        }
+    }
+} catch (\Throwable $th) {
+    print("CyberFiles requires the php_yaml extension. Install the extension and reload to continue.");
+    exit;
+}
+
 /**
  * Requires a file and outputs an error if it fails
  *
@@ -78,13 +111,82 @@ function formatted_size(float $bytes = 0):string {
 }
 
 /**
+ * Returns the type of error associated with an error type ID
+ *
+ * @param int $type
+ * @return string
+ */
+function error_name_by_id(int $type):string {
+    switch($type) {
+        case E_ERROR: // 1 //
+            return 'E_ERROR';
+        case E_WARNING: // 2 //
+            return 'E_WARNING';
+        case E_PARSE: // 4 //
+            return 'E_PARSE';
+        case E_NOTICE: // 8 //
+            return 'E_NOTICE';
+        case E_CORE_ERROR: // 16 //
+            return 'E_CORE_ERROR';
+        case E_CORE_WARNING: // 32 //
+            return 'E_CORE_WARNING';
+        case E_COMPILE_ERROR: // 64 //
+            return 'E_COMPILE_ERROR';
+        case E_COMPILE_WARNING: // 128 //
+            return 'E_COMPILE_WARNING';
+        case E_USER_ERROR: // 256 //
+            return 'E_USER_ERROR';
+        case E_USER_WARNING: // 512 //
+            return 'E_USER_WARNING';
+        case E_USER_NOTICE: // 1024 //
+            return 'E_USER_NOTICE';
+        case E_STRICT: // 2048 //
+            return 'E_STRICT';
+        case E_RECOVERABLE_ERROR: // 4096 //
+            return 'E_RECOVERABLE_ERROR';
+        case E_DEPRECATED: // 8192 //
+            return 'E_DEPRECATED';
+        case E_USER_DEPRECATED: // 16384 //
+            return 'E_USER_DEPRECATED';
+    }
+    return 'E_UNKNOWN';
+}
+
+date_default_timezone_set($conf['logTimezone']);
+function writeLog(string $type, string $message) {
+    $logDir = document_root."/_cyberfiles/private/logs";
+    if (!file_exists($logDir)) mkdir($logDir);
+    $date = new DateTime();
+    $formattedDate = $date->format("o-m-d H:i:s");
+    $fileName = $date->format("o-m-d").".log";
+    file_put_contents("$logDir/$fileName", "[$formattedDate] [$type] $message\n", FILE_APPEND);
+}
+
+function errorHandler(int $errno, string $errstr, string $errfile = null, int $errline = null) {
+    global $lang;
+    writeLog(
+        str_replace(
+            "%0", error_name_by_id($errno), $lang['loggerTypePhpError']
+        ),
+        str_replace(
+            "%0", $errstr, str_replace(
+            "%1", $errfile, str_replace(
+            "%2", $errline, $lang['loggerPhpError']
+        )))
+    );
+    return null;
+}
+
+set_error_handler('errorHandler');
+
+/**
  * Handles CyberFiles API calls
  */
 class ApiCall {
-    function __construct($params, $conf) {
+    function __construct($params) {
         // Set class variables
         $this->params = $params;
-        $this->conf = $conf;
+        $this->conf = $GLOBALS['conf'];
         $this->data = [];
         $this->startTime = (microtime(true)*1000);
         $this->indexDir = [];
@@ -137,13 +239,19 @@ class ApiCall {
         while (true) {
             //header('Content-Type: application/json');
             // Get relative and absolute directory paths
-            $dirRel = clean_path(rawurldecode(explode("?", $_SERVER['REQUEST_URI'])[0]));
-            $dir = clean_path(document_root.$dirRel);
+            $dirRel = $GLOBALS['dirRel'];
+            $dir = $GLOBALS['dir'];
             // Make sure we're working with an existing directory
             if (!is_dir($dir)) {
                 $data['status'] = "DIRECTORY_NONEXISTENT";
                 break;
             }
+            // Log access
+            writeLog($GLOBALS['lang']['loggerTypeAccess'], str_replace(
+                "%0", $_SERVER[$conf['logUserIpHeader']], str_replace(
+                "%1", "$dirRel/", str_replace(
+                "%2", str_replace("api=", "", http_build_query($params)), $GLOBALS['lang']['loggerApiCall']
+            ))));
             // Get directory contents
             $scandir = scandir($dir);
             natsort($scandir);
@@ -162,6 +270,8 @@ class ApiCall {
             $files = [];
             $folders = [];
             foreach ($scandir as $file) {
+                if ($file == ".") continue;
+                if ($file == "..") continue;
                 // Skip files that match hidden filters
                 foreach ($conf['hiddenFiles'] as $s) {
                     if (fnmatch($s, $file)) continue 2;
@@ -181,18 +291,22 @@ class ApiCall {
                 else $files[] = $fileObject;
             }
             // Check for sort override files
+            $data['sort']['type'] = "name";
+            $data['sort']['desc'] = false;
+            $data['sort']['type'] = $conf['defaultSort']['type'];
+            $data['sort']['desc'] = $conf['defaultSort']['desc'];
             if (file_exists("$dir/{$conf['sortFileName']}"))
                 $data['sort']['type'] = "name";
             else if (file_exists("$dir/{$conf['sortFileDate']}"))
                 $data['sort']['type'] = "date";
             else if (file_exists("$dir/{$conf['sortFileSize']}"))
                 $data['sort']['type'] = "size";
-            else $data['sort']['type'] = "name";
+            else if (file_exists("$dir/{$conf['sortFileExt']}"))
+                $data['sort']['type'] = "ext";
             if (file_exists("$dir/{$conf['sortFileDesc']}"))
                 $data['sort']['desc'] = true;
-            else $data['sort']['desc'] = false;
             // Check sort parameters
-            if (isset($params['sort']) and preg_match("/^(name|date|size)$/", $params['sort']))
+            if (isset($params['sort']) and preg_match("/^(name|date|size|ext)$/", $params['sort']))
                 $data['sort']['type'] = $params['sort'];
             if (isset($params['desc'])) {
                 if ($params['desc'] == "true")
@@ -225,6 +339,23 @@ class ApiCall {
                 case "size": {
                     // Folders stay as-is
                     uasort($files, $funcSortSize);
+                    break;
+                }
+                case "ext": {
+                    // Separate files by extension
+                    $extFiles = [];
+                    foreach ($files as $f) {
+                        $ext = strtolower(pathinfo($f['name'])['extension']);
+                        $extFiles[$ext][] = $f;
+                    }
+                    // Sort extensions
+                    $exts = array_keys($extFiles);
+                    natsort($exts);
+                    // Rebuild files array by adding extension groups in order
+                    $files = [];
+                    foreach ($exts as $e) {
+                        $files = array_merge($files, $extFiles[$e]);
+                    }
                     break;
                 }
             }
@@ -274,19 +405,10 @@ class ApiCall {
             // If the database is open, update this file's cache
             if (isset($this->db)) {
                 // Build SQL
-                if (!$cache) {
-                    $stmt = $db->prepare("INSERT INTO 'fileCache'
-                        ('path', 'modified', 'size', 'mimeType')
-                        values (:path, :mod, :size, :mimeType)
-                    ;");
-                } else {
-                    $stmt = $db->prepare("UPDATE 'fileCache' set
-                        path = :path,
-                        modified = :mod,
-                        size = :size,
-                        mimeType = :mimeType
-                    ;");
-                }
+                $stmt = $db->prepare("REPLACE INTO 'fileCache'
+                    ('path', 'modified', 'size', 'mimeType')
+                    values (:path, :mod, :size, :mimeType)
+                ;");
                 // Bind variables
                 $stmt->bindValue(':path', $file['path'], SQLITE3_TEXT);
                 $stmt->bindValue(':mod', $file['modified'], SQLITE3_TEXT);
@@ -294,6 +416,10 @@ class ApiCall {
                 $stmt->bindValue(':mimeType', $file['mimeType'], SQLITE3_TEXT);
                 // Execute
                 $result = $stmt->execute();
+                // Log
+                writeLog($GLOBALS['lang']['loggerTypeGeneric'], str_replace(
+                    "%0", $path, $GLOBALS['lang']['loggerFileCached']
+                ));
             }
         }
         unset($file['path']);

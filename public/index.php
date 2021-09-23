@@ -2,35 +2,14 @@
 
 define('document_root', $_SERVER['DOCUMENT_ROOT']);
 require(document_root."/_cyberfiles/private/src/functions.php");
-try {
-    // Import config
-    $conf = yaml_parse_file(document_root."/_cyberfiles/private/config.yml");
-    $themeDef = yaml_parse_file(document_root."/_cyberfiles/private/themes/Default.yml");
-    $theme = yaml_parse_file(document_root."/_cyberfiles/private/themes/{$conf['theme']}.yml");
-    array_merge($themeDef, $theme);
-    // Parse variables within theme variables
-    foreach (array_keys($theme) as $v) {
-        if (preg_match("/\+(.*)/", $theme[$v], $matches)) {
-            $theme[$v] = $theme[$matches[1]];
-        }
-    }
-    // Import language
-    $lang = yaml_parse_file(document_root."/_cyberfiles/private/lang/en.yml");
-    if ($conf['language'] != "en") {
-        if (file_exists(document_root."/_cyberfiles/private/lang/${$conf['language']}.yml")) {
-            $lang = array_merge($lang, yaml_parse_file(document_root."/_cyberfiles/private/lang/${$conf['language']}.yml"));
-        } else {
-            trigger_error("[CyberFiles] Failed to load a nonexistent language file. Check your config.", E_USER_WARNING);
-        }
-    }
-} catch (\Throwable $th) {
-    print("CyberFiles requires the php_yaml extension. Install the extension and reload to continue.");
-    exit;
-}
 
-if (isset($_GET['api'])) {
-    new ApiCall($_GET, $conf);
-}
+if (isset($_GET['api'])) new ApiCall($_GET);
+
+// Log access
+writeLog($lang['loggerTypeAccess'], str_replace(
+    "%0", $_SERVER[$conf['logUserIpHeader']], str_replace(
+    "%1", "$dirRel/", $lang['loggerPageLoad']
+)));
 
 $webConf = [
     "pageTitle" => "",
@@ -41,7 +20,6 @@ $webConf = [
 ];
 
 // Set dynamic page meta
-$dir = clean_path(urldecode(explode("?", $_SERVER['REQUEST_URI'])[0]));
 $dirExpR = array_reverse(explode("/", $dir));
 $webConf['pageTitle'] = $dirExpR[0];
 
@@ -132,6 +110,7 @@ while (isset($_GET['f'])) {
                 <div id="fileListHeaderIcon" class="fileListHeader col-auto"></div>
                 <div id="fileListHeaderName" class="fileListHeader col fileListDesktop"><?= $lang['fileDetailsName'] ?><span id="sortIndicatorName" class="fileListSortIndicator material-icons"></span></div>
                 <div id="fileListHeaderDate" class="fileListHeader col-auto fileListDesktop"><?= $lang['fileDetailsDate'] ?><span id="sortIndicatorDate" class="fileListSortIndicator material-icons"></span></div>
+                <div id="fileListHeaderType" class="fileListHeader col-auto fileListDesktopBig"><?= $lang['fileDetailsType'] ?><span id="sortIndicatorType" class="fileListSortIndicator material-icons"></span></div>
                 <div id="fileListHeaderSize" class="fileListHeader col-auto fileListDesktop"><?= $lang['fileDetailsSize'] ?><span id="sortIndicatorSize" class="fileListSortIndicator material-icons"></span></div>
                 <div id="fileListHeaderMobile" class="fileListHeader col fileListMobile"><?= $lang['fileListColumnGeneric'] ?></div>
             </div>

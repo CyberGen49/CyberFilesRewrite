@@ -24,6 +24,7 @@ fileListHeadersH: +accent
 fileIcon: +fg2
 fileNameCol: +fg
 fileDateCol: +fg2
+fileTypeCol: +fg2
 fileDateMobile: +fg2
 fileSizeCol: +fg2
 fileListFooter: +fg2

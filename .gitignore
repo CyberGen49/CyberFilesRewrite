@@ -1,1 +1,3 @@
 /private/cache.db
+private/logs/*
+private/configUser.yml

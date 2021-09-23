@@ -135,7 +135,7 @@ a:hover, a:focus {
 }
 
 #fileListContainer {
-    max-width: 1200px;
+    max-width: 1100px;
     margin-top: 80px;
 }
 
@@ -178,6 +178,8 @@ a:hover, a:focus {
 #fileListHeaderName:focus,
 #fileListHeaderDate:hover,
 #fileListHeaderDate:focus,
+#fileListHeaderType:hover,
+#fileListHeaderType:focus,
 #fileListHeaderSize:hover,
 #fileListHeaderSize:focus {
     color: <?= $theme['fileListHeadersH'] ?>;
@@ -185,9 +187,11 @@ a:hover, a:focus {
 
 .fileListMobile { display: none; }
 .fileListDesktop { display: inherit; }
+.fileListDesktopBig { display: none; }
 
 .fileEntryIcon,
 .fileEntryName,
+.fileEntryType,
 .fileEntryDate,
 .fileEntrySize,
 .fileListHeader {
@@ -198,7 +202,8 @@ a:hover, a:focus {
     text-overflow: ellipsis;
 }
 
-.fileEntryNameInner {
+.fileEntryNameInner,
+.fileEntryTypeInner {
     font-size: 14px;
     padding-right: 10px;
     overflow: hidden;
@@ -216,7 +221,11 @@ a:hover, a:focus {
 }
 
 #fileListHeaderDate, .fileEntryDate {
-    width: 170px;
+    width: 140px;
+}
+
+#fileListHeaderType, .fileEntryType {
+    width: 150px;
 }
 
 #fileListHeaderSize, .fileEntrySize {
@@ -243,12 +252,16 @@ a:hover, a:focus {
     text-decoration: none !important;
 }
 
-.fileEntryName {
+.fileEntryName * {
     color: <?= $theme['fileNameCol'] ?>;
 }
 
 .fileEntryDate {
     color: <?= $theme['fileDateCol'] ?>;
+}
+
+.fileEntryType * {
+    color: <?= $theme['fileTypeCol'] ?>;
 }
 
 .fileEntrySize {
@@ -741,6 +754,7 @@ a:hover, a:focus {
 
     .fileEntryName,
     .fileEntryDate,
+    .fileEntryType,
     .fileEntrySize {
         padding: 10px 15px 10px 15px;
         font-size: 16px;
@@ -791,6 +805,11 @@ a:hover, a:focus {
         margin-left: 15px;
         margin-top: 1px;
     }
+}
+
+/* Handle large screen widths */
+@media only screen and (min-width: 950px) {
+    .fileListDesktopBig { display: inherit; }
 }
 
 /* Handle small screen widths */
