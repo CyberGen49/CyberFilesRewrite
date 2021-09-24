@@ -10,6 +10,7 @@ dropdownDisabled: "This option isn't available right now."
 dropdownFileDownload: "Download (%0)"
 dropdownFileInfo: "File info..."
 dropdownRecents: "Recents..."
+dropdownRandomFile: "Preview a random file"
 dropdownRecentsViewFull: "View full history..."
 dropdownRecentsClearHistory: "Clear history..."
 dropdownRefreshList: "Refresh files"
@@ -76,6 +77,7 @@ popupNotImplementedTitle: Not implemented
 popupNotImplementedDesc: The action you just tried to perform hasn't been implemented yet. Check back later!
 popupVideoResumeTitle: Resume video
 popupVideoResumeDesc: You left off at %0 on this video. Do you want to resume from there?
+popupNoRandomFile: There aren't any non-directory files in this folder, so nothing can be previewed.
 popupBack: "Back"
 popupClose: "Close"
 popupHelp: "Help"

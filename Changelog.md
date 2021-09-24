@@ -2,6 +2,12 @@
 # CyberFilesRewrite Changelog
 I'll try my best to keep track of all changes to CyberFilesRewrite, big and small, right here in this changelog. I do most of my web development late at night, so the dates here tend to extend into the following day.
 
+## 1.6.1 - September 23rd, 2021
+* Fixed video progress so it doesn't prompt if the saved progress is after the max percent defined in the config
+* Slightly changed the padding on directory headers
+* Added a fade animation when hovering over column headers
+* Added a menu option for previewing a randomly selected file in the current directory
+
 ## 1.6.0 - September 22nd, 2021
 * Reduced the width of the Modified column from 160px to 140px
 * Reduced the max width of the file list from 1200px to 1100px

@@ -168,11 +168,11 @@ Options for video progress saving. When enabled, users will be given the option 
 * `prompt`: If `true`, the user will be given the option to resume or not. If `false`, the video will be resumed automatically, and the user will see a toast notification about it.
 
 #### `logTimezone`
-Type: `string`
+Type: `string`  
 A valid [PHP timezone](https://www.php.net/manual/en/timezones.php) to use for timestamps in log files
 
 #### `logUserIpHeader`
-Type: `string`
+Type: `string`  
 The server variable name containing the user's IP address, used in log files. If you're using a proxy server, there's probably another variable you should use to avoid accidentally logging the proxy server's IP.
 
 For example, Cloudflare's user IP variable is `HTTP_CF_CONNECTING_IP`

@@ -162,11 +162,15 @@ a:hover, a:focus {
 
 #directoryHeader {
     margin-bottom: 10px;
-    padding: 12px 18px;
+    padding: 15px 20px;
     color: <?= $theme['fgDirectoryHeader'] ?>;
     background: <?= $theme['bgDirectoryHeader'] ?>;
     border-left: 6px solid <?= $theme['directoryHeaderBorder'] ?>;
     border-radius: 6px;
+}
+
+#directoryHeader p:last-of-type {
+    padding-bottom: 0px;
 }
 
 #fileListHeaders {
@@ -200,6 +204,7 @@ a:hover, a:focus {
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
+    transition: 0.05s ease-in-out;
 }
 
 .fileEntryNameInner,
@@ -250,6 +255,7 @@ a:hover, a:focus {
     font-size: 14px;
     cursor: default;
     text-decoration: none !important;
+    /* transition: 0.05s ease-in-out; */
 }
 
 .fileEntryName * {

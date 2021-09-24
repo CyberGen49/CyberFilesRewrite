@@ -801,8 +801,10 @@ function showFilePreview(id = null) {
                         // If this video has saved progress, and if it hasn't expired, and if it's later than the minimum, and if its earlier than the maximum
                         if (typeof vidProg.entries[vid.src] !== 'undefined'
                           && Date.now()-vidProg.entries[vid.src].updated < (window.vidProgConf.expire*60*60*1000)
-                          && vidProg.entries[vid.src].progress > (vid.duration*(window.vidProgConf.minPercent/100))
-                          && vidProg.entries[vid.src].progress < (vid.duration*(window.vidProgConf.maxPercent/100))) {
+                          && vidProg.entries[vid.src].progress > Math.floor(vid.duration*(window.vidProgConf.minPercent/100))
+                          && vidProg.entries[vid.src].progress < Math.floor(vid.duration*(window.vidProgConf.maxPercent/100))) {
+                              console.log(vidProg.entries[vid.src].progress);
+                              console.log(vid.duration*(window.vidProgConf.maxPercent/100));
                             // If the user should be prompted to resume
                             if (window.vidProgConf.prompt) {
                                 // Pause the video
@@ -1330,6 +1332,7 @@ _("topbarButtonMenu").addEventListener("click", function() {
     this.blur();
     data = [];
     data.push({
+        'disabled': !window.fileListLoaded,
         'type': 'item',
         'id': 'refresh',
         'text': window.lang.dropdownRefreshList,
@@ -1337,11 +1340,30 @@ _("topbarButtonMenu").addEventListener("click", function() {
         'action': function() { loadFileList("", null, true) }
     });
     data.push({
+        'disabled': !window.fileListLoaded,
         'type': 'item',
         'id': 'sort',
         'text': window.lang.dropdownSortList,
         'icon': 'sort',
         'action': function() { showDropdown_sort() }
+    });
+    data.push({
+        'disabled': !window.fileListLoaded,
+        'type': 'item',
+        'id': 'random',
+        'text': window.lang.dropdownRandomFile,
+        'icon': 'shuffle',
+        'action': function() {
+            var filesOnly = [];
+            window.fileObjects.forEach(f => {
+                if (f.mimeType != "directory") filesOnly.push(f);
+            });
+            if (filesOnly.length != 0) {
+                var id = Math.floor(Math.random()*(filesOnly.length-1));
+                historyPushState('', `?f=${encodeURIComponent(filesOnly[id].name)}`);
+                loadFileList('', id);
+            } else showPopup("noValidRandomFile", window.lang.popupErrorTitle, window.lang.popupNoRandomFile, [{'id': 'close', 'text': window.lang.popupClose}]);
+        }
     });
     data.push({ 'type': 'sep' });
     data.push({
