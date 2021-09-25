@@ -134,8 +134,13 @@ function addLeadingZeroes(string, newLength = 2, char = "0") {
 }
 
 // Pushes a state to history
+var lastUrl = window.location.href;
 function historyPushState(title, url) {
     window.history.pushState("", title, url);
+    window.lastUrl = window.location.href;
+}
+function historyReplaceState(title, url) {
+    window.history.replaceState("", title, url);
 }
 
 // Rounds a number to a certain number of decimal places
@@ -163,17 +168,26 @@ function meta_themeColor(hexCode = null) {
 
 // Parses Markdown and returns HTML
 function mdToHtml(mdSource) {
-    // Initial replacements
     mdSource = mdSource
+    // Remove carriage returns
     .replace("\r", "")
-    .replace(/[^\\]\[(.*?)\]\((.*?) "(.*?)"\)/gi, " <a href=\"$2\" target=\"_blank\" title=\"$3\">$1</a>")
-    .replace(/[^\\]\[(.*?)\]\((.*?)\)/, " <a href=\"$2\" target=\"_blank\">$1</a>")
-    .replace(/[^\\]<(.*?)>/gi, " <a href=\"$1\" target=\"_blank\">$1</a>")
+    // Hyperlink replacement: '<url>'
+    .replace(/[^\\]<(.*?)>/gi, " <a href=\"$1\" target=\"\\_blank\">$1</a>")
+    // Line break replacement
     .replace("  \n", "<br>")
+    // Hyperlink replacement: '[title](url "tooltip")'
+    .replace(/[^\\]\[(.*?)\]\((.*?) "(.*?)"\)/gi, " <a href=\"$2\" target=\"\\_blank\" title=\"$3\">$1</a>")
+    // Hyperlink replacement: '[title](url)'
+    .replace(/[^\\]\[(.*?)\]\((.*?)\)/gi, " <a href=\"$2\" target=\"\\_blank\">$1</a>")
+    // Bold replacement: '**bolded text**'
     .replace(/[^\\]\*\*(.*?)\*\*/gi, " <b>$1</b>")
+    // Bold replacement: '__bolded text__'
     .replace(/[^\\]__(.*?)__/gi, " <b>$1</b>")
+    // Italics replacement: '*italicized text*'
     .replace(/[^\\]\*(.*?)\*/gi, " <em>$1</em>")
+    // Italics replacement: '_italicized text_'
     .replace(/[^\\]_(.*?)_/gi, " <em>$1</em>")
+    // Remove backslashes from escaped characters
     .replace(/\\\[/gi, " [")
     .replace(/\\\*/gi, " *")
     .replace(/\\\_/gi, " _")
@@ -360,7 +374,6 @@ function getFileTypeIcon(mimeType) {
 window.fileListLoaded = false;
 async function loadFileList(dir = "", entryId = null, forceReload = false) {
     // Set variables
-    document.title = "<?= $conf['siteName'] ?>";
     if (dir == "") dir = currentDir();
     var dirSplit = dir.split("/");
     var dirName = decodeURI(dirSplit[dirSplit.length-1]);
@@ -646,6 +659,7 @@ async function loadFileList(dir = "", entryId = null, forceReload = false) {
         showFilePreview(entryId);
     }
     if (dirName != "") document.title = dirName+" - <?= $conf['siteName'] ?>";
+    else document.title = "<?= $conf['siteName'] ?>";
 }
 
 // Change this directory's sort order
@@ -904,7 +918,7 @@ function navFilePreview(el) {
         return;
     }
     console.log("File entry navigation button clicked");
-    historyPushState("", `?f=${encodeURI(f.name)}`);
+    historyReplaceState("", `?f=${encodeURI(f.name)}`);
     loadFileList("", el.dataset.objectid);
     el.blur();
     el.blur();
@@ -920,7 +934,7 @@ function hideFilePreview() {
     _("body").style.overflowY = "";
     var newPath = currentDir();
     if (newPath != "/") newPath = `${currentDir()}/`;
-    historyPushState('', newPath);
+    historyReplaceState('', newPath);
     setTimeout(() => {
         _("previewFile").innerHTML = "";
         _("previewContainer").style.display = "none";
@@ -1557,10 +1571,13 @@ window.addEventListener("resize", function(event) {
     }
 });
 
-// Do this stuff whenever a state is pushed to history
+// Handle browser back and forward buttons
 window.addEventListener("popstate", function(event) {
-    console.log("Browser navigation buttons were used");
-    loadFileList();
+    if (window.location.href != window.lastUrl) {
+        hideFilePreview();
+        loadFileList();
+    }
+    window.lastUrl = window.location.href;
 });
 
 // Do this stuff when the main window is scrolled

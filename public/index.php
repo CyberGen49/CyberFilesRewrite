@@ -26,9 +26,10 @@ $webConf['pageTitle'] = $dirExpR[0];
 // Check for a file preview
 while (isset($_GET['f'])) {
     $webConf['pageTitle'] = urldecode($_GET['f']);
-    $path = clean_path(document_root.'/'.$dir.'/'.$_GET['f']);
+    $path = clean_path($dir.'/'.$_GET['f']);
     if (!file_exists($path)) break;
     if (is_dir($path)) break;
+    $webConf['pageDesc'] = $lang['linkPreviewFileUncached'];
     // Get file details from the cache database
     $db = new SQLite3(document_root."/_cyberfiles/private/cache.db");
     $stmt = $db->prepare("SELECT * FROM fileCache where path = :path");
@@ -45,8 +46,7 @@ while (isset($_GET['f'])) {
         else
             $typeF = $lang['fileTypes']['fileTypeDefault'];
         $webConf['pageDesc'] = "{$lang['fileDetailsType']}: $typeF\n{$lang['fileDetailsSize']}: $sizeF";
-    // Otherwise, use a generic description
-    } else $webConf['pageDesc'] = $lang['linkPreviewFileUncached'];
+    }
     break;
 }
 
@@ -67,7 +67,7 @@ while (isset($_GET['f'])) {
                 }
             }
         ?>
-        <title><?= $webConf['pageTitle'] ?></title>
+        <title><?= $webConf['siteName'] ?></title>
         <meta name="og:type" content="website">
         <meta name="og:site_name" content="<?= $webConf['siteName'] ?>">
         <meta name="og:title" content="<?= $webConf['metaTitle'] ?>">

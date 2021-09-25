@@ -2,6 +2,13 @@
 # CyberFilesRewrite Changelog
 I'll try my best to keep track of all changes to CyberFilesRewrite, big and small, right here in this changelog. I do most of my web development late at night, so the dates here tend to extend into the following day.
 
+## 1.6.2 - September 24th, 2021
+* Improved the fluidity of using the browser back and forward buttons
+    * Before, it would take a few clicks to actually move between 'pages'
+    * Fixed by sprinkling in some JS history `replaceState` instead of always using `pushState` - in other words, now, when doing things like showing/hiding/navigating between file previews, the URL will change, but won't be pushed to the browser history (and nav buttons)
+* Fixed several bugs in the Markdown parser
+* Fixed file details in link previews
+
 ## 1.6.1 - September 23rd, 2021
 * Fixed video progress so it doesn't prompt if the saved progress is after the max percent defined in the config
 * Slightly changed the padding on directory headers
