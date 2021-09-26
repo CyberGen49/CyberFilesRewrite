@@ -82,7 +82,12 @@ while (isset($_GET['f'])) {
         <link rel="stylesheet" href="/_cyberfiles/public/src/bootstrap-grid.min.css">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
         <!-- Normalize.css -->
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" rel="stylesheet">
+        <link href="/_cyberfiles/public/src/normalize.min.css" rel="stylesheet">
+        <!-- Marked -->
+        <script src="/_cyberfiles/public/src/marked.min.js"></script>
+        <!-- highlight.js -->
+        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.2.0/styles/default.min.css">
+        <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.2.0/highlight.min.js"></script>
         <!-- Material Icon Fonts -->
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
@@ -104,7 +109,14 @@ while (isset($_GET['f'])) {
             </div>
         </div>
         <div id="fileListContainer" class="container">
-            <input id="fileListFilter" type="text" placeholder="<?= $lang['fileListFilterDisabled'] ?>" autocomplete="off" disabled>
+            <div id="fileListFilterCont" class="row no-gutters">
+                <div class="col">
+                    <input id="fileListFilter" type="text" placeholder="<?= $lang['fileListFilterDisabled'] ?>" autocomplete="off" disabled>
+                </div>
+                <div class="col-auto">
+                    <button id="fileListFilterClear" style="display: none;" title="<?= $lang['fileListFilterClear'] ?>">clear</button>
+                </div>
+            </div>
             <div id="directoryHeader" class="ease-in-out-100ms" style="display: none"></div>
             <div id="fileListHeaders" class="row no-gutters">
                 <div id="fileListHeaderIcon" class="fileListHeader col-auto"></div>

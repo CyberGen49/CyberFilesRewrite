@@ -42,6 +42,9 @@ filterBarBottom: +bg2
 filterBarBottomF: +accent
 filterBarBgF: +bg2
 filterBarText: +fg
+fgFilterBarClear: +fg2
+fgFilterBarClearH: +fg
+fgFilterBarClearC: +accent
 bgPopup: +bg
 fgPopup: +fg
 fgPopupButton: +accent
@@ -70,6 +73,9 @@ bgPreviewNavH: +bg2
 fgPreviewNavH: +accent
 bgPreviewNavC: +bg2
 fgPreviewNavC: +fg2
+bgTextPreview: +bg
+fgTextPreview: +fg
+bgMarkdownCode: rgba(0, 0, 0, 0.25)
 hyperlink: +accent
 hyperlinkH: +fg2
 bgButton: +accent

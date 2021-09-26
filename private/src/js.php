@@ -11,6 +11,7 @@ global $conf, $lang, $theme;
 var lang = JSON.parse(atob(`<?= base64_encode(json_encode($lang)) ?>`));
 var vidProgConf = JSON.parse(atob(`<?= base64_encode(json_encode($conf['videoProgressSave'])) ?>`));
 var defaultSort = JSON.parse(atob(`<?= base64_encode(json_encode($conf['defaultSort'])) ?>`));
+var textPreviewMaxSize = <?= $conf['textPreviewMaxSize'] ?>;
 
 // Initialize file history
 var fileHistoryTargetVersion = 1;
@@ -164,56 +165,6 @@ function meta_themeColor(hexCode = null) {
     if (hexCode === null)
         return document.querySelector('meta[name="theme-color"]').getAttribute('content');
     document.querySelector('meta[name="theme-color"]').setAttribute('content',  hexCode);
-}
-
-// Parses Markdown and returns HTML
-function mdToHtml(mdSource) {
-    mdSource = mdSource
-    // Remove carriage returns
-    .replace("\r", "")
-    // Hyperlink replacement: '<url>'
-    .replace(/[^\\]<(.*?)>/gi, " <a href=\"$1\" target=\"\\_blank\">$1</a>")
-    // Line break replacement
-    .replace("  \n", "<br>")
-    // Hyperlink replacement: '[title](url "tooltip")'
-    .replace(/[^\\]\[(.*?)\]\((.*?) "(.*?)"\)/gi, " <a href=\"$2\" target=\"\\_blank\" title=\"$3\">$1</a>")
-    // Hyperlink replacement: '[title](url)'
-    .replace(/[^\\]\[(.*?)\]\((.*?)\)/gi, " <a href=\"$2\" target=\"\\_blank\">$1</a>")
-    // Bold replacement: '**bolded text**'
-    .replace(/[^\\]\*\*(.*?)\*\*/gi, " <b>$1</b>")
-    // Bold replacement: '__bolded text__'
-    .replace(/[^\\]__(.*?)__/gi, " <b>$1</b>")
-    // Italics replacement: '*italicized text*'
-    .replace(/[^\\]\*(.*?)\*/gi, " <em>$1</em>")
-    // Italics replacement: '_italicized text_'
-    .replace(/[^\\]_(.*?)_/gi, " <em>$1</em>")
-    // Remove backslashes from escaped characters
-    .replace(/\\\[/gi, " [")
-    .replace(/\\\*/gi, " *")
-    .replace(/\\\_/gi, " _")
-    .replace(/\\\</gi, " <");
-    // Handle block-level elements
-    var pgs = mdSource.split("\n");
-    var html = "";
-    pgs.forEach(line => {
-        if (line != "") {
-            if (line.match(/^# .*/))
-                html += line.replace(/^# (.*)/, "<h1>$1</h1>");
-            else if (line.match(/^## .*/)) 
-                html += line.replace(/^## (.*)/, "<h2>$1</h2>");
-            else if (line.match(/^### .*/)) 
-                html += line.replace(/^### (.*)/, "<h3>$1</h3>");
-            else if (line.match(/^#### .*/)) 
-                html += line.replace(/^#### (.*)/, "<h4>$1</h4>");
-            else if (line.match(/^##### .*/)) 
-                html += line.replace(/^##### (.*)/, "<h5>$1</h5>");
-            else if (line.match(/^###### .*/)) 
-                html += line.replace(/^###### (.*)/, "<h6>$1</h6>");
-            else
-                html += `<p>${line}</p>`;
-        }
-    });
-    return html;
 }
 
 // Returns a properly formatted version of the current directory
@@ -516,6 +467,7 @@ async function loadFileList(dir = "", entryId = null, forceReload = false) {
                         totalSize += f.size;
                         // Set file type from type list
                         f.typeF = window.lang.fileTypeDefault;
+                        f.ext = '.';
                         if (f.name.match(/^.*\..*$/)) {
                             var fileNameSplit = f.name.split(".");
                             f.ext = fileNameSplit[fileNameSplit.length-1].toUpperCase();
@@ -556,7 +508,7 @@ async function loadFileList(dir = "", entryId = null, forceReload = false) {
                     _("directoryHeader").innerHTML = data.headerHtml;
                     window.dirHeader = true;
                 } else if (typeof data.headerMarkdown !== 'undefined') {
-                    _("directoryHeader").innerHTML = mdToHtml(data.headerMarkdown);
+                    _("directoryHeader").innerHTML = marked(data.headerMarkdown);
                     window.dirHeader = true;
                 }
                 // Show the appropriate sort indicator
@@ -772,12 +724,21 @@ function showFilePreview(id = null) {
         // Update element contents
         _("previewFileName").innerHTML = data.name;
         _("previewFileDesc").innerHTML = `${window.lang.previewTitlebar2.replace("%0", data.typeF).replace("%1", data.sizeF)}`;
-        _("previewFile").classList.remove("previewTypeNone");
-        _("previewFile").classList.remove("previewTypeVideo");
-        _("previewFile").classList.remove("previewTypeImage");
-        _("previewFile").classList.remove("previewTypeAudio");
-        _("previewFile").classList.remove("previewTypeEmbed");
+        // Set default preview
+        _("previewFile").classList.add("previewTypeNone");
+        _("previewFile").innerHTML = `
+            <div id="previewCard">
+                <div id="previewCardIcon">cloud_download</div>
+                <div id="previewCardTitle">${window.lang.previewTitle}</div>
+                <div id="previewCardDesc">${window.lang.previewDesc}</div>
+                <div id="previewCardDownloadCont">
+                    <button id="previewCardDownload" class="buttonMain" onclick="downloadFile('${encodeURIComponent(data.name)}', this)">${window.lang.previewDownload.replace("%0", data.sizeF)}</button>
+                </div>
+            </div>
+        `;
+        // Show file-specific previews
         if (data.ext.match(/^(MP4)$/)) {
+            _("previewFile").className = "";
             _("previewFile").classList.add("previewTypeVideo");
             _("previewFile").innerHTML = `
                 <video id="videoPreview" <?php if ($conf['videoAutoplay']) print("autoplay") ?> src="${encodeURIComponent(data.name)}" controls></video>
@@ -868,32 +829,55 @@ function showFilePreview(id = null) {
                 }
             });
         } else if (data.ext.match(/^(MP3|OGG|WAV|M4A)$/)) {
+            _("previewFile").className = "";
             _("previewFile").classList.add("previewTypeAudio");
             _("previewFile").innerHTML = `
                 <audio <?php if ($conf['audioAutoplay']) print("autoplay") ?> controls src="${encodeURIComponent(data.name)}"></audio>
             `;
         } else if (data.ext.match(/^(JPG|JPEG|PNG|SVG|GIF)$/)) {
+            _("previewFile").className = "";
             _("previewFile").classList.add("previewTypeImage");
             _("previewFile").innerHTML = `
                 <img src="${encodeURIComponent(data.name)}"></img>
             `;
         } else if (data.ext.match(/^(PDF)$/)) {
+            _("previewFile").className = "";
             _("previewFile").classList.add("previewTypeEmbed");
             _("previewFile").innerHTML = `
                 <iframe src="${encodeURIComponent(data.name)}"></iframe>
             `;
-        } else {
-            _("previewFile").classList.add("previewTypeNone");
-            _("previewFile").innerHTML = `
-                <div id="previewCard">
-                    <div id="previewCardIcon">cloud_download</div>
-                    <div id="previewCardTitle">${window.lang.previewTitle}</div>
-                    <div id="previewCardDesc">${window.lang.previewDesc}</div>
-                    <div id="previewCardDownloadCont">
-                        <button id="previewCardDownload" class="buttonMain" onclick="downloadFile('${encodeURIComponent(data.name)}', this)">${window.lang.previewDownload.replace("%0", data.sizeF)}</button>
-                    </div>
-                </div>
-            `;
+        } else if (data.mimeType.match(/^text\/.*$/)) {
+            var getTextPreview = async function(f) {
+                _("previewFile").style.display = "none";
+                await fetch(`${encodeURIComponent(f.name)}?t=${f.modified}`).then((response) => {
+                    // If the response was ok
+                    if (response.ok) return response.text();
+                    // Otherwise, handle the error
+                    _("previewFile").style.display = "";
+                    throw new Error("Fetch failed");
+                // Wait for the server to return file list data
+                }).then(data => {
+                    _("previewFile").className = "";
+                    _("previewFile").classList.add("previewTypeText");
+                    _("previewFile").innerHTML = `
+                        <div id="textPreviewCont" class="container"></div>
+                    `;
+                    if (f.ext.match(/^(md|markdown)$/gi)) {
+                        _("textPreviewCont").innerHTML = `${marked(data)}`;
+                    } else if (f.ext.match(/^(htm|html)$/gi)) {
+                        _("textPreviewCont").innerHTML = `${data}`;
+                    } else {
+                        _("textPreviewCont").innerHTML = `<pre id="textPreviewPre"><code>${data.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;")}</code></pre>`;
+                    }
+                    _("previewFile").style.display = "";
+                }).catch(error => {
+                    _("previewFile").style.display = "";
+                    return Promise.reject();
+                });
+            };
+            if (data.size <= window.textPreviewMaxSize) {
+                getTextPreview(data);
+            }
         }
         // Show
         _("previewContainer").style.display = "block";
@@ -1074,7 +1058,7 @@ function popup_notImplemented() {
 }
 function popup_about() {
     showPopup("about", window.lang.popupAboutTitle, `
-        <p>${window.lang.popupAboutVersion.replace("%0", "<b><?= $conf['version'] ?></b>")}</p>
+        <p>${window.lang.popupAboutVersion.replace("%0", "<b><?= $conf['version'] ?></b>").replace("%1", `<a href="/_cyberfiles/?f=Changelog.md">${window.lang.popupAboutChangelog}</a>`)}</p>
         <p>${window.lang.popupAboutDesc}</p>
         <p>${window.lang.popupAboutDesc2}</p>
         <p><a href="https://github.com/CyberGen49/CyberFilesRewrite" target="_blank">${window.lang.popupAboutDescLink}</a></p>
@@ -1508,9 +1492,14 @@ function showToast(text) {
 }
 
 // Handle the filter bar
-_("fileListFilter").addEventListener("keyup", function(event) {
-    var value = this.value.toLowerCase();
-    if (event.key == "Escape" || event.keyCode == 27) this.blur();
+_("fileListFilter").addEventListener("keyup", function(event) { filterFiles(event, this) });
+_("fileListFilterClear").addEventListener("click", function(event) {
+    _("fileListFilter").value = "";
+    filterFiles(event, _("fileListFilter"));
+});
+function filterFiles(event, elBar) {
+    var value = elBar.value.toLowerCase();
+    if (event.key == "Escape" || event.keyCode == 27) elBar.blur();
     // To reduce system resource usage, we'll wait a set amount of time after the user hasn't typed anything to actually run the filter
     clearTimeout(window.filterInterval);
     window.filterInterval = setTimeout(() => {
@@ -1522,6 +1511,7 @@ _("fileListFilter").addEventListener("keyup", function(event) {
             }
             _("fileListHint").innerHTML = window.fileListHint;
             if (window.dirHeader) _("directoryHeader").style.display = "";
+            _("fileListFilterClear").style.display = "none";
         } else {
             var matches = 0;
             for (i = 0; i < window.fileElements.length; i++) {
@@ -1533,10 +1523,10 @@ _("fileListFilter").addEventListener("keyup", function(event) {
                 else
                     el.style.display = "none";
             }
-            if (this.value.match(/^url=(.*)$/g)) {
+            if (elBar.value.match(/^url=(.*)$/gi)) {
                 _("fileListHint").innerHTML = window.lang.fileListFilterUrl;
                 if (event.key == "Enter" || event.keyCode == 13) {
-                    window.location.href = this.value.replace(/^url=(.*)$/g, "$1");
+                    window.location.href = elBar.value.replace(/^url=(.*)$/gi, "$1");
                 }
             } else if (matches == 0) {
                 _("fileListHint").innerHTML = window.lang.fileListDetailsFilterNone;
@@ -1546,10 +1536,11 @@ _("fileListFilter").addEventListener("keyup", function(event) {
                 _("fileListHint").innerHTML = window.lang.fileListDetailsFilterMulti.replace("%0", matches);
             }
             _("directoryHeader").style.display = "none";
+            _("fileListFilterClear").style.display = "";
         }
     // 100ms for every 500 files
     }, (100*Math.floor(window.fileElements.length/500)));
-});
+}
 
 // Topbar title click event
 _("topbarTitle").addEventListener("click", function() {

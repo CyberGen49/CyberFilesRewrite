@@ -103,7 +103,7 @@ A list of filenames to check for in each directory. If a directory contains a ma
 
 #### `headerFileNameMarkdown`
 Type: `string`  
-If a file with this name exists in a directory, it will be read and parsed as Markdown, then displayed above the directory's file list online. Only a limited subset of the Markdown spec is supported. See [the Markdown guide](#) for details.
+If a file with this name exists in a directory, it will be read and parsed as Markdown, then displayed above the directory's file list online. Check out [The Markdown Guide](https://www.markdownguide.org/basic-syntax/) to learn more.
 
 #### `headerFileNameHtml`
 Type: `string`  
@@ -114,19 +114,23 @@ Type: `string`
 If this file exists in a directory, the directory's contents will be hidden from view online.
 
 #### `sortFileName`
-Type: `string`
+Type: `string`  
 If this file exists in a directory, its files will be sorted by name by default.
 
 #### `sortFileDate`
-Type: `string`
+Type: `string`  
 If this file exists in a directory, its files will be sorted by date modified by default.
 
+#### `sortFileType`
+Type: `string`  
+If this file exists in a directory, its files will be sorted by type by default.
+
 #### `sortFileSize`
-Type: `string`
+Type: `string`  
 If this file exists in a directory, its files will be sorted by size by default.
 
 #### `sortFileDesc`
-Type: `string`
+Type: `string`  
 If this file exists in a directory, its file order will be reversed. Folders will remain on top.
 
 #### `defaultSort`
@@ -167,9 +171,13 @@ Options for video progress saving. When enabled, users will be given the option 
 * `expire`: The time, in hours, after which a video's saved progress can't be resumed anymore. 
 * `prompt`: If `true`, the user will be given the option to resume or not. If `false`, the video will be resumed automatically, and the user will see a toast notification about it.
 
+#### `textPreviewMaxSize`
+Type: `string`  
+The largest a text file can be to still have a file preview.
+
 #### `logTimezone`
 Type: `string`  
-A valid [PHP timezone](https://www.php.net/manual/en/timezones.php) to use for timestamps in log files
+A valid [PHP timezone](https://www.php.net/manual/en/timezones.php) to use for timestamps in log files.
 
 #### `logUserIpHeader`
 Type: `string`  

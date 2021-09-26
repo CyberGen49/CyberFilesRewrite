@@ -48,6 +48,7 @@ fileListError: An error occurred.
 fileListEmpty: There's nothing here.
 fileListEntryUp: "Up to %0"
 fileListFilter: Filter files in this folder...
+fileListFilterClear: Clear filter
 fileListFilterDisabled: Filtering is unavailable right now
 fileListFilterUrl: Type a URL and press Enter to navigate.
 fileListHidden: This folder's contents have been hidden.
@@ -59,7 +60,8 @@ previewDesc: "You'll have to download it to view its contents."
 previewDownload: "Download file (%0)"
 previewFirstFile: "This is the first file."
 previewLastFile: "This is the last file."
-popupAboutVersion: "Version: %0"
+popupAboutVersion: "Version: %0 (%1)"
+popupAboutChangelog: "Local Changelog"
 popupAboutDesc2: "Built with love by CyberGen49"
 popupAboutDesc: "CyberFiles is an open-sourced, capable, and customizable file index that makes it easy to view and share files stored on the server."
 popupAboutDescLink: "Check it out on GitHub"

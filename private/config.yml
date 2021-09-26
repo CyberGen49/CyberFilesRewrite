@@ -8,7 +8,7 @@ siteName: CyberFiles
 siteDesc: Browse and preview server files with ease.
 hiddenFiles:
   - '*.php'
-  - '*.html'
+  - 'index.html'
   - '.*'
   - '_*'
 hideDirWhenContains:
@@ -39,6 +39,7 @@ videoProgressSave:
   maxPercent: 90
   expire: 168 # 7 days
   prompt: true
+textPreviewMaxSize: 1000000
 logTimezone: America/Chicago
 logUserIpHeader: REMOTE_ADDR
 
@@ -46,4 +47,4 @@ logUserIpHeader: REMOTE_ADDR
 theme: Default
 
 # Other things
-version: v1.6.2
+version: v1.7.0

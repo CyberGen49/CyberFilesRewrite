@@ -2,6 +2,16 @@
 # CyberFilesRewrite Changelog
 I'll try my best to keep track of all changes to CyberFilesRewrite, big and small, right here in this changelog. I do most of my web development late at night, so the dates here tend to extend into the following day.
 
+## 1.7.0 - September 25th, 2021
+* Added a button to clear the filter bar
+    * It only appears next to the filter bar while filtering
+* Added text file previews
+    * Markdown files are parsed and displayed, and HTML files are displayed raw. All other text files are displayed in a monospace font.
+    * Only files less than the size defined by the `textPreviewMaxSize` config option will be previewed
+* Now self-hosting normalize.css
+* Switched to using [Marked](https://github.com/markedjs/marked) for parsing Markdown (self-hosting)
+    * This unlocks the whole Markdown spec without the need to dump hours into making a custom parser!
+
 ## 1.6.2 - September 24th, 2021
 * Improved the fluidity of using the browser back and forward buttons
     * Before, it would take a few clicks to actually move between 'pages'
