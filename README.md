@@ -173,7 +173,11 @@ Options for video progress saving. When enabled, users will be given the option 
 
 #### `textPreviewMaxSize`
 Type: `string`  
-The largest a text file can be to still have a file preview.
+The largest a text file can be to still have a file preview, in bytes.
+
+#### `shortLinkSlugLength`
+Type: `string`  
+The length of random strings generated for short links. These are hex strings, meaning the number of possible unique short links is 16 to the power of this length. The default 8 characters make for nearly 4.3 billion possible links.
 
 #### `logTimezone`
 Type: `string`  

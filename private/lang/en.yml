@@ -16,8 +16,10 @@ dropdownRecentsClearHistory: "Clear history..."
 dropdownRefreshList: "Refresh files"
 dropdownRefreshPage: "Refresh page"
 dropdownShareDirectory: "Copy directory URL"
+dropdownShareDirectoryShort: "Copy short directory URL"
 dropdownShareFile: "Copy file URL"
-dropdownShareFilePreview: "Copy file preview URL"
+dropdownShareFilePreview: "Copy preview URL"
+dropdownShareFilePreviewShort: "Copy short preview URL"
 dropdownSortList: "Sort files..."
 dropdownSortListName: Name A-Z
 dropdownSortListNameDesc: Name Z-A
@@ -29,7 +31,9 @@ dropdownSortListSize: Smallest first
 dropdownSortListSizeDesc: Largest first
 dropdownSortListDefault: Use folder default
 toastCopyDirectoryLink: Copied directory URL to clipboard.
+toastCopyDirectoryLinkShort: Copied short directory URL to clipboard.
 toastCopyFilePreviewLink: Copied file preview URL to clipboard.
+toastCopyFilePreviewLinkShort: Copied short file preview URL to clipboard.
 toastCopyFileLink: Copied direct file URL to clipboard.
 toastFileDownload: Downloading file...
 toastVideoResumed: Resumed video at %0
@@ -60,7 +64,7 @@ previewDesc: "You'll have to download it to view its contents."
 previewDownload: "Download file (%0)"
 previewFirstFile: "This is the first file."
 previewLastFile: "This is the last file."
-popupAboutVersion: "Version: %0 (%1)"
+popupAboutVersion: "Version: %0"
 popupAboutChangelog: "Local Changelog"
 popupAboutDesc2: "Built with love by CyberGen49"
 popupAboutDesc: "CyberFiles is an open-sourced, capable, and customizable file index that makes it easy to view and share files stored on the server."
@@ -100,23 +104,29 @@ popupServerError408: "The request timed out."
 popupServerError414: "The requested URL is too long."
 popupServerError418: "The server refuses to brew coffee with a teapot."
 popupServerError429: "Too many requests, you're being rate-limited."
-popupServerError500: "The server ran into an internal error."
+popupServerError500: "The server ran into an internal error. If this continues, contact the site administrator or %0."
+popupServerError500Lnk: "submit an issue"
 popupServerError502: "Bad gateway."
 popupServerError503: "The server is temporarily unavailable."
-popupServerError504: "The gateway server timed out."
+popupServerError504: "The gateway server timed out. If this is a large directory that hasn't been loaded before, it may take a couple loads to get it all cached."
 popupServerError520: "The origin server encountered an unknown error."
 popupServerError521: "The origin server is inaccessible."
-popupServerError522: "The proxy server timed out while connecting to the origin server."
+popupServerError522: "The proxy server timed out while connecting to the origin server. If this is a large directory that hasn't been loaded before, it may take a couple loads to get it all cached."
 popupServerError523: "The proxy server failed to connect to the origin server."
-popupServerError524: "The proxy server timed out while waiting for a response from the origin server."
+popupServerError524: "The proxy server timed out while waiting for a response from the origin server. If this is a large directory that hasn't been loaded before, it may take a couple loads to get it all cached."
 popupServerErrorOther: "The server encountered an error. Search for the error code above for more info."
 linkPreviewFileUncached: "This file's details aren't available right now, but you can preview and download it online."
 loggerTypeAccess: Access
 loggerTypeGeneric: Info
+loggerTypeError: Error
 loggerTypePhpError: PHP %0
 loggerPageLoad: "[%0] Freshly loaded CyberFiles in \"%1\""
+loggerShortLinkUsed: "[%0] Used short link \"%1\""
 loggerApiCall: "[%0] Made an API request in \"%1\" with arguments '%2'"
 loggerFileCached: "Saved file to cache: \"%0\""
+loggerNewShortLink: "Created new short link slug for path: \"%0\""
+loggerFailedShortLink: "Too many failed attempts to create a short link slug for path: \"%0\""
+loggerCacheReset: "The cache database has been wiped to match version \"%0\""
 loggerPhpError: "%0 (%1:%2)"
 dtMonth1: January
 dtMonth1Short: Jan

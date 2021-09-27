@@ -2,6 +2,15 @@
 # CyberFilesRewrite Changelog
 I'll try my best to keep track of all changes to CyberFilesRewrite, big and small, right here in this changelog. I do most of my web development late at night, so the dates here tend to extend into the following day.
 
+## 1.8.0 - September 26th, 2021
+* Refined styling of elements used in parsed Markdown
+* Added a splash screen when loading CyberFiles that covers the main page until loading is complete
+    * "Loading" doesn't include loading the file list, just the main page
+* Cleaned up the API
+* Added file and directory short links
+    * These are created once per file path and stored in `/_cyberfiles/private/shortLinks.db`. That is to say, if the file is recached, its short link won't change.
+    * These links can be copied from the main and preview menus 
+
 ## 1.7.0 - September 25th, 2021
 * Added a button to clear the filter bar
     * It only appears next to the filter bar while filtering

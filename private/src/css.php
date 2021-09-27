@@ -90,9 +90,65 @@ code:not(pre code) {
 pre:not(#textPreviewPre) {
     margin: 5px 0px 10px 0px;
     padding: 10px 15px;
+    padding-bottom: 5px;
     background: <?= $theme['bgMarkdownCode'] ?>;
     border-radius: 8px;
     max-height: 9000px;
+    overflow-x: scroll;
+    overflow-y: hidden;
+}
+pre:not(#textPreviewPre)::-webkit-scrollbar {
+    height: 5px;
+}
+
+hr {
+    border: none;
+    margin: 15px 0px;
+    padding: 0px;
+    height: 1px;
+    background: <?= $theme['fgTextPreview'] ?>;
+    opacity: 50%;
+}
+
+blockquote {
+    margin: 0px;
+    margin-bottom: 5px;
+    padding: 5px 10px;
+    border-left: 4px solid <?= $theme['accent'] ?>;
+    border-radius: 4px;
+}
+
+#splash {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    background: <?= $theme['bg'] ?>;
+    overflow: hidden;
+    user-select: none;
+    z-index: 30;
+}
+
+#splashInner {
+    margin: auto;
+}
+
+#splashIcon {
+    display: flex;
+    justify-content: center;
+}
+#splashIcon img {
+    width: 100px;
+}
+
+#splashText {
+    margin-top: 20px;
+    font-family: "Montserrat";
+    font-size: 28px;
+    font-weight: bold;
+    text-align: center;
 }
 
 #topbar {
@@ -735,7 +791,7 @@ pre:not(#textPreviewPre) {
         line-height: 145%;
     }
 
-    p, .toast {
+    p, li, .toast {
         font-size: 16px;
     }
 
@@ -894,6 +950,7 @@ pre:not(#textPreviewPre) {
 /* Custom scrollabrs */
 ::-webkit-scrollbar {
     width: 10px;
+    height: 10px;
 }
 ::-webkit-scrollbar-thumb {
     background: <?= $theme['scrollbar'] ?>;

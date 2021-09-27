@@ -152,6 +152,16 @@ function error_name_by_id(int $type):string {
     return 'E_UNKNOWN';
 }
 
+/**
+ * Returns a cryptographically secure pseudo-random hex string of any length, with the help of random_bytes
+ *
+ * @param integer $length The length to make the string
+ * @return string The resulting string
+ */
+function unique_string(int $length = 8):string {
+    return substr(bin2hex(random_bytes($length)), 0, $length);
+}
+
 date_default_timezone_set($conf['logTimezone']);
 function writeLog(string $type, string $message) {
     $logDir = document_root."/_cyberfiles/private/logs";
@@ -193,9 +203,12 @@ class ApiCall {
         // Check for and build cache database
         if (class_exists("SQLite3")) {
             $dbPath = document_root."/_cyberfiles/private/cache.db";
-            // Open the database
+            $dbLnksPath = document_root."/_cyberfiles/private/shortLinks.db";
+            // Open the databases
             $this->db = new SQLite3($dbPath);
             $db = &$this->db;
+            $this->dbLnks = new SQLite3($dbLnksPath);
+            $dbLnks = &$this->dbLnks;
             // Create the data table if it doesn't exist
             $db->query("CREATE TABLE IF NOT EXISTS 'data' (
                 'key' text not null unique,
@@ -210,15 +223,12 @@ class ApiCall {
             $version = $result->fetchArray(SQLITE3_NUM)[0];
             if (!isset($version) or $version !== $versionTarget) {
                 if (!isset($version))
-                    $db->query("INSERT INTO data ('key', 'value')
+                    $db->query("REPLACE INTO data ('key', 'value')
                         values ('version', '$versionTarget');
                     ");
-                else
-                    $db->query("UPDATE data
-                        set value = '$versionTarget'
-                        where key = 'version';
-                    ");
-                trigger_error("[CyberFiles] The cache database has been wiped to meet version $versionTarget.",  E_USER_NOTICE);
+                writeLog($GLOBALS['lang']['loggerTypeGeneric'], str_replace(
+                    "%0", $versionTarget, $GLOBALS['lang']['loggerCacheReset']
+                ));
             }
             // Create the fileCache table if it doesn't exist
             $db->query("CREATE TABLE IF NOT EXISTS 'fileCache' (
@@ -226,6 +236,11 @@ class ApiCall {
                 'modified' integer not null,
                 'size' integer not null,
                 'mimeType' integer not null
+            );");
+            // Create the short links table if it doesn't exist
+            $dbLnks->query("CREATE TABLE IF NOT EXISTS 'entries' (
+                'path' text not null unique,
+                'slug' text not null unique
             );");
         }
         // Start the call
@@ -252,6 +267,8 @@ class ApiCall {
                 "%1", "$dirRel/", str_replace(
                 "%2", str_replace("api=", "", http_build_query($params)), $GLOBALS['lang']['loggerApiCall']
             ))));
+            // Get directory short slug
+            $data['shortSlug'] = $this->getShortSlug($dirRel);
             // Get directory contents
             $scandir = scandir($dir);
             natsort($scandir);
@@ -286,6 +303,10 @@ class ApiCall {
                 }
                 // Get the file object
                 $fileObject = $this->getFileObject($f);
+                if (is_dir($f))
+                    $fileObject['shortSlug'] = $this->getShortSlug("$dirRel/$file");
+                else
+                    $fileObject['shortSlug'] = $this->getShortSlug("$dirRel/?f=$file");
                 // Add to the appropriate array
                 if (is_dir($f)) $folders[] = $fileObject;
                 else $files[] = $fileObject;
@@ -371,6 +392,7 @@ class ApiCall {
         }
         // Close the database if it's open
         if (isset($this->db)) $this->db->close();
+        if (isset($this->dbLnks)) $this->dbLnks->close();
         // Set processing time
         $data['processingTime'] = abs(ceil(microtime(true)*1000)-$this->startTime);
         // Send the data
@@ -424,6 +446,44 @@ class ApiCall {
         }
         unset($file['path']);
         return $file;
+    }
+
+    // Sets/gets a short link slug for a path
+    function getShortSlug($path) {
+        if (class_exists("SQLite3")) {
+            $dbLnks = $this->dbLnks;
+            $stmt = $dbLnks->prepare("SELECT slug from entries where path = :path;");
+            $stmt->bindValue(":path", $path);
+            $result = $stmt->execute();
+            $slug = $result->fetchArray();
+            if (!$slug) {
+                $i = 0;
+                while (true) {
+                    if ($i >= 10) {
+                        // Log
+                        writeLog($GLOBALS['lang']['loggerTypeError'], str_replace(
+                            "%0", $path, $GLOBALS['lang']['loggerFailedShortLink']
+                        ));
+                        break;
+                    }
+                    $slug = unique_string($GLOBALS['conf']['shortLinkSlugLength']);
+                    $stmt = $dbLnks->prepare("INSERT INTO entries (path, slug) VALUES (:path, :slug);");
+                    $stmt->bindValue(":path", $path);
+                    $stmt->bindValue(":slug", $slug);
+                    $result = $stmt->execute();
+                    if ($result) {
+                        // Log
+                        writeLog($GLOBALS['lang']['loggerTypeGeneric'], str_replace(
+                            "%0", $path, $GLOBALS['lang']['loggerNewShortLink']
+                        ));
+                        break;
+                    }
+                    $i++;
+                }
+            }
+            if (is_array($slug)) return $slug['slug'];
+            return $slug;
+        } else return false;
     }
 }
 

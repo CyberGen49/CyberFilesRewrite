@@ -379,6 +379,11 @@ async function loadFileList(dir = "", entryId = null, forceReload = false) {
                 // Set the right popup body text
                 if (window.lang[`popupServerError${response.status}`]) {
                     var errorBody = window.lang[`popupServerError${response.status}`];
+                    switch (response.status) {
+                        case 500:
+                            errorBody = errorBody.replace("%0", `<a href="https://github.com/CyberGen49/CyberFilesRewrite/issues" target="_blank">${window.lang.popupServerError500Lnk}</a>`)
+                            break;
+                    }
                 } else {
                     var errorBody = window.lang.popupServerErrorOther;
                 }
@@ -502,6 +507,8 @@ async function loadFileList(dir = "", entryId = null, forceReload = false) {
                     i++;
                 });
                 window.fileElements = document.getElementsByClassName("fileEntry");
+                // Get directory short link
+                window.shortSlug = data.shortSlug;
                 // Parse and set the directory header, if it exists
                 window.dirHeader = false;
                 if (typeof data.headerHtml !== 'undefined') {
@@ -737,30 +744,11 @@ function showFilePreview(id = null) {
             </div>
         `;
         // Show file-specific previews
-        if (data.ext.match(/^(MP4)$/)) {
+        if (data.ext.match(/^(MP4|WEBM)$/)) {
             _("previewFile").className = "";
             _("previewFile").classList.add("previewTypeVideo");
             _("previewFile").innerHTML = `
                 <video id="videoPreview" <?php if ($conf['videoAutoplay']) print("autoplay") ?> src="${encodeURIComponent(data.name)}" controls></video>
-                <div id="videoContainer">
-                    <div id="videoControls">
-                        <div id="videoBottomBar" class="row no-gutters">
-                            <div id="videoPlayPauseSmall" class="videoPill col-auto row no-gutters material-icons">play_arrow</div>
-                            <div id="videoProgressTime" class="videoPill col-auto">
-                                <span id="timeIntoVideo">-:--</span> / <span id="timeOfVideo">-:--</span>
-                            </div>
-                            <div id="videoProgress" class="videoPill col row no-gutters">
-                                <div id="videoProgressBarCont" class="col">
-                                    <div id="videoProgressBarInner">
-                                        <div id="videoProgressBarTrack"></div>
-                                        <div id="videoProgressBarTrackFilled"></div>
-                                        <input type="range" min="0" max="999" value="0" id="videoProgressBar">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             `;
             // Variables
             var vid = _("videoPreview");
@@ -1058,10 +1046,11 @@ function popup_notImplemented() {
 }
 function popup_about() {
     showPopup("about", window.lang.popupAboutTitle, `
-        <p>${window.lang.popupAboutVersion.replace("%0", "<b><?= $conf['version'] ?></b>").replace("%1", `<a href="/_cyberfiles/?f=Changelog.md">${window.lang.popupAboutChangelog}</a>`)}</p>
+        <p>${window.lang.popupAboutVersion.replace("%0", "<b><?= $conf['version'] ?></b>")}</p>
         <p>${window.lang.popupAboutDesc}</p>
         <p>${window.lang.popupAboutDesc2}</p>
         <p><a href="https://github.com/CyberGen49/CyberFilesRewrite" target="_blank">${window.lang.popupAboutDescLink}</a></p>
+        <p><a href="/_cyberfiles/?f=Changelog.md">${window.lang.popupAboutChangelog}</a></p>
     `, [{
         'id': "close",
         'text': window.lang.popupClose
@@ -1305,6 +1294,7 @@ function showDropdown_recents() {
                     'text': f.name,
                     'icon': icon,
                     'action': function() {
+                        hideFilePreview();
                         historyPushState('', url);
                         loadFileList("", null, true);
                     }
@@ -1374,6 +1364,17 @@ _("topbarButtonMenu").addEventListener("click", function() {
             showToast(window.lang.toastCopyDirectoryLink);
         }
     });
+    data.push({
+        'disabled': !(window.fileListLoaded && window.shortSlug),
+        'type': 'item',
+        'id': 'shareShort',
+        'text': window.lang.dropdownShareDirectoryShort,
+        'icon': 'share',
+        'action': function() {
+            copyText(`${window.location.protocol}//${window.location.hostname}/?s=${window.shortSlug}`);
+            showToast(window.lang.toastCopyDirectoryLinkShort);
+        }
+    });
     data.push({ 'type': 'sep' });
     data.push({
         'type': 'item',
@@ -1429,6 +1430,17 @@ _("previewButtonMenu").addEventListener("click", function() {
         'action': function() {
             copyText(window.location.href);
             showToast(window.lang.toastCopyFilePreviewLink);
+        }
+    });
+    data.push({
+        'disabled': !(window.fileListLoaded && fileData.shortSlug),
+        'type': 'item',
+        'id': 'shareShort',
+        'text': window.lang.dropdownShareFilePreviewShort,
+        'icon': 'share',
+        'action': function() {
+            copyText(`${window.location.protocol}//${window.location.hostname}/?s=${fileData.shortSlug}`);
+            showToast(window.lang.toastCopyFilePreviewLinkShort);
         }
     });
     data.push({
@@ -1584,6 +1596,11 @@ document.addEventListener("scroll", function(event) {
 window.onload = function() {
     document.getElementById("body").classList.remove("no-transitions");
     console.log("Page loaded at "+dateFormat(Date.now(), "%+H:%+M on %Y-%+m-%+d"))
+    // Hide the splash
+    _("splash").style.opacity = 0;
+    setTimeout(() => {
+        _("splash").style.display = "none";
+    }, 300);
     // Do this stuff initially
     loadFileList();
 };

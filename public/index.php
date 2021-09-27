@@ -5,6 +5,28 @@ require(document_root."/_cyberfiles/private/src/functions.php");
 
 if (isset($_GET['api'])) new ApiCall($_GET);
 
+// If this is a short link
+if (isset($_GET['s']) and class_exists("SQLite3")) {
+    $dbLnksPath = document_root."/_cyberfiles/private/shortLinks.db";
+    $dbLnks = new SQLite3($dbLnksPath);
+    $stmt = $dbLnks->prepare("SELECT path from entries where slug = :slug;");
+    $stmt->bindValue(":slug", $_GET['s']);
+    $result = $stmt->execute();
+    $path = $result->fetchArray();
+    $dbLnks->close();
+    if ($path) {
+        writeLog($lang['loggerTypeAccess'], str_replace(
+            "%0", $_SERVER[$conf['logUserIpHeader']], str_replace(
+            "%1", $_GET['s'], $lang['loggerShortLinkUsed']
+        )));
+        header("Location: ".str_replace(
+            ['%'],
+            ['%25'],
+            $path['path']
+        ));
+    }
+}
+
 // Log access
 writeLog($lang['loggerTypeAccess'], str_replace(
     "%0", $_SERVER[$conf['logUserIpHeader']], str_replace(
@@ -86,8 +108,8 @@ while (isset($_GET['f'])) {
         <!-- Marked -->
         <script src="/_cyberfiles/public/src/marked.min.js"></script>
         <!-- highlight.js -->
-        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.2.0/styles/default.min.css">
-        <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.2.0/highlight.min.js"></script>
+        <!-- <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.2.0/styles/default.min.css">
+        <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.2.0/highlight.min.js"></script> -->
         <!-- Material Icon Fonts -->
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
@@ -96,6 +118,14 @@ while (isset($_GET['f'])) {
     <?php try_require(document_root."/_cyberfiles/private/src/css.php") ?>
     
     <body id="body" class="no-transitions">
+        <div id="splash" class="ease-in-out-200ms">
+            <div id="splashInner">
+                <div id="splashIcon">
+                    <img src="<?= $webConf['favicon'] ?>">
+                </div>
+                <div id="splashText"><?= $webConf['siteName'] ?></div>
+            </div>
+        </div>
         <div id="topbar" class="row no-gutters flex-nowrap">
             <div class="col-auto d-flex align-items-center">
                 <button id="topbarButtonUp" class="topbarButton disabled" onClick='fileEntryClicked(this, event)'>arrow_back</button>

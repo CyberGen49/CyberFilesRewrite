@@ -40,6 +40,7 @@ videoProgressSave:
   expire: 168 # 7 days
   prompt: true
 textPreviewMaxSize: 1000000
+shortLinkSlugLength: 8
 logTimezone: America/Chicago
 logUserIpHeader: REMOTE_ADDR
 
@@ -47,4 +48,4 @@ logUserIpHeader: REMOTE_ADDR
 theme: Default
 
 # Other things
-version: v1.7.0
+version: v1.8.0
