@@ -69,6 +69,11 @@ a:hover, a:focus {
     text-decoration: underline;
 }
 
+b, em {
+    color: inherit;
+    line-height: inherit;
+}
+
 ul, ol {
     margin: 0px;
     padding: 0px;
@@ -85,6 +90,7 @@ code:not(pre code) {
     padding: 2px 8px;
     border-radius: 6px;
     max-height: 9000px;
+    word-wrap: break-word;
 }
 
 pre:not(#textPreviewPre) {
@@ -100,6 +106,9 @@ pre:not(#textPreviewPre) {
 pre:not(#textPreviewPre)::-webkit-scrollbar {
     height: 5px;
 }
+pre:not(#textPreviewPre):last-child {
+    margin-bottom: 0px;
+}
 
 hr {
     border: none;
@@ -113,7 +122,7 @@ hr {
 blockquote {
     margin: 0px;
     margin-bottom: 5px;
-    padding: 5px 10px;
+    padding: 10px 10px;
     border-left: 4px solid <?= $theme['accent'] ?>;
     border-radius: 4px;
 }
@@ -149,6 +158,7 @@ blockquote {
     font-size: 28px;
     font-weight: bold;
     text-align: center;
+    line-height: 120%;
 }
 
 #topbar {
@@ -170,26 +180,32 @@ blockquote {
 }
 
 #topbarTitle {
-    padding: 5px;
+    padding: 5px 8px 4px 8px;
     font-family: "Montserrat", sans-serif;
     font-size: 24px;
     font-weight: bold;
     color: <?= $theme['fgTopbar'] ?>;
     background: none;
     border: none;
+    border-radius: 8px;
     transition: 0.1s ease-in-out;
 }
-#topbarTitle:hover, #topbarTitle:focus {
+#topbarTitle:hover:not(.disabled),
+#topbarTitle:focus:not(.disabled) {
+    background: <?= $theme['bgTopbarButtonH'] ?>;
     color: <?= $theme['fgTopbarH'] ?>;
     text-decoration: none;
     cursor: default;
+}
+#topbarTitle:active:not(.disabled) {
+    background: <?= $theme['bgTopbarButtonC'] ?>;
 }
 
 .topbarButton {
     line-height: 100%;
     padding: 8px;
     margin: 0px 3px;
-    font-family: "Material Icons Outlined", "Material Icons";
+    font-family: "Material Icons Outlined";
     font-size: 28px;
     color: <?= $theme['fgTopbar'] ?>;
     background: none;
@@ -219,6 +235,52 @@ blockquote {
     margin-right: 5px;
 }
 
+#breadcrumbs {
+    flex-wrap: nowrap;
+    margin-left: 5px;
+    overflow: hidden;
+}
+.breadcrumb {
+    flex-wrap: nowrap;
+}
+
+.breadcrumbSep {
+    margin: 0px -3px;
+    display: flex;
+    align-items: center;
+    font-family: "Material Icons Outlined";
+    font-size: 27px;
+    color: <?= $theme['fgTopbar'] ?>;
+    opacity: 50%;
+}
+
+.breadcrumbNameCont {
+    margin-top: 1px;
+    display: flex;
+    align-items: center;
+}
+.breadcrumbName {
+    border: none;
+    background: none;
+    padding: 5px 8px 3px 8px;
+    font-family: "Montserrat", sans-serif;
+    font-size: 18px;
+    font-weight: bold;
+    color: <?= $theme['fgTopbar'] ?>;
+    border-radius: 6px;
+    transition: 0.1s ease-in-out;
+}
+.breadcrumbName.hover:hover:not(.disabled),
+.breadcrumbName.hover:focus:not(.disabled) {
+    background: <?= $theme['bgTopbarButtonH'] ?>;
+    color: <?= $theme['fgTopbarH'] ?>;
+    text-decoration: none;
+    cursor: default;
+}
+.breadcrumbName.hover:active:not(.disabled) {
+    background: <?= $theme['bgTopbarButtonC'] ?>;
+}
+
 #fileListContainer {
     max-width: 1100px;
     margin-top: 80px;
@@ -233,19 +295,19 @@ blockquote {
     padding: 10px 16px;
     background: rgba(0, 0, 0, 0);
     border: none;
-    border-bottom: 2px solid <?= $theme['filterBarBottom'] ?>;
+    border-bottom: 2px solid <?= $theme['bgFilterBarBorder'] ?>;
     border-radius: 4px 4px 0px 0px;
     outline: none;
     font-family: "Open Sans";
     font-size: 15px;
-    color: <?= $theme['filterBarText'] ?>;
+    color: <?= $theme['fgFilterBar'] ?>;
     transition: 0.1s ease-in-out;
     user-select: none;
 }
 
 #fileListFilter:focus {
-    background: <?= $theme['filterBarBgF'] ?>;
-    border-bottom: 2px solid <?= $theme['filterBarBottomF'] ?>;
+    background: <?= $theme['bgFilterBarF'] ?>;
+    border-bottom: 2px solid <?= $theme['bgFilterBarBorderF'] ?>;
 }
 
 #fileListFilterClear {
@@ -253,7 +315,7 @@ blockquote {
     align-items: center;
     height: 100%;
     margin-left: 5px;
-    font-family: "Material Icons Outlined", "Material Icons";
+    font-family: "Material Icons Outlined";
     font-size: 28px;
     border: none;
     background: none;
@@ -345,7 +407,7 @@ blockquote {
     margin-bottom: -10px;
     margin-top: 1px;
     margin-left: 4px;
-    font-family: "Material Icons Outlined", "Material Icons";
+    font-family: "Material Icons Outlined";
     font-size: 18px;
     color: inherit;
 }
@@ -394,7 +456,7 @@ blockquote {
     align-items: center;
     justify-content: center;
     padding: 0px;
-    font-family: "Material Icons Outlined", "Material Icons";
+    font-family: "Material Icons Outlined";
     font-size: 22px;
     color: <?= $theme['fileIcon'] ?>;
     text-overflow: clip;
@@ -443,7 +505,7 @@ blockquote {
     line-height: 100%;
     padding: 8px;
     margin: 0px 3px;
-    font-family: "Material Icons Outlined", "Material Icons";
+    font-family: "Material Icons Outlined";
     font-size: 28px;
     color: <?= $theme['fgPreview'] ?>;
     background: none;
@@ -573,7 +635,7 @@ blockquote {
 }
 
 #previewCardIcon {
-    font-family: "Material Icons Outlined", "Material Icons";
+    font-family: "Material Icons Outlined";
     font-size: 64px;
     color: <?= $theme['fgPreviewIcon'] ?>;
     line-height: 100%;
@@ -719,7 +781,7 @@ blockquote {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: "Material Icons Outlined", "Material Icons";
+    font-family: "Material Icons Outlined";
     font-size: 24px;
     color: <?= $theme['fgDropdown'] ?>;
 }
@@ -762,6 +824,20 @@ blockquote {
     border-left: 8px solid <?= $theme['bgToastBorder'] ?>;
     border-radius: 8px;
     box-shadow: 0px 3px 15px 0px rgba(0,0,0,0.3);
+}
+
+#tooltip {
+    position: fixed;
+    padding: 5px 10px;
+    font-size: 14px;
+    color: <?= $theme['fgTooltip'] ?>;
+    line-height: 120%;
+    background: <?= $theme['bgTooltip'] ?>;
+    border-radius: 6px;
+    box-shadow: 0px 2px 10px 0px rgba(0,0,0,0.3);
+    user-select: none;
+    transition: 0.1s ease-in-out;
+    z-index: 100;
 }
 
 .buttonMain {
@@ -933,7 +1009,7 @@ blockquote {
 
 /* Custom placeholder text colour */
 ::placeholder {
-    color: <?= $theme['textboxPlaceholder'] ?>;
+    color: <?= $theme['fgTextboxPlaceholder'] ?>;
     opacity: 1;
 }
 

@@ -2,6 +2,16 @@
 # CyberFilesRewrite Changelog
 I'll try my best to keep track of all changes to CyberFilesRewrite, big and small, right here in this changelog. I do most of my web development late at night, so the dates here tend to extend into the following day.
 
+## 1.9.0 - September 27th, 2021
+* Now the clear filter button is hidden when changing directories
+* Made `<code>` elements wrap breaking words
+* Added a popup when accessing an invalid short link
+* Added breadcrumbs to the topbar that allow the user to move up to any level of the path
+* Revamped the hover styling of the topbar title to match that of breadcrumbs
+    * Instead of just changing the text colour, we fade in a rounded rectangle behind the text using the same background colour as topbar buttons (`bgTopbarButtonH`)
+* Changed some theme variable names
+* Added custom hover tooltips
+
 ## 1.8.0 - September 26th, 2021
 * Refined styling of elements used in parsed Markdown
 * Added a splash screen when loading CyberFiles that covers the main page until loading is complete
@@ -15,7 +25,7 @@ I'll try my best to keep track of all changes to CyberFilesRewrite, big and smal
 * Added a button to clear the filter bar
     * It only appears next to the filter bar while filtering
 * Added text file previews
-    * Markdown files are parsed and displayed, and HTML files are displayed raw. All other text files are displayed in a monospace font.
+    * Markdown files are parsed and displayed, and HTML files are displayed raw. All other text files are displayed in the browser's monospace font.
     * Only files less than the size defined by the `textPreviewMaxSize` config option will be previewed
 * Now self-hosting normalize.css
 * Switched to using [Marked](https://github.com/markedjs/marked) for parsing Markdown (self-hosting)

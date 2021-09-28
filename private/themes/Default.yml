@@ -37,11 +37,11 @@ fgTopbarH: +bg2
 bgTopbarButtonH: rgba(0, 0, 0, 0.1)
 bgTopbarButtonC: rgba(0, 0, 0, 0.2)
 topbarBorder: +bg2
-textboxPlaceholder: +fg2
-filterBarBottom: +bg2
-filterBarBottomF: +accent
-filterBarBgF: +bg2
-filterBarText: +fg
+fgTextboxPlaceholder: +fg2
+bgFilterBarBorder: +bg2
+bgFilterBarBorderF: +accent
+bgFilterBarF: +bg2
+fgFilterBar: +fg
 fgFilterBarClear: +fg2
 fgFilterBarClearH: +fg
 fgFilterBarClearC: +accent
@@ -78,6 +78,8 @@ fgTextPreview: +fg
 bgMarkdownCode: rgba(0, 0, 0, 0.25)
 hyperlink: +accent
 hyperlinkH: +fg2
+bgTooltip: +fg
+fgTooltip: +bg
 bgButton: +accent
 fgButton: +bg
 bgButtonH: +fg

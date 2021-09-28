@@ -24,6 +24,8 @@ if (isset($_GET['s']) and class_exists("SQLite3")) {
             ['%25'],
             $path['path']
         ));
+    } else {
+        header("Location: /?badShortLink");
     }
 }
 
@@ -131,9 +133,9 @@ while (isset($_GET['f'])) {
                 <button id="topbarButtonUp" class="topbarButton disabled" onClick='fileEntryClicked(this, event)'>arrow_back</button>
             </div>
             <div id="topbarTitleContainer" class="col-auto d-flex align-items-center">
-                <button id="topbarTitle" title="<?= $lang['topbarTitleTooltip'] ?>"><?= $conf['siteName'] ?></button>
+                <button id="topbarTitle"><?= $conf['siteName'] ?></button>
             </div>
-            <div class="col"></div>
+            <div id="breadcrumbs" class="col row no-gutters"></div>
             <div class="col-auto d-flex align-items-center">
                 <button id="topbarButtonMenu" class="topbarButton">more_vert</button>
             </div>
@@ -190,6 +192,8 @@ while (isset($_GET['f'])) {
             </div>
             <div id="previewFile" class="ease-in-out-100ms"></div>
         </div>
+
+        <div id="tooltip" class="noboost" style="display: none;"></div>
 
         <noscript>
             <div id="popupNoJs" class="popupBackground ease-in-out-100ms">

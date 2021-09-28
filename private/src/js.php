@@ -323,6 +323,7 @@ function getFileTypeIcon(mimeType) {
 
 // Loads a file list with the API
 window.fileListLoaded = false;
+addTooltip("topbarButtonUp");
 async function loadFileList(dir = "", entryId = null, forceReload = false) {
     // Set variables
     if (dir == "") dir = currentDir();
@@ -354,6 +355,7 @@ async function loadFileList(dir = "", entryId = null, forceReload = false) {
         _("fileListFilter").disabled = true;
         _("fileListFilter").value = "";
         _("fileListFilter").placeholder = window.lang.fileListFilterDisabled;
+        _("fileListFilterClear").style.display = "none";
         var sortIndicators = document.getElementsByClassName("fileListSortIndicator");
         for (i = 0; i < sortIndicators.length; i++) sortIndicators[i].innerHTML = "";
         // Get sort order
@@ -443,10 +445,10 @@ async function loadFileList(dir = "", entryId = null, forceReload = false) {
                     }
                     // Handle the up button in the topbar
                     _("topbarButtonUp").classList.remove("disabled");
-                    _("topbarButtonUp").title = upTitle;
+                    _("topbarButtonUp").dataset.tooltip = upTitle;
                 } else {
                     _("topbarButtonUp").classList.add("disabled");
-                    _("topbarButtonUp").title = window.lang.topbarButtonUpLimitTooltip;
+                    _("topbarButtonUp").dataset.tooltip = window.lang.topbarButtonUpLimitTooltip;
                 }
                 // Loop through the returned file objects
                 window.fileObjects = [];
@@ -463,7 +465,7 @@ async function loadFileList(dir = "", entryId = null, forceReload = false) {
                         f.typeF = window.lang.fileTypeDirectory;
                         f.icon = getFileTypeIcon(f.mimeType);
                         // Set tooltip
-                        f.title = `${f.name}\n${window.lang.fileDetailsDate}: ${f.modifiedFF}\n${window.lang.fileDetailsType}: ${f.typeF}`;
+                        f.title = `<b>${f.name}</b><br>${window.lang.fileDetailsDate}: ${f.modifiedFF}<br>${window.lang.fileDetailsType}: ${f.typeF}`;
                         // Set mobile details
                         f.detailsMobile = f.modifiedF;
                     } else {
@@ -482,14 +484,14 @@ async function loadFileList(dir = "", entryId = null, forceReload = false) {
                         // Set icon based on MIME type
                         f.icon = getFileTypeIcon(f.mimeType);
                         // Set tooltip
-                        f.title = `${f.name}\n${window.lang.fileDetailsDate}: ${f.modifiedFF}\n${window.lang.fileDetailsType}: ${f.typeF}\n${window.lang.fileDetailsSize}: ${f.sizeF}" href="${f.name}`;
+                        f.title = `<b>${f.name}</b><br>${window.lang.fileDetailsDate}: ${f.modifiedFF}<br>${window.lang.fileDetailsType}: ${f.typeF}<br>${window.lang.fileDetailsSize}: ${f.sizeF}`;
                         // Set mobile details
                         f.detailsMobile = window.lang.fileListMobileLine2.replace("%0", f.modifiedF).replace("%1", f.sizeF);
                     }
                     f.nameUri = encodeURIComponent(f.name);
                     // Build HTML
                     _("fileList").insertAdjacentHTML('beforeend', `
-                        <a id="fileEntry-${i}" class="row no-gutters fileEntry" tabindex=0 data-filename='${f.name}' data-objectindex=${i} onClick='fileEntryClicked(this, event)' title="${f.title}">
+                        <a id="fileEntry-${i}" class="row no-gutters fileEntry" tabindex=0 data-filename='${f.name}' data-objectindex=${i} onClick='fileEntryClicked(this, event)'>
                             <div class="col-auto fileEntryIcon material-icons">${f.icon}</div>
                             <div class="col fileEntryName">
                                 <div class="fileEntryNameInner noBoost">${f.name}</div>
@@ -502,6 +504,7 @@ async function loadFileList(dir = "", entryId = null, forceReload = false) {
                             <div class="col-auto fileEntrySize fileListDesktop noBoost">${f.sizeF}</div>
                         </a>
                     `);
+                    addTooltip(`fileEntry-${i}`, f.title);
                     _(`fileEntry-${i}`).href = f.nameUri;
                     window.fileObjects[i] = f;
                     i++;
@@ -509,6 +512,39 @@ async function loadFileList(dir = "", entryId = null, forceReload = false) {
                 window.fileElements = document.getElementsByClassName("fileEntry");
                 // Get directory short link
                 window.shortSlug = data.shortSlug;
+                // Build breadcrumbs
+                var breadcrumbAddClick = function(path) {
+                    historyReplaceState('', path);
+                    loadFileList();
+                };
+                _("breadcrumbs").innerHTML = "";
+                var i = 0;
+                while (true) {
+                    let bcDir = currentDir(i);
+                    let bcName = bcDir.split('/')
+                    bcName = decodeURIComponent(bcName[bcName.length-1]);
+                    if (bcDir == '/') break;
+                    _("breadcrumbs").insertAdjacentHTML('afterbegin', `
+                        <div id="breadcrumb-${i}-cont" class="col-auto row no-gutters fileListDesktop breadcrumb" data-name="${bcName}" data-path="${bcDir}">
+                            <div class="col-auto material-icons breadcrumbSep">chevron_right</div>
+                            <div class="col-auto breadcrumbNameCont">
+                                <button id="breadcrumb-${i}" class="breadcrumbName hover">${bcName}</button>
+                            </div>
+                        </div>
+                    `);
+                    if (i != 0) {
+                        addTooltip(`breadcrumb-${i}`, window.lang.breadcrumbTooltip.replace("%0", bcName));
+                        _(`breadcrumb-${i}`).addEventListener("click", function() {
+                            this.blur();
+                            breadcrumbAddClick(bcDir);
+                        });
+                    } else {
+                        _(`breadcrumb-${i}`).classList.remove("hover");
+                        addTooltip(`breadcrumb-${i}`, window.lang.breadcrumbTooltipCurrent);
+                    }
+                    i++;
+                }
+                reflowBreadcrumbs();
                 // Parse and set the directory header, if it exists
                 window.dirHeader = false;
                 if (typeof data.headerHtml !== 'undefined') {
@@ -683,6 +719,8 @@ _("fileListHeaderSize").addEventListener("click", function() {
 });
 
 // Displays a file preview
+addTooltip("previewPrev");
+addTooltip("previewNext");
 function showFilePreview(id = null) {
     window.canClickEntries = true;
     // If a file is requested and the passed object ID is set
@@ -703,15 +741,15 @@ function showFilePreview(id = null) {
         // Get previous and next items
         _("previewPrev").classList.add("disabled");
         _("previewNext").classList.add("disabled");
-        _("previewPrev").title = window.lang.previewFirstFile;
-        _("previewNext").title = window.lang.previewLastFile;
+        _("previewPrev").dataset.tooltip = window.lang.previewFirstFile;
+        _("previewNext").dataset.tooltip = window.lang.previewLastFile;
         idPrev = id;
         while (idPrev > 0) {
             idPrev--;
             var filePrev = window.fileObjects[idPrev];
             if (filePrev.mimeType != "directory") {
                 _("previewPrev").classList.remove("disabled");
-                _("previewPrev").title = filePrev.name;
+                _("previewPrev").dataset.tooltip = `${window.lang.previewPrev}<br>${filePrev.name}`;
                 _("previewPrev").dataset.objectid = idPrev;
                 break;
             }
@@ -723,7 +761,7 @@ function showFilePreview(id = null) {
             if (!fileNext) break;
             if (fileNext.mimeType != "directory") {
                 _("previewNext").classList.remove("disabled");
-                _("previewNext").title = fileNext.name;
+                _("previewNext").dataset.tooltip = `${window.lang.previewNext}<br>${fileNext.name}`;
                 _("previewNext").dataset.objectid = idNext;
                 break;
             }
@@ -1088,7 +1126,7 @@ function showDropdown(id, data, anchorId) {
                 `);
                 if (item.disabled) {
                     _(`dropdown-${id}-${item.id}`).classList.add("disabled");
-                    _(`dropdown-${id}-${item.id}`).title = window.lang.dropdownDisabled;
+                    addTooltip(`dropdown-${id}-${item.id}`, window.lang.dropdownDisabled);
                 } else {
                     _(`dropdown-${id}-${item.id}`).addEventListener("click", item.action);
                     _(`dropdown-${id}-${item.id}`).addEventListener("click", function() { hideDropdown(id) });
@@ -1503,6 +1541,72 @@ function showToast(text) {
     }, 100);
 }
 
+// Adds a tooltip to an element
+function addTooltip(id, text = null) {
+    _(id).addEventListener("mousemove", function() { showTooltip(this, text) });
+    _(id).addEventListener("mouseleave", function() { hideTooltip() });
+    _(id).addEventListener("click", function() { showTooltip(this, text) });
+}
+
+// Shows a tooltip at the cursor's current location
+function showTooltip(el, text) {
+    hideTooltip();
+    window.tooltipTimeout = setTimeout(() => {
+        if (text === null) text = el.dataset.tooltip;
+        _("tooltip").innerHTML = text;
+        _("tooltip").style.opacity = 0;
+        _("tooltip").style.display = "block";
+        _("tooltip").style.left = "";
+        _("tooltip").style.right = "";
+        _("tooltip").style.top = "";
+        _("tooltip").style.bottom = "";
+        var winW = window.innerWidth;
+        var winH = window.innerHeight;
+        var elW = Math.floor(_getW("tooltip"));
+        var elH = Math.floor(_getH("tooltip"));
+        var left = Math.floor(window.mouseX);
+        var right = Math.floor(window.innerWidth-window.mouseX);
+        var top = Math.floor(window.mouseY);
+        var bottom = Math.floor(window.innerHeight-window.mouseY);
+        // Position horizontally
+        if (window.mouseX > (winW/2)
+          && left > (winW-elW-30)) {
+            _("tooltip").style.right = `${right}px`;
+            // Fix a strange bug where sometimes the tooltip is too far away from the cursor
+            if (_getX2("tooltip") != window.mouseX) {
+                right = right+(_getX2("tooltip")-window.mouseX);
+                _("tooltip").style.right = `${right}px`;
+            }
+        } else
+            _("tooltip").style.left = `${left}px`;
+        // Position vertically
+        if (window.mouseY > (winH/2)
+          && top > (winH-elH-30))
+            _("tooltip").style.bottom = `${bottom}px`;
+        else {
+            _("tooltip").style.top = `${top+15}px`;
+            // Adjust for the top left corner
+            if (_("tooltip").style.left != '')
+                _("tooltip").style.left = `${left+12}px`;
+        }
+        // Fade in
+        console.log(`Showing tooltip at (${_getX("tooltip")}, ${_getY("tooltip")})\nCursor: (${window.mouseX}, ${window.mouseY})\nWindow W ${winW}px, H ${winH}px\nX1 ${_getX("tooltip")}px  Y1 ${_getY("tooltip")}px\nX2 ${_getX2("tooltip")}px  Y2 ${_getY2("tooltip")}px\nW ${_getW("tooltip")}px  H ${_getH("tooltip")}px`);
+        window.tooltipFadeTimeout = setTimeout(() => {
+            _("tooltip").style.opacity = 1;
+        }, 50);
+    }, 500);
+}
+
+// Hides a tooltip
+function hideTooltip() {
+    clearTimeout(window.tooltipTimeout);
+    clearTimeout(window.tooltipFadeTimeout);
+    _("tooltip").style.opacity = 0;
+    window.tooltipFadeTimeout = setTimeout(() => {
+        _("tooltip").style.display = "none";
+    }, 200);
+}
+
 // Handle the filter bar
 _("fileListFilter").addEventListener("keyup", function(event) { filterFiles(event, this) });
 _("fileListFilterClear").addEventListener("click", function(event) {
@@ -1556,9 +1660,11 @@ function filterFiles(event, elBar) {
 
 // Topbar title click event
 _("topbarTitle").addEventListener("click", function() {
+    this.blur();
     historyPushState('', `/`);
     loadFileList();
 });
+addTooltip("topbarTitle", window.lang.topbarTitleTooltip);
 
 // Do this stuff when the window is resized
 window.addEventListener("resize", function(event) {
@@ -1572,7 +1678,25 @@ window.addEventListener("resize", function(event) {
             hideDropdown(id);
         }
     }
+    // Make the breadcrumbs responsive
+    reflowBreadcrumbs();
 });
+
+// Make the breadcrumbs responsive
+function reflowBreadcrumbs() {
+    var breadcrumbs = document.getElementsByClassName("breadcrumb");
+    if (breadcrumbs.length == 0) return;
+    for (i = 0; i < breadcrumbs.length; i++)
+        breadcrumbs[i].style.display = "";
+    var i = 0;
+    while (true) {
+        var contX2 = _getX2("breadcrumbs");
+        var bcX2 = _getX2(breadcrumbs[breadcrumbs.length-1].id);
+        if (bcX2 < contX2) return;
+        breadcrumbs[i].style.display = "none";
+        i++;
+    }
+}
 
 // Handle browser back and forward buttons
 window.addEventListener("popstate", function(event) {
@@ -1591,6 +1715,20 @@ document.addEventListener("scroll", function(event) {
     else
         _("topbar").classList.remove("shadow");
 });
+
+// Do this stuff when the cursor moves anywhere within the window
+window.addEventListener("mousemove", function(event) {
+    window.mouseX = event.clientX;
+    window.mouseY = event.clientY;
+});
+
+// Check if the user was redirected from an invalid short link
+if ($_GET("badShortLink") === '') {
+    showPopup("badShortLink", window.lang.popupBadShortLinkTitle, window.lang.popupBadShortLinkDesc, [{
+        'id': "close",
+        'text': window.lang.popupOkay
+    }]);
+}
 
 // On load
 window.onload = function() {
