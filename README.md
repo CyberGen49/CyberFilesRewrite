@@ -8,6 +8,7 @@ This project is a complete rewrite of my previous file index, with improvements 
 ## Features
 * A responsive, mobile-friendly interface
 * View videos, audio files, images, and documents without leaving the page
+* Quickly sort file lists by clicking column headers (or using the Sort menu)
 * Completely customizable colours, no CSS tinkering required
 * Completely customizable text, stored in language files
 * Get back to where you left off quickly with recents
@@ -19,7 +20,7 @@ This project is a complete rewrite of my previous file index, with improvements 
 * Hide directories from their parent file lists
 
 ## Installation
-We can only guarantee everything will work as expected if you're using an Apache webserver. Your mileage may vary with other setups. The tutorials below assume that you're on a Debian-based Linux distrobution and that you plan on using Apache.
+We can only guarantee everything will work as expected if you're using an Apache webserver. Your mileage may vary with other setups. The tutorials below assume that you're on a Debian-based Linux distribution and that you plan on using Apache.
 
 ### Prepare an environment for CyberFiles
 Create a new folder where you'll store the files you want to serve with CyberFiles. For example:
@@ -29,7 +30,7 @@ mkdir /path/to/cyberfiles
 Remember this path, we'll use it again in a bit.
 
 ### Install CyberFiles
-* Click the **Clome** button
+* Click the **Clone** button
 * Choose **Download ZIP**
 * Create a new folder named **_cyberfiles** in the root of your website (the folder you just created)
 * Extract the downloaded .zip file into the new folder
@@ -198,36 +199,46 @@ The name (without extension) of a theme file located in `/_cyberfiles/private/th
 **Tip:** Check out the [Material Design Tools for Picking Colours](https://material.io/design/color/the-color-system.html#tools-for-picking-colors) to make cool combinations that look nice.
 
 ## Using the API
-CyberFiles comes with an API that can be used to access the file list of any publically-accessible directory that isn't overridden by another index file.
+CyberFiles comes with an API that can be used to access the file list of any publicly-accessible directory that isn't overridden by another index file.
 
 To use the API, open the target folder in CyberFiles, then add `?api` to the end of the URL. This will call the API in that directory.
 
 For example, to get the index of the `/Images` folder, use `https://files.example.com/Images?api`, where `files.example.com` is your domain.
 
-### Parameters
-* `sort`: The column to sort files by, should be `name`, `date`, or `size`, defaults to `name`
+The API will always respond with a JSON string that can then be parsed into an array for further processing. See below for actions that define what the API responds with..
+
+### Actions - `get=...`
+
+#### `config`
+##### Response
+* `config`: A limited subset of config options from `/_cyberfiles/private/config.yml`
+* `lang`: An array of language constants from `/_cyberfiles/private/lang/<language>.yml` - see the `language` config option
+* `theme`: An array of (parsed) theme constants from `/_cyberfiles/private/themes/<theme>.yml` - see the `theme` config option
+
+#### `files`
+##### Parameters
+* `sort`: The column to sort files by, should be `name`, `date`, `ext`, or `size`, defaults to `name`
 * `desc`: If set to `true`, the sort order will be reversed
 
-### Return structure
-* `files`: An array of [file objects](#file-object)
+##### Response
+* `files`: Contains 0 or more file objects
+    * `File Object`:
+        * `name`: The file name
+        * `modified`: The file's modification date, as a Unix timestamp
+        * `size`: The file's size, in bytes
+        * `mimeType`: The file's [MIME Type](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types)
+        * `indexed`: `true` if the file's details were loaded from cache, `false` if they needed to be updated
 * `sort`: Contains information about how the file list is sorted
     * `type`: `name`, `date`, or `size`
     * `desc`: `true` if the list is descending, `false` otherwise
 * `headerMarkdown`: If a header Markdown file exists in the directory, this will contain its contents  - see [`headerFileNameMarkdown`](#headerfilenamemarkdown)
 * `headerHtml`: If a header HTML file exists in the directory, this will contain its contents - see [`headerFileNameHtml`](#headerfilenamehtml)
-* `status`: A [status code](#status-codes)
+
+All API responses include these values:
+* `status`: A **status code** - can be any of the following:
+    * `GOOD`: No errors were encountered
+    * `CONTENTS_HIDDEN`: No errors were encountered, but the directory contents have been hidden from view
+    * `DIRECTORY_NONEXISTENT`: The current directory doesn't exist on the server
+    * `UNFINISHED`: The requested action isn't finished
+    * `INVALID`: The request was invalid
 * `processingTime` The amount of time the server took to process the request, in milliseconds (float)
-
-#### Status Codes
-Status codes can include any of the following:
-* `GOOD`: No errors were encountered
-* `CONTENTS_HIDDEN`: No errors were encountered, but the directory contents have been hidden from view
-* `DIRECTORY_NONEXISTENT`: The current directory doesn't exist on the server
-
-#### File Object
-Structure:
-* `name`: The file name
-* `modified`: The file's modification date, as a Unix timestamp
-* `size`: The file's size, in bytes
-* `mimeType`: The file's [MIME Type](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types)
-* `indexed`: `true` if the file's details were loaded from cache, `false` if they needed to be updated

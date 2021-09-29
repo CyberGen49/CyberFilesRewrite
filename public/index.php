@@ -107,17 +107,12 @@ while (isset($_GET['f'])) {
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
         <!-- Normalize.css -->
         <link href="/_cyberfiles/public/src/normalize.min.css" rel="stylesheet">
-        <!-- Marked -->
-        <script src="/_cyberfiles/public/src/marked.min.js"></script>
-        <!-- highlight.js -->
-        <!-- <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.2.0/styles/default.min.css">
-        <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.2.0/highlight.min.js"></script> -->
         <!-- Material Icon Fonts -->
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+        <!-- Main CyberFiles CSS -->
+        <link rel="stylesheet" href="/_cyberfiles/public/src/cyberfiles.css.php?t=<?= filemtime(document_root."/_cyberfiles/public/src/cyberfiles.css.php") ?>">
     </head>
-    
-    <?php try_require(document_root."/_cyberfiles/private/src/css.php") ?>
     
     <body id="body" class="no-transitions">
         <div id="splash" class="ease-in-out-200ms">
@@ -193,7 +188,9 @@ while (isset($_GET['f'])) {
             <div id="previewFile" class="ease-in-out-100ms"></div>
         </div>
 
-        <div id="tooltip" class="noboost" style="display: none;"></div>
+        <div id="tooltip" style="display: none;"></div>
+
+        <div id="hoverCapable"></div>
 
         <noscript>
             <div id="popupNoJs" class="popupBackground ease-in-out-100ms">
@@ -210,6 +207,9 @@ while (isset($_GET['f'])) {
             </div>
         </noscript>
 
-        <?php try_require(document_root."/_cyberfiles/private/src/js.php") ?>
+        <!-- Main CyberFiles JS -->
+        <script src="/_cyberfiles/public/src/cyberfiles.js?t=<?= filemtime(document_root."/_cyberfiles/public/src/cyberfiles.js") ?>"></script>
+        <!-- Marked -->
+        <script src="/_cyberfiles/public/src/marked.min.js"></script>
     </body>
 </html>

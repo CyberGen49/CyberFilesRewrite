@@ -1,68 +1,76 @@
-<?php
 
-global $conf, $lang, $theme;
+// CyberFiles Javascript
+// This is where all the magic happens
 
-?>
-<script>
+// Get stuff from the server
+(async() => {
+    await fetch(`/?api&get=config`).then((response) => {
+        if (response.ok) return response.json();
+        throw new Error("Fetch failed");
+    }).then(data => {
+        window.lang = data.lang;
+        window.conf = data.config;
+        window.theme = data.theme;
+        window.vidProgConf = data.config.videoProgressSave;
+        window.defaultSort = data.config.defaultSort;
+        window.textPreviewMaxSize = data.config.textPreviewMaxSize;
+        console.log(`Loaded config, language, and theme constants from the server:`);
+        console.log(data);
+    }).catch(error => {
+        return Promise.reject();
+    });
+})();
+var loaded = false;
 
-// Variables from the server
-// These are encoded as base64 on the PHP side and dumped in here to be converted to Javascript objects for the client
-// I might use Fetch for this later, but for now, this solution works 100% of the time
-var lang = JSON.parse(atob(`<?= base64_encode(json_encode($lang)) ?>`));
-var vidProgConf = JSON.parse(atob(`<?= base64_encode(json_encode($conf['videoProgressSave'])) ?>`));
-var defaultSort = JSON.parse(atob(`<?= base64_encode(json_encode($conf['defaultSort'])) ?>`));
-var textPreviewMaxSize = <?= $conf['textPreviewMaxSize'] ?>;
-
-// Initialize file history
-var fileHistoryTargetVersion = 1;
-var fileHistory = locStoreArrayGet("history");
-if (fileHistory === null || fileHistory.version != fileHistoryTargetVersion) {
-    fileHistory = {
-        'version': fileHistoryTargetVersion,
-        'entries': []
-    };
-    locStoreArraySet("history", fileHistory);
-    console.log("File history has been wiped because the version changed");
-}
-var i = 0;
-while (JSON.stringify(fileHistory).length > 1000000) {
-    fileHistory.entries.shift();
-    i++;
-}
-if (i > 0) console.log(`Removed ${i} of the oldest file history entries`);
-console.log(`Loaded a total of ${fileHistory.entries.length} file history entries`);
-
-// Initialize video progress saving
-var vidProgTargetVersion = 2;
-if (vidProgConf.enable) {
-    var vidProg = locStoreArrayGet("vidprog");
-    if (vidProg === null || vidProg.version != vidProgTargetVersion) {
-        vidProg = {
-            'version': vidProgTargetVersion,
-            'entries': {}
+// Initializes functions that use to local storage
+function initLocStore() {
+    // Initialize file history
+    window.fileHistory = locStoreArrayGet("history");
+    if (fileHistory === null) {
+        fileHistory = {
+            'entries': []
         };
-        locStoreArraySet("vidprog", vidProg);
-        console.log("Video progress has been wiped because the version changed");
+        locStoreArraySet("history", fileHistory);
+        console.log("File history has been wiped because the version changed");
     }
     var i = 0;
-    Object.keys(vidProg.entries).forEach(e => {
-        var entry = vidProg.entries[e];
-        if ((Date.now()-entry.updated) > (vidProgConf.expire*2*60*60*1000)) {
-            delete vidProg.entries[e];
-            i++;
-        }
-    });
-    if (i > 0) {
-        locStoreArraySet("vidprog", vidProg);
-        console.log(`Removed ${i} expired video progress entries`);
+    while (JSON.stringify(fileHistory).length > 1000000) {
+        fileHistory.entries.shift();
+        i++;
     }
-}
+    if (i > 0) console.log(`Removed ${i} of the oldest file history entries`);
+    console.log(`Loaded a total of ${fileHistory.entries.length} file history entries`);
 
-// Initialize directory sort orders
-var dirSort = locStoreArrayGet("dirsort");
-if (dirSort === null) {
-    dirSort = {};
-    locStoreArraySet("dirsort", dirSort);
+    // Initialize video progress saving
+    if (vidProgConf.enable) {
+        window.vidProg = locStoreArrayGet("vidprog");
+        if (vidProg === null) {
+            vidProg = {
+                'entries': {}
+            };
+            locStoreArraySet("vidprog", vidProg);
+            console.log("Video progress has been wiped");
+        }
+        var i = 0;
+        Object.keys(vidProg.entries).forEach(e => {
+            var entry = vidProg.entries[e];
+            if ((Date.now()-entry.updated) > (vidProgConf.expire*2*60*60*1000)) {
+                delete vidProg.entries[e];
+                i++;
+            }
+        });
+        if (i > 0) {
+            locStoreArraySet("vidprog", vidProg);
+            console.log(`Removed ${i} expired video progress entries`);
+        }
+    }
+
+    // Initialize directory sort orders
+    window.dirSort = locStoreArrayGet("dirsort");
+    if (dirSort === null) {
+        dirSort = {};
+        locStoreArraySet("dirsort", dirSort);
+    }
 }
 
 // Copies the specified text to the clipboard
@@ -213,7 +221,7 @@ function dateFormat(timestamp, format) {
     date = new Date(convertTimestamp(timestamp));
     var twelveH = date.getHours();
     if (twelveH > 12) {
-        var twelveH = twelveH-12;
+        twelveH = twelveH-12;
     }
     if (twelveH == 0) twelveH = 12;
     format = format
@@ -250,10 +258,10 @@ function dateFormat(timestamp, format) {
 function dateFormatPreset(timestamp, format = "short") {
     try {
         if (format == "short") {
-            return dateFormat(timestamp, "<?= $conf['dateFormatShort'] ?>");
+            return dateFormat(timestamp, window.conf.dateFormatShort);
         }
         if (format == "full") {
-            return dateFormat(timestamp, "<?= $conf['dateFormatFull'] ?>");
+            return dateFormat(timestamp, window.conf.dateFormatFull);
         }
     } catch (error) {
         return;
@@ -298,6 +306,11 @@ function secondsFormat(secs) {
         return `${hours}:${addLeadingZeroes((mins), 2)}:${addLeadingZeroes((secs), 2)}`;
     }
     return secs;
+}
+
+// Returns true if the input device is hover-capable
+function canHover() {
+    return Boolean(_getW("hoverCapable"));
 }
 
 // Returns an icon specific to the given MIME type
@@ -370,7 +383,7 @@ async function loadFileList(dir = "", entryId = null, forceReload = false) {
             sortString = `&sort=${sortType}&desc=${sortDesc}`;
         }
         // Make the API call and handle errors
-        await fetch(`${dir}?api${sortString}`).then((response) => {
+        await fetch(`${dir}?api&get=files&${sortString}`).then((response) => {
             // If the response was ok
             if (response.ok) return response.json();
             // Otherwise, handle the error
@@ -423,14 +436,15 @@ async function loadFileList(dir = "", entryId = null, forceReload = false) {
                 _("fileList").innerHTML = "";
                 if (dir != "/") {
                     // Set the appropriate parent directory name
+                    var dirParentName;
                     if (dirSplit.length > 2)
-                        var dirParentName = decodeURI(dirSplit[dirSplit.length-2]);
+                        dirParentName = decodeURI(dirSplit[dirSplit.length-2]);
                     else
-                        var dirParentName = window.lang.fileListRootName;
+                        dirParentName = window.lang.fileListRootName;
                     // Set the up entry text
                     var upTitle = window.lang.fileListEntryUp.replace("%0", dirParentName);
                     // Build the HTML
-                    if ('<?= $conf['upButtonInFileList'] ?>' !== '') {
+                    if (window.conf.upButtonInFileList) {
                         _("fileList").insertAdjacentHTML('beforeend', `
                             <a id="fileEntryUp" class="row no-gutters fileEntry" tabindex=0 onClick='fileEntryClicked(this, event)'">
                                 <div class="col-auto fileEntryIcon material-icons">arrow_back</div>
@@ -448,7 +462,7 @@ async function loadFileList(dir = "", entryId = null, forceReload = false) {
                     _("topbarButtonUp").dataset.tooltip = upTitle;
                 } else {
                     _("topbarButtonUp").classList.add("disabled");
-                    _("topbarButtonUp").dataset.tooltip = window.lang.topbarButtonUpLimitTooltip;
+                    _("topbarButtonUp").dataset.tooltip = window.lang.tooltipTopbarUpRoot;
                 }
                 // Loop through the returned file objects
                 window.fileObjects = [];
@@ -521,7 +535,7 @@ async function loadFileList(dir = "", entryId = null, forceReload = false) {
                 var i = 0;
                 while (true) {
                     let bcDir = currentDir(i);
-                    let bcName = bcDir.split('/')
+                    let bcName = bcDir.split('/');
                     bcName = decodeURIComponent(bcName[bcName.length-1]);
                     if (bcDir == '/') break;
                     _("breadcrumbs").insertAdjacentHTML('afterbegin', `
@@ -533,14 +547,14 @@ async function loadFileList(dir = "", entryId = null, forceReload = false) {
                         </div>
                     `);
                     if (i != 0) {
-                        addTooltip(`breadcrumb-${i}`, window.lang.breadcrumbTooltip.replace("%0", bcName));
+                        addTooltip(`breadcrumb-${i}`, window.lang.tooltipBreadcrumb.replace("%0", bcName));
                         _(`breadcrumb-${i}`).addEventListener("click", function() {
                             this.blur();
                             breadcrumbAddClick(bcDir);
                         });
                     } else {
                         _(`breadcrumb-${i}`).classList.remove("hover");
-                        addTooltip(`breadcrumb-${i}`, window.lang.breadcrumbTooltipCurrent);
+                        addTooltip(`breadcrumb-${i}`, window.lang.tooltipBreadcrumbCurrent);
                     }
                     i++;
                 }
@@ -570,7 +584,7 @@ async function loadFileList(dir = "", entryId = null, forceReload = false) {
                 var loadElapsed = Date.now()-loadStart;
                 var loadTimeF = loadElapsed+window.lang.dtUnitShortMs;
                 if (loadElapsed >= 1000)
-                    var loadTimeF = roundSmart(loadElapsed/1000, 2)+window.lang.dtUnitShortSecs;
+                    loadTimeF = roundSmart(loadElapsed/1000, 2)+window.lang.dtUnitShortSecs;
                 // If the folder contents have been hidden
                 if (data.status == "CONTENTS_HIDDEN") {
                     _("fileListHint").innerHTML = window.lang.fileListHidden;
@@ -653,8 +667,8 @@ async function loadFileList(dir = "", entryId = null, forceReload = false) {
     } else {
         showFilePreview(entryId);
     }
-    if (dirName != "") document.title = dirName+" - <?= $conf['siteName'] ?>";
-    else document.title = "<?= $conf['siteName'] ?>";
+    if (dirName != "") document.title = `${dirName} - ${window.conf.siteName}`;
+    else document.title = window.conf.siteName;
 }
 
 // Change this directory's sort order
@@ -786,10 +800,11 @@ function showFilePreview(id = null) {
             _("previewFile").className = "";
             _("previewFile").classList.add("previewTypeVideo");
             _("previewFile").innerHTML = `
-                <video id="videoPreview" <?php if ($conf['videoAutoplay']) print("autoplay") ?> src="${encodeURIComponent(data.name)}" controls></video>
+                <video id="videoPreview" controls src="${encodeURIComponent(data.name)}"></video>
             `;
             // Variables
             var vid = _("videoPreview");
+            vid.autoplay = window.conf.videoAutoplay;
             window.vidProgLastSave = 0;
             window.vidProgCanSave = false;
             // Do this stuff when the video metadata is loaded (duration, etc.)
@@ -858,8 +873,10 @@ function showFilePreview(id = null) {
             _("previewFile").className = "";
             _("previewFile").classList.add("previewTypeAudio");
             _("previewFile").innerHTML = `
-                <audio <?php if ($conf['audioAutoplay']) print("autoplay") ?> controls src="${encodeURIComponent(data.name)}"></audio>
+                <audio id="audioPreview" controls src="${encodeURIComponent(data.name)}"></audio>
             `;
+            var aud = _("audioPreview");
+            aud.autoplay = window.conf.audioAutoplay;
         } else if (data.ext.match(/^(JPG|JPEG|PNG|SVG|GIF)$/)) {
             _("previewFile").className = "";
             _("previewFile").classList.add("previewTypeImage");
@@ -908,10 +925,11 @@ function showFilePreview(id = null) {
         // Show
         _("previewContainer").style.display = "block";
         _("body").style.overflowY = "hidden";
+        clearTimeout(window.timeoutPreviewHide);
         setTimeout(() => {
             _("previewContainer").style.opacity = 1;
-            meta_themeColor("<?= $theme['browserThemePreview'] ?>");
-            document.title = data.name+" - <?= $conf['siteName'] ?>";
+            meta_themeColor(window.theme.browserThemePreview);
+            document.title = `${data.name} - ${window.conf.siteName}`;
         }, 50);
     } else {
         hideFilePreview();
@@ -931,7 +949,6 @@ function navFilePreview(el) {
     historyReplaceState("", `?f=${encodeURI(f.name)}`);
     loadFileList("", el.dataset.objectid);
     el.blur();
-    el.blur();
 }
 
 _("previewPrev").addEventListener("click", function() { navFilePreview(this); })
@@ -939,13 +956,13 @@ _("previewNext").addEventListener("click", function() { navFilePreview(this); })
 
 // Hides the file preview
 function hideFilePreview() {
-    meta_themeColor("<?= $theme['browserTheme'] ?>");
+    meta_themeColor(window.theme.browserTheme);
     _("previewContainer").style.opacity = 0;
     _("body").style.overflowY = "";
     var newPath = currentDir();
     if (newPath != "/") newPath = `${currentDir()}/`;
     historyReplaceState('', newPath);
-    setTimeout(() => {
+    window.timeoutPreviewHide = setTimeout(() => {
         _("previewFile").innerHTML = "";
         _("previewContainer").style.display = "none";
     }, 200);
@@ -966,7 +983,7 @@ function fileEntryClicked(el, event) {
         console.log("Up entry clicked: "+currentDir(1));
         var upPath = currentDir(1);
         if (upPath != "/") upPath = `${currentDir(1)}/`;
-        historyPushState("<?= $conf['siteName'] ?>", upPath);
+        historyPushState('', upPath);
         loadFileList();
         return;
     }
@@ -976,11 +993,11 @@ function fileEntryClicked(el, event) {
     // If this is a directory, move into it
     if (f.mimeType == "directory") {
         window.canClickEntries = false;
-        historyPushState("<?= $conf['siteName'] ?>", `${currentDir()}/${f.name}/`.replace("//", "/"));
+        historyPushState('', `${currentDir()}/${f.name}/`.replace("//", "/"));
         loadFileList();
     } else {
         window.canClickEntries = false;
-        historyPushState("<?= $conf['siteName'] ?>", `${currentDir()}/?f=${encodeURIComponent(f.name)}`.replace("//", "/"));
+        historyPushState('', `${currentDir()}/?f=${encodeURIComponent(f.name)}`.replace("//", "/"));
         loadFileList("", el.dataset.objectindex);
     }
 }
@@ -1084,7 +1101,7 @@ function popup_notImplemented() {
 }
 function popup_about() {
     showPopup("about", window.lang.popupAboutTitle, `
-        <p>${window.lang.popupAboutVersion.replace("%0", "<b><?= $conf['version'] ?></b>")}</p>
+        <p>${window.lang.popupAboutVersion.replace("%0", `<b>${window.conf.version}</b>`)}</p>
         <p>${window.lang.popupAboutDesc}</p>
         <p>${window.lang.popupAboutDesc2}</p>
         <p><a href="https://github.com/CyberGen49/CyberFilesRewrite" target="_blank">${window.lang.popupAboutDescLink}</a></p>
@@ -1551,6 +1568,7 @@ function addTooltip(id, text = null) {
 // Shows a tooltip at the cursor's current location
 function showTooltip(el, text) {
     hideTooltip();
+    if (!canHover()) return;
     window.tooltipTimeout = setTimeout(() => {
         if (text === null) text = el.dataset.tooltip;
         _("tooltip").innerHTML = text;
@@ -1590,11 +1608,15 @@ function showTooltip(el, text) {
                 _("tooltip").style.left = `${left+12}px`;
         }
         // Fade in
-        console.log(`Showing tooltip at (${_getX("tooltip")}, ${_getY("tooltip")})\nCursor: (${window.mouseX}, ${window.mouseY})\nWindow W ${winW}px, H ${winH}px\nX1 ${_getX("tooltip")}px  Y1 ${_getY("tooltip")}px\nX2 ${_getX2("tooltip")}px  Y2 ${_getY2("tooltip")}px\nW ${_getW("tooltip")}px  H ${_getH("tooltip")}px`);
+        //console.log(`Showing tooltip at (${_getX("tooltip")}, ${_getY("tooltip")})\nCursor: (${window.mouseX}, ${window.mouseY})\nWindow W ${winW}px, H ${winH}px\nX1 ${_getX("tooltip")}px  Y1 ${_getY("tooltip")}px\nX2 ${_getX2("tooltip")}px  Y2 ${_getY2("tooltip")}px\nW ${_getW("tooltip")}px  H ${_getH("tooltip")}px`);
+        console.log(`Showing tooltip at (${_getX("tooltip")}, ${_getY("tooltip")})`);
         window.tooltipFadeTimeout = setTimeout(() => {
             _("tooltip").style.opacity = 1;
+            window.tooltipTimeout = setTimeout(() => {
+                hideTooltip();
+            }, (20*1000));
         }, 50);
-    }, 500);
+    }, 400);
 }
 
 // Hides a tooltip
@@ -1664,7 +1686,6 @@ _("topbarTitle").addEventListener("click", function() {
     historyPushState('', `/`);
     loadFileList();
 });
-addTooltip("topbarTitle", window.lang.topbarTitleTooltip);
 
 // Do this stuff when the window is resized
 window.addEventListener("resize", function(event) {
@@ -1730,17 +1751,24 @@ if ($_GET("badShortLink") === '') {
     }]);
 }
 
-// On load
-window.onload = function() {
-    document.getElementById("body").classList.remove("no-transitions");
-    console.log("Page loaded at "+dateFormat(Date.now(), "%+H:%+M on %Y-%+m-%+d"))
-    // Hide the splash
-    _("splash").style.opacity = 0;
-    setTimeout(() => {
-        _("splash").style.display = "none";
-    }, 300);
-    // Do this stuff initially
-    loadFileList();
-};
-
-</script>
+// Wait for a complete load to start stuff
+window.onload = function() { window.loaded = true; };
+var loadCheck = setInterval(() => {
+    if (window.loaded && window.lang && window.theme && window.conf) {
+        clearInterval(window.loadCheck);
+        document.getElementById("body").classList.remove("no-transitions");
+        console.log("CyberFiles loaded at "+dateFormat(Date.now(), "%+H:%+M on %Y-%+m-%+d"));
+        // Hide the splash
+        _("splash").style.opacity = 0;
+        setTimeout(() => {
+            _("splash").style.display = "none";
+        }, 300);
+        // Do this stuff initially
+        initLocStore();
+        loadFileList();
+        addTooltip("topbarTitle", window.lang.tooltipTopbarTitle);
+        addTooltip("topbarButtonMenu", window.lang.tooltipMenu);
+        addTooltip("previewButtonMenu", window.lang.tooltipMenu);
+        addTooltip("previewButtonClose", window.lang.tooltipPreviewClose);
+    }
+}, 100);

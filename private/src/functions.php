@@ -252,142 +252,158 @@ class ApiCall {
         $conf = $this->conf;
         $data = &$this->data;
         while (true) {
-            //header('Content-Type: application/json');
             // Get relative and absolute directory paths
             $dirRel = $GLOBALS['dirRel'];
             $dir = $GLOBALS['dir'];
-            // Make sure we're working with an existing directory
-            if (!is_dir($dir)) {
-                $data['status'] = "DIRECTORY_NONEXISTENT";
-                break;
-            }
             // Log access
             writeLog($GLOBALS['lang']['loggerTypeAccess'], str_replace(
                 "%0", $_SERVER[$conf['logUserIpHeader']], str_replace(
                 "%1", "$dirRel/", str_replace(
                 "%2", str_replace("api=", "", http_build_query($params)), $GLOBALS['lang']['loggerApiCall']
             ))));
-            // Get directory short slug
-            $data['shortSlug'] = $this->getShortSlug($dirRel);
-            // Get directory contents
-            $scandir = scandir($dir);
-            natsort($scandir);
-            // Check for header files
-            if (file_exists("$dir/{$conf['headerFileNameMarkdown']}"))
-                $data['headerMarkdown'] = file_get_contents("$dir/{$conf['headerFileNameMarkdown']}");
-            if (file_exists("$dir/{$conf['headerFileNameHtml']}"))
-                $data['headerHtml'] = file_get_contents("$dir/{$conf['headerFileNameHtml']}");
-            // Check if contents are hidden
-            $data['files'] = [];
-            if (file_exists("$dir/{$conf['hideContentsFile']}")) {
-                $data['status'] = "CONTENTS_HIDDEN";
-                break;
-            }
-            // Loop through files and add
-            $files = [];
-            $folders = [];
-            foreach ($scandir as $file) {
-                if ($file == ".") continue;
-                if ($file == "..") continue;
-                // Skip files that match hidden filters
-                foreach ($conf['hiddenFiles'] as $s) {
-                    if (fnmatch($s, $file)) continue 2;
+            if ($params['get'] == "files") {
+                // Make sure we're working with an existing directory
+                if (!is_dir($dir)) {
+                    $data['status'] = "DIRECTORY_NONEXISTENT";
+                    break;
                 }
-                // If it's a directory, make sure it doesn't contain files that would make it hidden
-                $f = "$dir/$file";
-                if (is_dir($f)) {
-                    $childDir = scandir($f);
-                    foreach ($conf['hideDirWhenContains'] as $s) {
-                        if (in_array($s, $childDir)) continue 2;
+                // Get directory short slug
+                $data['shortSlug'] = $this->getShortSlug($dirRel);
+                // Get directory contents
+                $scandir = scandir($dir);
+                natsort($scandir);
+                // Check for header files
+                if (file_exists("$dir/{$conf['headerFileNameMarkdown']}"))
+                    $data['headerMarkdown'] = file_get_contents("$dir/{$conf['headerFileNameMarkdown']}");
+                if (file_exists("$dir/{$conf['headerFileNameHtml']}"))
+                    $data['headerHtml'] = file_get_contents("$dir/{$conf['headerFileNameHtml']}");
+                // Check if contents are hidden
+                $data['files'] = [];
+                if (file_exists("$dir/{$conf['hideContentsFile']}")) {
+                    $data['status'] = "CONTENTS_HIDDEN";
+                    break;
+                }
+                // Loop through files and add
+                $files = [];
+                $folders = [];
+                foreach ($scandir as $file) {
+                    if ($file == ".") continue;
+                    if ($file == "..") continue;
+                    // Skip files that match hidden filters
+                    foreach ($conf['hiddenFiles'] as $s) {
+                        if (fnmatch($s, $file)) continue 2;
                     }
+                    // If it's a directory, make sure it doesn't contain files that would make it hidden
+                    $f = "$dir/$file";
+                    if (is_dir($f)) {
+                        $childDir = scandir($f);
+                        foreach ($conf['hideDirWhenContains'] as $s) {
+                            if (in_array($s, $childDir)) continue 2;
+                        }
+                    }
+                    // Get the file object
+                    $fileObject = $this->getFileObject($f);
+                    if (is_dir($f))
+                        $fileObject['shortSlug'] = $this->getShortSlug("$dirRel/$file");
+                    else
+                        $fileObject['shortSlug'] = $this->getShortSlug("$dirRel/?f=$file");
+                    // Add to the appropriate array
+                    if (is_dir($f)) $folders[] = $fileObject;
+                    else $files[] = $fileObject;
                 }
-                // Get the file object
-                $fileObject = $this->getFileObject($f);
-                if (is_dir($f))
-                    $fileObject['shortSlug'] = $this->getShortSlug("$dirRel/$file");
-                else
-                    $fileObject['shortSlug'] = $this->getShortSlug("$dirRel/?f=$file");
-                // Add to the appropriate array
-                if (is_dir($f)) $folders[] = $fileObject;
-                else $files[] = $fileObject;
-            }
-            // Check for sort override files
-            $data['sort']['type'] = "name";
-            $data['sort']['desc'] = false;
-            $data['sort']['type'] = $conf['defaultSort']['type'];
-            $data['sort']['desc'] = $conf['defaultSort']['desc'];
-            if (file_exists("$dir/{$conf['sortFileName']}"))
+                // Check for sort override files
                 $data['sort']['type'] = "name";
-            else if (file_exists("$dir/{$conf['sortFileDate']}"))
-                $data['sort']['type'] = "date";
-            else if (file_exists("$dir/{$conf['sortFileSize']}"))
-                $data['sort']['type'] = "size";
-            else if (file_exists("$dir/{$conf['sortFileExt']}"))
-                $data['sort']['type'] = "ext";
-            if (file_exists("$dir/{$conf['sortFileDesc']}"))
-                $data['sort']['desc'] = true;
-            // Check sort parameters
-            if (isset($params['sort']) and preg_match("/^(name|date|size|ext)$/", $params['sort']))
-                $data['sort']['type'] = $params['sort'];
-            if (isset($params['desc'])) {
-                if ($params['desc'] == "true")
+                $data['sort']['desc'] = false;
+                $data['sort']['type'] = $conf['defaultSort']['type'];
+                $data['sort']['desc'] = $conf['defaultSort']['desc'];
+                if (file_exists("$dir/{$conf['sortFileName']}"))
+                    $data['sort']['type'] = "name";
+                else if (file_exists("$dir/{$conf['sortFileDate']}"))
+                    $data['sort']['type'] = "date";
+                else if (file_exists("$dir/{$conf['sortFileSize']}"))
+                    $data['sort']['type'] = "size";
+                else if (file_exists("$dir/{$conf['sortFileExt']}"))
+                    $data['sort']['type'] = "ext";
+                if (file_exists("$dir/{$conf['sortFileDesc']}"))
                     $data['sort']['desc'] = true;
-                else if ($params['desc'] == "false")
-                    $data['sort']['desc'] = false;
-            }
-            // Set sort functions
-            $funcSortDate = function($a, $b) {
-                if ($a['modified'] < $b['modified']) return -1;
-                if ($a['modified'] > $b['modified']) return 1;
-                if ($a['modified'] == $b['modified']) return 0;
-            };
-            $funcSortSize = function($a, $b) {
-                if ($a['size'] < $b['size']) return -1;
-                if ($a['size'] > $b['size']) return 1;
-                if ($a['size'] == $b['size']) return 0;
-            };
-            // Sort files
-            switch ($data['sort']['type']) {
-                case "name": {
-                    // Nothing happens
-                    break;
+                // Check sort parameters
+                if (isset($params['sort']) and preg_match("/^(name|date|size|ext)$/", $params['sort']))
+                    $data['sort']['type'] = $params['sort'];
+                if (isset($params['desc'])) {
+                    if ($params['desc'] == "true")
+                        $data['sort']['desc'] = true;
+                    else if ($params['desc'] == "false")
+                        $data['sort']['desc'] = false;
                 }
-                case "date": {
-                    uasort($folders, $funcSortDate);
-                    uasort($files, $funcSortDate);
-                    break;
-                }
-                case "size": {
-                    // Folders stay as-is
-                    uasort($files, $funcSortSize);
-                    break;
-                }
-                case "ext": {
-                    // Separate files by extension
-                    $extFiles = [];
-                    foreach ($files as $f) {
-                        $ext = strtolower(pathinfo($f['name'])['extension']);
-                        $extFiles[$ext][] = $f;
+                // Set sort functions
+                $funcSortDate = function($a, $b) {
+                    if ($a['modified'] < $b['modified']) return -1;
+                    if ($a['modified'] > $b['modified']) return 1;
+                    if ($a['modified'] == $b['modified']) return 0;
+                };
+                $funcSortSize = function($a, $b) {
+                    if ($a['size'] < $b['size']) return -1;
+                    if ($a['size'] > $b['size']) return 1;
+                    if ($a['size'] == $b['size']) return 0;
+                };
+                // Sort files
+                switch ($data['sort']['type']) {
+                    case "name": {
+                        // Nothing happens
+                        break;
                     }
-                    // Sort extensions
-                    $exts = array_keys($extFiles);
-                    natsort($exts);
-                    // Rebuild files array by adding extension groups in order
-                    $files = [];
-                    foreach ($exts as $e) {
-                        $files = array_merge($files, $extFiles[$e]);
+                    case "date": {
+                        uasort($folders, $funcSortDate);
+                        uasort($files, $funcSortDate);
+                        break;
                     }
-                    break;
+                    case "size": {
+                        // Folders stay as-is
+                        uasort($files, $funcSortSize);
+                        break;
+                    }
+                    case "ext": {
+                        // Separate files by extension
+                        $extFiles = [];
+                        foreach ($files as $f) {
+                            $ext = strtolower(pathinfo($f['name'])['extension']);
+                            $extFiles[$ext][] = $f;
+                        }
+                        // Sort extensions
+                        $exts = array_keys($extFiles);
+                        natsort($exts);
+                        // Rebuild files array by adding extension groups in order
+                        $files = [];
+                        foreach ($exts as $e) {
+                            $files = array_merge($files, $extFiles[$e]);
+                        }
+                        break;
+                    }
                 }
+                // Reverse if necessary
+                if ($data['sort']['desc']) {
+                    $folders = array_reverse($folders);
+                    $files = array_reverse($files);
+                }
+                // Merge the arrays and finish
+                $data['files'] = array_merge($folders, $files);
+                $data['status'] = "GOOD";
+            } else if ($params['get'] == "config") {
+                $data['config'] = $GLOBALS['conf'];
+                $data['lang'] = $GLOBALS['lang'];
+                $data['theme'] = $GLOBALS['theme'];
+                unset(
+                    $data['config']['hiddenFiles'],
+                    $data['config']['hideDirWhenContains'],
+                    $data['config']['shortLinkSlugLength'],
+                    $data['config']['logTimezone'],
+                    $data['config']['logIpHeader'],
+                    $data['config']['theme'],
+                );
+                $data['status'] = "GOOD";
+            } else {
+                $data['status'] = "INVALID";
             }
-            // Reverse if necessary
-            if ($data['sort']['desc']) {
-                $folders = array_reverse($folders);
-                $files = array_reverse($files);
-            }
-            // Merge the arrays and finish
-            $data['files'] = array_merge($folders, $files);
-            $data['status'] = "GOOD";
             break;
         }
         // Close the database if it's open
@@ -399,6 +415,7 @@ class ApiCall {
         print(json_encode($data));
         exit;
     }
+
     // Returns a consistently structured file object
     function getFileObject($path) {
         $reindex = true;

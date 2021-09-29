@@ -2,6 +2,22 @@
 # CyberFilesRewrite Changelog
 I'll try my best to keep track of all changes to CyberFilesRewrite, big and small, right here in this changelog. I do most of my web development late at night, so the dates here tend to extend into the following day.
 
+## 1.10.0 - September 28th, 2021
+* Improved cross-browser consistency of scrollbars
+* Now tooltips are only shown when the user's input device is capable of hovering
+    * Implemented a Javascript function that tells us if the user can hover or not
+        * This is done by checking the width of an element that's changed with the CSS hover media query
+* Tooltips will now automatically hide after 20 seconds
+* Fixed a line height issue with tooltips on Firefox
+* Revamped the way theme variables are used in CSS
+    * They work just like custom properties now: `var(--variableName)`
+* Set up Javascript to fetch config, language, and theme from the server instead of using PHP to insert it directly into the document
+* Switched to using a regular .js file and referencing it from the main PHP script
+    * Before, the PHP file containing the Javascript was dumped onto the main page inside a `<script>` element
+* Switched to using a regular .css file for CSS styling
+    * `cyberfiles.css` is still parsed by a PHP script to apply theme variables, so the client actually makes a request for `cyberfiles.css.php`
+    * Before, like the JS, the PHP file containing the CSS was just dumped onto the page in a `<style>` element
+
 ## 1.9.0 - September 27th, 2021
 * Now the clear filter button is hidden when changing directories
 * Made `<code>` elements wrap breaking words
@@ -11,6 +27,7 @@ I'll try my best to keep track of all changes to CyberFilesRewrite, big and smal
     * Instead of just changing the text colour, we fade in a rounded rectangle behind the text using the same background colour as topbar buttons (`bgTopbarButtonH`)
 * Changed some theme variable names
 * Added custom hover tooltips
+    * These are built to mimic the behaviour of the browser's default tooltips as closely as possible.
 
 ## 1.8.0 - September 26th, 2021
 * Refined styling of elements used in parsed Markdown

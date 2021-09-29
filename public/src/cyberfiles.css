@@ -1,26 +1,21 @@
-<?php
-global $conf, $theme;
-/*
 
-READ ME FIRST!
-Before everyone screams at me about using CSS this way (putting it in a PHP file and including it in the main script), know that the reason for this is to allow the use of theme variables set in the config to be used here in the styling.
-
+/* 
+    CyberFiles CSS
+    This is what makes everything look good!
 */
-?>
-<style>
 
 /* Import fonts */
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&family=Open+Sans:wght@300;400;600;700;800&display=swap');
 
 * {
     font-family: "Segoe UI", "Open Sans", "Roboto", sans-serif;
-    color: <?= $theme['fg'] ?>;
+    color: var(--fg);
     line-height: 140%;
     text-size-adjust: none !important;
 }
 
 body {
-    background: <?= $theme['bg'] ?>;
+    background: var(--bg);
     padding: 0px;
     margin: 0px;
 }
@@ -60,12 +55,12 @@ h4:not(:first-child) { padding-top: 7px; }
 h5, h6 { font-size: 16px; }
 
 a {
-    color: <?= $theme['hyperlink'] ?>;
+    color: var(--hyperlink);
     text-decoration: none;
 }
 
 a:hover, a:focus {
-    color: <?= $theme['hyperlinkH'] ?>;
+    color: var(--hyperlinkH);
     text-decoration: underline;
 }
 
@@ -86,7 +81,7 @@ ol:last-child {
 }
 
 code:not(pre code) {
-    background: <?= $theme['bgMarkdownCode'] ?>;
+    background: var(--bgMarkdownCode);
     padding: 2px 8px;
     border-radius: 6px;
     max-height: 9000px;
@@ -97,7 +92,7 @@ pre:not(#textPreviewPre) {
     margin: 5px 0px 10px 0px;
     padding: 10px 15px;
     padding-bottom: 5px;
-    background: <?= $theme['bgMarkdownCode'] ?>;
+    background: var(--bgMarkdownCode);
     border-radius: 8px;
     max-height: 9000px;
     overflow-x: scroll;
@@ -115,7 +110,7 @@ hr {
     margin: 15px 0px;
     padding: 0px;
     height: 1px;
-    background: <?= $theme['fgTextPreview'] ?>;
+    background: var(--fgTextPreview);
     opacity: 50%;
 }
 
@@ -123,8 +118,13 @@ blockquote {
     margin: 0px;
     margin-bottom: 5px;
     padding: 10px 10px;
-    border-left: 4px solid <?= $theme['accent'] ?>;
+    border-left: 4px solid var(--accent);
     border-radius: 4px;
+    background: var(--bgMarkdownBlockquote);
+}
+
+br {
+    line-height: 0%;
 }
 
 #splash {
@@ -134,7 +134,7 @@ blockquote {
     width: 100%;
     height: 100%;
     display: flex;
-    background: <?= $theme['bg'] ?>;
+    background: var(--bg);
     overflow: hidden;
     user-select: none;
     z-index: 30;
@@ -168,8 +168,8 @@ blockquote {
     height: 55px;
     width: 100%;
     padding: 0px 15px;
-    background: <?= $theme['bgTopbar'] ?>;
-    border-bottom: 1px solid <?= $theme['topbarBorder'] ?>;
+    background: var(--bgTopbar);
+    border-bottom: 1px solid var(--topbarBorder);
     z-index: 10;
     user-select: none;
     transition: 0.1s ease-in-out;
@@ -184,7 +184,7 @@ blockquote {
     font-family: "Montserrat", sans-serif;
     font-size: 24px;
     font-weight: bold;
-    color: <?= $theme['fgTopbar'] ?>;
+    color: var(--fgTopbar);
     background: none;
     border: none;
     border-radius: 8px;
@@ -192,13 +192,13 @@ blockquote {
 }
 #topbarTitle:hover:not(.disabled),
 #topbarTitle:focus:not(.disabled) {
-    background: <?= $theme['bgTopbarButtonH'] ?>;
-    color: <?= $theme['fgTopbarH'] ?>;
+    background: var(--bgTopbarButtonH);
+    color: var(--fgTopbarH);
     text-decoration: none;
     cursor: default;
 }
 #topbarTitle:active:not(.disabled) {
-    background: <?= $theme['bgTopbarButtonC'] ?>;
+    background: var(--bgTopbarButtonC);
 }
 
 .topbarButton {
@@ -207,7 +207,7 @@ blockquote {
     margin: 0px 3px;
     font-family: "Material Icons Outlined";
     font-size: 28px;
-    color: <?= $theme['fgTopbar'] ?>;
+    color: var(--fgTopbar);
     background: none;
     border: none;
     border-radius: 20px;
@@ -216,14 +216,14 @@ blockquote {
 
 .topbarButton:hover:not(.disabled),
 .topbarButton:focus:not(.disabled) {
-    background: <?= $theme['bgTopbarButtonH'] ?>;
-    color: <?= $theme['fgTopbarH'] ?>;
+    background: var(--bgTopbarButtonH);
+    color: var(--fgTopbarH);
     text-decoration: none;
     cursor: default;
 }
 
 .topbarButton:active:not(.disabled) {
-    background: <?= $theme['bgTopbarButtonC'] ?>;
+    background: var(--bgTopbarButtonC);
 }
 
 .topbarButton.disabled {
@@ -250,7 +250,7 @@ blockquote {
     align-items: center;
     font-family: "Material Icons Outlined";
     font-size: 27px;
-    color: <?= $theme['fgTopbar'] ?>;
+    color: var(--fgTopbar);
     opacity: 50%;
 }
 
@@ -266,19 +266,19 @@ blockquote {
     font-family: "Montserrat", sans-serif;
     font-size: 18px;
     font-weight: bold;
-    color: <?= $theme['fgTopbar'] ?>;
+    color: var(--fgTopbar);
     border-radius: 6px;
     transition: 0.1s ease-in-out;
 }
 .breadcrumbName.hover:hover:not(.disabled),
 .breadcrumbName.hover:focus:not(.disabled) {
-    background: <?= $theme['bgTopbarButtonH'] ?>;
-    color: <?= $theme['fgTopbarH'] ?>;
+    background: var(--bgTopbarButtonH);
+    color: var(--fgTopbarH);
     text-decoration: none;
     cursor: default;
 }
 .breadcrumbName.hover:active:not(.disabled) {
-    background: <?= $theme['bgTopbarButtonC'] ?>;
+    background: var(--bgTopbarButtonC);
 }
 
 #fileListContainer {
@@ -295,19 +295,19 @@ blockquote {
     padding: 10px 16px;
     background: rgba(0, 0, 0, 0);
     border: none;
-    border-bottom: 2px solid <?= $theme['bgFilterBarBorder'] ?>;
+    border-bottom: 2px solid var(--bgFilterBarBorder);
     border-radius: 4px 4px 0px 0px;
     outline: none;
     font-family: "Open Sans";
     font-size: 15px;
-    color: <?= $theme['fgFilterBar'] ?>;
+    color: var(--fgFilterBar);
     transition: 0.1s ease-in-out;
     user-select: none;
 }
 
 #fileListFilter:focus {
-    background: <?= $theme['bgFilterBarF'] ?>;
-    border-bottom: 2px solid <?= $theme['bgFilterBarBorderF'] ?>;
+    background: var(--bgFilterBarF);
+    border-bottom: 2px solid var(--bgFilterBarBorderF);
 }
 
 #fileListFilterClear {
@@ -319,28 +319,28 @@ blockquote {
     font-size: 28px;
     border: none;
     background: none;
-    color: <?= $theme['fgFilterBarClear'] ?>;
+    color: var(--fgFilterBarClear);
     transition: 0.1s ease-in-out;
 }
 #fileListFilterClear:hover,
 #fileListFilterClear:focus {
-    color: <?= $theme['fgFilterBarClearH'] ?>;
+    color: var(--fgFilterBarClearH);
 }
 #fileListFilterClear:active {
-    color: <?= $theme['fgFilterBarClearC'] ?>;
+    color: var(--fgFilterBarClearC);
 }
 
 #directoryHeader {
     margin-bottom: 10px;
     padding: 15px 20px;
-    color: <?= $theme['fgDirectoryHeader'] ?>;
-    background: <?= $theme['bgDirectoryHeader'] ?>;
-    border-left: 6px solid <?= $theme['directoryHeaderBorder'] ?>;
+    color: var(--fgDirectoryHeader);
+    background: var(--bgDirectoryHeader);
+    border-left: 6px solid var(--directoryHeaderBorder);
     border-radius: 6px;
 }
 
 #fileListHeaders {
-    border-bottom: 1px solid <?= $theme['fileSep'] ?>;
+    border-bottom: 1px solid var(--fileSep);
     user-select: none;
 }
 
@@ -352,7 +352,7 @@ blockquote {
 #fileListHeaderType:focus,
 #fileListHeaderSize:hover,
 #fileListHeaderSize:focus {
-    color: <?= $theme['fileListHeadersH'] ?>;
+    color: var(--fileListHeadersH);
 }
 
 .fileListMobile { display: none; }
@@ -384,7 +384,7 @@ blockquote {
 
 .fileListHeader {
     font-size: 13px;
-    color: <?= $theme['fileListHeaders'] ?>;
+    color: var(--fileListHeaders);
 }
 
 #fileListHeaderIcon, .fileEntryIcon {
@@ -417,7 +417,7 @@ blockquote {
 }
 
 .fileEntry {
-    border-bottom: 1px solid <?= $theme['fileSep'] ?>;
+    border-bottom: 1px solid var(--fileSep);
     font-size: 14px;
     cursor: default;
     text-decoration: none !important;
@@ -425,29 +425,29 @@ blockquote {
 }
 
 .fileEntryName * {
-    color: <?= $theme['fileNameCol'] ?>;
+    color: var(--fileNameCol);
 }
 
 .fileEntryDate {
-    color: <?= $theme['fileDateCol'] ?>;
+    color: var(--fileDateCol);
 }
 
 .fileEntryType * {
-    color: <?= $theme['fileTypeCol'] ?>;
+    color: var(--fileTypeCol);
 }
 
 .fileEntrySize {
-    color: <?= $theme['fileSizeCol'] ?>;
+    color: var(--fileSizeCol);
 }
 
 .fileEntry:hover,
 .fileEntry:focus {
-    background: <?= $theme['fileH'] ?>;
+    background: var(--fileH);
     border-color: rgba(0, 0, 0, 0);
 }
 
 .fileEntry:active {
-    background: <?= $theme['fileC'] ?>;
+    background: var(--fileC);
     border-color: rgba(0, 0, 0, 0);
 }
 
@@ -458,18 +458,18 @@ blockquote {
     padding: 0px;
     font-family: "Material Icons Outlined";
     font-size: 22px;
-    color: <?= $theme['fileIcon'] ?>;
+    color: var(--fileIcon);
     text-overflow: clip;
 }
 
 .fileEntryMobileDetails {
-    color: <?= $theme['fileDateMobile'] ?>;
+    color: var(--fileDateMobile);
 }
 
 #fileListHint {
     margin: 25px 0px 30px 0px;
     font-size: 14px;
-    color: <?= $theme['fileListFooter'] ?>;
+    color: var(--fileListFooter);
     text-align: center;
 }
 
@@ -479,7 +479,7 @@ blockquote {
     left: 0px;
     width: 100%;
     height: 100%;
-    background: <?= $theme['bgPreview'] ?>;
+    background: var(--bgPreview);
     z-index: 20;
 }
 
@@ -491,8 +491,8 @@ blockquote {
     height: 55px;
     width: 100%;
     padding: 0px 15px;
-    background: <?= $theme['bgPreviewTopbar'] ?>;
-    /* background: linear-gradient(180deg, <?= $theme['bgPreviewTopbar'] ?> 0%, rgba(0,0,0,0) 100%); */
+    background: var(--bgPreviewTopbar);
+    /* background: linear-gradient(180deg, var(--bgPreviewTopbar) 0%, rgba(0,0,0,0) 100%); */
     /* padding-bottom: 20px; */
     user-select: none;
     transition: 0.1s ease-in-out;
@@ -507,7 +507,7 @@ blockquote {
     margin: 0px 3px;
     font-family: "Material Icons Outlined";
     font-size: 28px;
-    color: <?= $theme['fgPreview'] ?>;
+    color: var(--fgPreview);
     background: none;
     border: none;
     border-radius: 20px;
@@ -517,14 +517,14 @@ blockquote {
 
 .previewTopbarButton:hover:not(.disabled),
 .previewTopbarButton:focus:not(.disabled) {
-    background: <?= $theme['bgPreviewH'] ?>;
-    color: <?= $theme['fgPreviewH'] ?>;
+    background: var(--bgPreviewH);
+    color: var(--fgPreviewH);
     text-decoration: none;
     cursor: default;
 }
 
 .previewTopbarButton:active:not(.disabled) {
-    background: <?= $theme['bgPreviewC'] ?>;
+    background: var(--bgPreviewC);
 }
 
 .previewTopbarButton.disabled {
@@ -544,7 +544,7 @@ blockquote {
     font-family: "Montserrat", "Segoe UI", sans-serif;
     font-size: 18px;
     font-weight: bold;
-    color: <?= $theme['fgPreview'] ?>;
+    color: var(--fgPreview);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -553,7 +553,7 @@ blockquote {
 #previewFileDesc {
     display: block;
     font-size: 16px;
-    color: <?= $theme['fg2Preview'] ?>;
+    color: var(--fg2Preview);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -615,8 +615,8 @@ blockquote {
     max-width: 1000px;
     height: 100%;
     padding: 25px;
-    background: <?= $theme['bgTextPreview'] ?>;
-    color: <?= $theme['fgTextPreview'] ?>;
+    background: var(--bgTextPreview);
+    color: var(--fgTextPreview);
     overflow-x: hidden;
     overflow-y: scroll;
     font-size: 15px;
@@ -637,7 +637,7 @@ blockquote {
 #previewCardIcon {
     font-family: "Material Icons Outlined";
     font-size: 64px;
-    color: <?= $theme['fgPreviewIcon'] ?>;
+    color: var(--fgPreviewIcon);
     line-height: 100%;
     margin-bottom: 5px;
 }
@@ -667,7 +667,8 @@ blockquote {
     height: 100%;
     padding: 10px;
     overflow: hidden;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.4);
+    /* background: radial-gradient(circle, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.8) 100%); */
     z-index: 50;
 }
 
@@ -677,10 +678,11 @@ blockquote {
     max-width: 600px;
     max-height: 100%;
     padding: 15px 20px;
-    background: <?= $theme['bgPopup'] ?>;
+    background: var(--bgPopup);
     border-radius: 12px;
     box-shadow: 0px 4px 20px 8px rgba(0,0,0,0.3);
     overflow-y: scroll;
+    scrollbar-width: none;
 }
 .popupCard::-webkit-scrollbar {
     width: 0px;
@@ -690,12 +692,12 @@ blockquote {
     font-family: "Montserrat", "Segoe UI", sans-serif;
     font-weight: bold;
     font-size: 20px;
-    color: <?= $theme['fgPopup'] ?>;
+    color: var(--fgPopup);
     padding-bottom: 5px;
 }
 
 .popupContent {
-    color: <?= $theme['fgPopup'] ?>;
+    color: var(--fgPopup);
 }
 
 .popupActions {
@@ -714,7 +716,7 @@ blockquote {
     font-family: "Montserrat", "Segoe UI", sans-serif;
     font-weight: bold;
     font-size: 15px;
-    color: <?= $theme['fgPopupButton'] ?>;
+    color: var(--fgPopupButton);
     background: none;
     border: none;
     border-radius: 6px;
@@ -724,14 +726,14 @@ blockquote {
 
 .popupButton:hover,
 .popupButton:focus {
-    background: <?= $theme['bgPopupButtonH'] ?>;
-    color: <?= $theme['fgPopupButton'] ?>;
+    background: var(--bgPopupButtonH);
+    color: var(--fgPopupButton);
     text-decoration: none;
 }
 
 .popupButton:active {
-    background: <?= $theme['bgPopupButtonC'] ?>;
-    color: <?= $theme['fgPopupButton'] ?>;
+    background: var(--bgPopupButtonC);
+    color: var(--fgPopupButton);
 }
 
 .dropdownHitArea {
@@ -751,13 +753,14 @@ blockquote {
     max-width: 300px;
     max-height: 600px;
     margin: 10px;
-    background: <?= $theme['bgDropdown'] ?>;
+    background: var(--bgDropdown);
     padding: 8px 0px;
     border-radius: 8px;
     box-shadow: 0px 3px 15px 0px rgba(0,0,0,0.3);
     z-index: 31;
     user-select: none;
     overflow-y: scroll;
+    scrollbar-width: none;
 }
 
 .dropdown::-webkit-scrollbar {
@@ -770,7 +773,7 @@ blockquote {
 }
 .dropdownItem:hover:not(.disabled),
 .dropdownItem:focus:not(.disabled) {
-    background: <?= $theme['bgDropdownH'] ?>;
+    background: var(--bgDropdownH);
 }
 
 .dropdownItem.disabled {
@@ -783,7 +786,7 @@ blockquote {
     justify-content: center;
     font-family: "Material Icons Outlined";
     font-size: 24px;
-    color: <?= $theme['fgDropdown'] ?>;
+    color: var(--fgDropdown);
 }
 
 .dropdownItemName {
@@ -791,7 +794,7 @@ blockquote {
     margin-right: 6px;
     margin-top: 2px;
     font-size: 15px;
-    color: <?= $theme['fgDropdown'] ?>;
+    color: var(--fgDropdown);
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
@@ -801,7 +804,7 @@ blockquote {
     width: 100%;
     height: 1px;
     margin: 5px 0px;
-    background: <?= $theme['bgDropdownSep'] ?>;
+    background: var(--bgDropdownSep);
 }
 
 .toastContainer {
@@ -819,23 +822,25 @@ blockquote {
 .toast {
     margin: 0px auto;
     padding: 15px;
-    color: <?= $theme['fgToast'] ?>;
-    background: <?= $theme['bgToast'] ?>;
-    border-left: 8px solid <?= $theme['bgToastBorder'] ?>;
+    color: var(--fgToast);
+    background: var(--bgToast);
+    border-left: 8px solid var(--bgToastBorder);
     border-radius: 8px;
     box-shadow: 0px 3px 15px 0px rgba(0,0,0,0.3);
 }
 
 #tooltip {
     position: fixed;
+    max-width: 600px;
     padding: 5px 10px;
     font-size: 14px;
-    color: <?= $theme['fgTooltip'] ?>;
-    line-height: 120%;
-    background: <?= $theme['bgTooltip'] ?>;
+    color: var(--fgTooltip);
+    line-height: 120% !important;
+    background: var(--bgTooltip);
     border-radius: 6px;
     box-shadow: 0px 2px 10px 0px rgba(0,0,0,0.3);
     user-select: none;
+    pointer-events: none;
     transition: 0.1s ease-in-out;
     z-index: 100;
 }
@@ -845,20 +850,37 @@ blockquote {
     font-family: "Montserrat", "Segoe UI", sans-serif;
     font-size: 15px;
     font-weight: bold;
-    color: <?= $theme['fgButton'] ?>;
-    background: <?= $theme['bgButton'] ?>;
+    color: var(--fgButton);
+    background: var(--bgButton);
     border: none;
     border-radius: 6px;
     transition: 0.1s ease-in-out;
 }
 .buttonMain:hover,
 .buttonMain:focus {
-    color: <?= $theme['fgButtonH'] ?>;
-    background: <?= $theme['bgButtonH'] ?>;
+    color: var(--fgButtonH);
+    background: var(--bgButtonH);
 }
 .buttonMain:active {
-    color: <?= $theme['fgButtonC'] ?>;
-    background: <?= $theme['bgButtonC'] ?>;
+    color: var(--fgButtonC);
+    background: var(--bgButtonC);
+}
+
+#hoverCapable {
+    position: fixed;
+    left: 0px;
+    width: 1px;
+    height: 1px;
+    opacity: 0%;
+}
+
+/* Handle devices that can't hover */
+@media (hover: none) and (pointer: coarse) {
+    #hoverCapable { width: 0px; }
+    *:hover {
+        color: inherit;
+        background: inherit;
+    }
 }
 
 /* Handle touch devices */
@@ -947,22 +969,26 @@ blockquote {
     .fileListDesktop { display: none; }
 
     #directoryHeader {
-        margin-bottom: <?php if (!$conf['mobileFileListBorders']) print("15px"); else print("initial"); ?>;
+        margin-bottom: var(--mobDirHeaderMarginBottom);
     }
 
     #fileListHeaders {
-        display: <?php if (!$conf['mobileFileListBorders']) print("none"); else print("initial"); ?>;
-        margin-bottom: <?php if (!$conf['mobileFileListBorders']) print("5px"); else print("initial"); ?>;
+        display: var(--mobFileListHeadersDisplay);
+        margin-bottom: var(--mobFileListHeadersMarginBottom);
+    }
+
+    #fileListHint {
+        margin-top: var(--mobFileListHintMarginTop);
+    }
+    
+    .fileEntry {
+        border: var(--mobFileEntryBorder);
     }
 
     #fileListHeaders,
     #fileList {
         margin-left: -15px;
         margin-right: -15px;
-    }
-
-    .fileEntry {
-        border: <?php if (!$conf['mobileFileListBorders']) print("none"); else print("initial"); ?>;
     }
 
     #fileListHeaderIcon, .fileEntryIcon {
@@ -974,10 +1000,6 @@ blockquote {
 
     .fileEntryNameInner {
         padding-right: 15px;
-    }
-
-    #fileListHint {
-        margin-top: <?php if (!$conf['mobileFileListBorders']) print("15px"); else print("initial"); ?>;
     }
 }
 
@@ -1009,18 +1031,18 @@ blockquote {
 
 /* Custom placeholder text colour */
 ::placeholder {
-    color: <?= $theme['fgTextboxPlaceholder'] ?>;
+    color: var(--fgTextboxPlaceholder);
     opacity: 1;
 }
 
 /* Custom text highlight colours */
 ::selection {
-    background: <?= $theme['textHighlightBg'] ?>;
-    color: <?= $theme['textHighlightFg'] ?>;
+    background: var(--textHighlightBg);
+    color: var(--textHighlightFg);
 }
 ::-moz-selection {
-    background: <?= $theme['textHighlightBg'] ?>;
-    color: <?= $theme['textHighlightFg'] ?>;
+    background: var(--textHighlightBg);
+    color: var(--textHighlightFg);
 }
 
 /* Custom scrollabrs */
@@ -1029,15 +1051,16 @@ blockquote {
     height: 10px;
 }
 ::-webkit-scrollbar-thumb {
-    background: <?= $theme['scrollbar'] ?>;
+    background: var(--scrollbar);
     border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-    background: <?= $theme['scrollbarH'] ?>;
+    background: var(--scrollbarH);
 }
 ::-webkit-scrollbar-thumb:active {
-    background: <?= $theme['scrollbarC'] ?>;
+    background: var(--scrollbarC);
 }
+* { scrollbar-width: thin; }
     
 /* Disables transitions for all child elements */
 .no-transitions *:not(.no-transitions-exclude) {
@@ -1076,7 +1099,7 @@ blockquote {
     animation: mdSpin-dash 1.2s ease-in-out infinite 0s;
     stroke-linecap: round;
     fill: none;
-    stroke: <?= $theme['loadingSpinner'] ?>;
+    stroke: var(--loadingSpinner);
     stroke-width: 5;
 }
 
@@ -1100,5 +1123,3 @@ blockquote {
         stroke-dashoffset: -124;
     }
 }
-
-</style>

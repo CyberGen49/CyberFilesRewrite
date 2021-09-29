@@ -2,8 +2,8 @@
 # CyberFiles language file
 # English
 
-# Don't edit this file!
-# If you want to customize these language variables, create a new language file, copy over the variables you want to change, and then change the 'language' config option to the name of your new file.
+# If you want to translate CyberFiles to your language, create a pull request
+# on the Github repo and make your changes.
 
 dropdownAbout: "About CyberFiles..."
 dropdownDisabled: "This option isn't available right now."
@@ -37,6 +37,12 @@ toastCopyFilePreviewLinkShort: Copied short file preview URL to clipboard.
 toastCopyFileLink: Copied direct file URL to clipboard.
 toastFileDownload: Downloading file...
 toastVideoResumed: Resumed video at %0
+tooltipTopbarUpRoot: This is the root directory.
+tooltipTopbarTitle: Go home
+tooltipBreadcrumb: Move into %0
+tooltipBreadcrumbCurrent: "You're already in this directory"
+tooltipMenu: Menu
+tooltipPreviewClose: Close preview
 fileDetailsDate: Last modified
 fileDetailsName: Name
 fileDetailsSize: File size
@@ -186,10 +192,6 @@ sizeUnitGB: GB
 sizeUnitKB: KB
 sizeUnitMB: MB
 sizeUnitTB: TB
-topbarButtonUpLimitTooltip: This is the root directory.
-topbarTitleTooltip: Go home
-breadcrumbTooltip: Move into %0
-breadcrumbTooltipCurrent: "You're already in this directory"
 fileTypeDefault: File
 fileTypeDirectory: Folder
 fileTypes:
