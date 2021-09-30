@@ -877,10 +877,6 @@ br {
 /* Handle devices that can't hover */
 @media (hover: none) and (pointer: coarse) {
     #hoverCapable { width: 0px; }
-    *:hover {
-        color: inherit;
-        background: inherit;
-    }
 }
 
 /* Handle touch devices */

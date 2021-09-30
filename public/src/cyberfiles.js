@@ -20,10 +20,11 @@
         return Promise.reject();
     });
 })();
-var loaded = false;
+let loaded = false;
 
 // Initializes functions that use to local storage
 function initLocStore() {
+    let i = 0;
     // Initialize file history
     window.fileHistory = locStoreArrayGet("history");
     if (fileHistory === null) {
@@ -33,7 +34,7 @@ function initLocStore() {
         locStoreArraySet("history", fileHistory);
         console.log("File history has been wiped because the version changed");
     }
-    var i = 0;
+    i = 0;
     while (JSON.stringify(fileHistory).length > 1000000) {
         fileHistory.entries.shift();
         i++;
@@ -51,9 +52,9 @@ function initLocStore() {
             locStoreArraySet("vidprog", vidProg);
             console.log("Video progress has been wiped");
         }
-        var i = 0;
+        i = 0;
         Object.keys(vidProg.entries).forEach(e => {
-            var entry = vidProg.entries[e];
+            let entry = vidProg.entries[e];
             if ((Date.now()-entry.updated) > (vidProgConf.expire*2*60*60*1000)) {
                 delete vidProg.entries[e];
                 i++;
@@ -75,7 +76,7 @@ function initLocStore() {
 
 // Copies the specified text to the clipboard
 function copyText(value) {
-    var tempInput = document.createElement("input");
+    let tempInput = document.createElement("input");
     tempInput.value = value;
     document.body.appendChild(tempInput);
     tempInput.select();
@@ -87,7 +88,7 @@ function copyText(value) {
 // Get a query string parameter
 function $_GET(name, url = window.location.href) {
     name = name.replace(/[\[\]]/g, '\\$&');
-    var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+    let regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
         results = regex.exec(url);
     if (!results) return null;
     if (!results[2]) return '';
@@ -126,7 +127,7 @@ function _getH(id) {
 
 // Function to start a direct file download
 function downloadFile(url, elThis) {
-    var id = `fileDownload-${Date.now}`;
+    let id = `fileDownload-${Date.now}`;
     _("body").insertAdjacentHTML('beforeend', `
         <a id="${id}" download></a>
     `);
@@ -139,11 +140,11 @@ function downloadFile(url, elThis) {
 
 // Adds leading characters to a string to match a specified length
 function addLeadingZeroes(string, newLength = 2, char = "0") {
-    return string.toString().padStart(newLength, "0");
+    return string.toString().padStart(newLength, char);
 }
 
 // Pushes a state to history
-var lastUrl = window.location.href;
+let lastUrl = window.location.href;
 function historyPushState(title, url) {
     window.history.pushState("", title, url);
     window.lastUrl = window.location.href;
@@ -177,9 +178,9 @@ function meta_themeColor(hexCode = null) {
 
 // Returns a properly formatted version of the current directory
 function currentDir(upLevels = 0) {
-    var path = window.location.pathname;
-    var tmp = path.split("/");
-    var dirSplit = [];
+    let path = window.location.pathname;
+    let tmp = path.split("/");
+    let dirSplit = [];
     tmp.forEach(f => {
         if (f != '') dirSplit.push(f);
     });
@@ -219,7 +220,7 @@ function formattedSize(bytes) {
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date
 function dateFormat(timestamp, format) {
     date = new Date(convertTimestamp(timestamp));
-    var twelveH = date.getHours();
+    let twelveH = date.getHours();
     if (twelveH > 12) {
         twelveH = twelveH-12;
     }
@@ -247,7 +248,7 @@ function dateFormat(timestamp, format) {
         .replace("%+S", addLeadingZeroes(date.getSeconds(), 2))
         .replace("%Y", date.getFullYear())
         .replace("%y", function() {
-            var tmp = date.getFullYear().toString();
+            let tmp = date.getFullYear().toString();
             return tmp.substr(tmp.length-2);
         })
         .replace("%%", "%")
@@ -271,7 +272,7 @@ function dateFormatPreset(timestamp, format = "short") {
 // Returns the relative interpretation of a date
 function dateFormatRelative(timestamp) {
     time = Date.now()-convertTimestamp(timestamp);
-    var future = "";
+    let future = "";
     if (time < 0) {
         future = "future";
         time = abs(time);
@@ -292,15 +293,17 @@ function dateFormatRelative(timestamp) {
 
 // Returns a formatted interpretation of a number of seconds
 function secondsFormat(secs) {
+    let hours = 0;
+    let mins = 0;
     if (secs < 60) {
         return `0:${addLeadingZeroes(secs, 2)}`;
     } else if (secs < 3600) {
-        var mins = Math.floor(secs/60);
+        mins = Math.floor(secs/60);
         secs = secs-(mins*60);
         return `${mins}:${addLeadingZeroes((secs), 2)}`;
     } else {
-        var mins = Math.floor(secs/60);
-        var hours = Math.floor(mins/60);
+        mins = Math.floor(secs/60);
+        hours = Math.floor(mins/60);
         mins = mins-(hours*60);
         secs = secs-(mins*60);
         return `${hours}:${addLeadingZeroes((mins), 2)}:${addLeadingZeroes((secs), 2)}`;
@@ -340,18 +343,19 @@ addTooltip("topbarButtonUp");
 async function loadFileList(dir = "", entryId = null, forceReload = false) {
     // Set variables
     if (dir == "") dir = currentDir();
-    var dirSplit = dir.split("/");
-    var dirName = decodeURI(dirSplit[dirSplit.length-1]);
+    const dirSplit = dir.split("/");
+    const dirName = decodeURI(dirSplit[dirSplit.length-1]);
+    let i = 0;
     // If the directory has changed since the last load
     if (dir != window.loadDir || forceReload) {
         // Prepare for loading
-        var loadStart = Date.now();
+        let loadStart = Date.now();
         window.fileListLoaded = false;
-        var showGenericErrors = true;
-        var seamlessTimeout = setTimeout(() => {
+        let showGenericErrors = true;
+        let seamlessTimeout = setTimeout(() => {
             _("fileListLoading").style.display = "";
         }, 300);
-        var cancelLoad = function() {
+        const cancelLoad = function() {
             // Hide spinner and update footer text
             clearTimeout(seamlessTimeout);
             _("fileListLoading").style.display = "none";
@@ -369,13 +373,13 @@ async function loadFileList(dir = "", entryId = null, forceReload = false) {
         _("fileListFilter").value = "";
         _("fileListFilter").placeholder = window.lang.fileListFilterDisabled;
         _("fileListFilterClear").style.display = "none";
-        var sortIndicators = document.getElementsByClassName("fileListSortIndicator");
+        const sortIndicators = document.getElementsByClassName("fileListSortIndicator");
         for (i = 0; i < sortIndicators.length; i++) sortIndicators[i].innerHTML = "";
         // Get sort order
-        var sortType = defaultSort.type;
-        var sortDesc = defaultSort.desc.toString();
-        var customSort = dirSort[currentDir()];
-        var sortString = '';
+        let sortType = defaultSort.type;
+        let sortDesc = defaultSort.desc.toString();
+        let customSort = dirSort[currentDir()];
+        let sortString = '';
         if (typeof customSort !== 'undefined') {
             sortType = customSort.type;
             sortDesc = customSort.desc.toString();
@@ -393,14 +397,14 @@ async function loadFileList(dir = "", entryId = null, forceReload = false) {
                 showGenericErrors = false;
                 // Set the right popup body text
                 if (window.lang[`popupServerError${response.status}`]) {
-                    var errorBody = window.lang[`popupServerError${response.status}`];
+                    let errorBody = window.lang[`popupServerError${response.status}`];
                     switch (response.status) {
                         case 500:
                             errorBody = errorBody.replace("%0", `<a href="https://github.com/CyberGen49/CyberFilesRewrite/issues" target="_blank">${window.lang.popupServerError500Lnk}</a>`)
                             break;
                     }
                 } else {
-                    var errorBody = window.lang.popupServerErrorOther;
+                    let errorBody = window.lang.popupServerErrorOther;
                 }
                 // Show the error popup
                 showPopup("serverError", window.lang.popupServerErrorTitle.replace("%0", response.status), errorBody, [{
@@ -436,13 +440,13 @@ async function loadFileList(dir = "", entryId = null, forceReload = false) {
                 _("fileList").innerHTML = "";
                 if (dir != "/") {
                     // Set the appropriate parent directory name
-                    var dirParentName;
+                    let dirParentName;
                     if (dirSplit.length > 2)
                         dirParentName = decodeURI(dirSplit[dirSplit.length-2]);
                     else
                         dirParentName = window.lang.fileListRootName;
                     // Set the up entry text
-                    var upTitle = window.lang.fileListEntryUp.replace("%0", dirParentName);
+                    let upTitle = window.lang.fileListEntryUp.replace("%0", dirParentName);
                     // Build the HTML
                     if (window.conf.upButtonInFileList) {
                         _("fileList").insertAdjacentHTML('beforeend', `
@@ -466,8 +470,8 @@ async function loadFileList(dir = "", entryId = null, forceReload = false) {
                 }
                 // Loop through the returned file objects
                 window.fileObjects = [];
-                var totalSize = 0;
-                var i = 0;
+                let totalSize = 0;
+                i = 0;
                 data.files.forEach(f => {
                     // Get formatted dates
                     f.modifiedF = dateFormatRelative(f.modified);
@@ -490,7 +494,7 @@ async function loadFileList(dir = "", entryId = null, forceReload = false) {
                         f.typeF = window.lang.fileTypeDefault;
                         f.ext = '.';
                         if (f.name.match(/^.*\..*$/)) {
-                            var fileNameSplit = f.name.split(".");
+                            let fileNameSplit = f.name.split(".");
                             f.ext = fileNameSplit[fileNameSplit.length-1].toUpperCase();
                             if (typeof window.lang.fileTypes[f.ext] !== 'undefined')
                                 f.typeF = window.lang.fileTypes[f.ext];
@@ -527,12 +531,12 @@ async function loadFileList(dir = "", entryId = null, forceReload = false) {
                 // Get directory short link
                 window.shortSlug = data.shortSlug;
                 // Build breadcrumbs
-                var breadcrumbAddClick = function(path) {
+                const breadcrumbAddClick = function(path) {
                     historyReplaceState('', path);
                     loadFileList();
                 };
                 _("breadcrumbs").innerHTML = "";
-                var i = 0;
+                i = 0;
                 while (true) {
                     let bcDir = currentDir(i);
                     let bcName = bcDir.split('/');
@@ -569,7 +573,7 @@ async function loadFileList(dir = "", entryId = null, forceReload = false) {
                     window.dirHeader = true;
                 }
                 // Show the appropriate sort indicator
-                var sortIndicator = _("sortIndicatorName");
+                let sortIndicator = _("sortIndicatorName");
                 if (data.sort.type == 'name')
                     sortIndicator = _("sortIndicatorName");
                 else if (data.sort.type == 'date')
@@ -581,8 +585,8 @@ async function loadFileList(dir = "", entryId = null, forceReload = false) {
                 if (data.sort.desc) sortIndicator.innerHTML = "keyboard_arrow_up";
                 else sortIndicator.innerHTML = "keyboard_arrow_down";
                 // Format load time
-                var loadElapsed = Date.now()-loadStart;
-                var loadTimeF = loadElapsed+window.lang.dtUnitShortMs;
+                let loadElapsed = Date.now()-loadStart;
+                let loadTimeF = loadElapsed+window.lang.dtUnitShortMs;
                 if (loadElapsed >= 1000)
                     loadTimeF = roundSmart(loadElapsed/1000, 2)+window.lang.dtUnitShortSecs;
                 // If the folder contents have been hidden
@@ -618,10 +622,10 @@ async function loadFileList(dir = "", entryId = null, forceReload = false) {
                 }, 50);
                 // Show a file preview if it was requested
                 if ($_GET("f") !== null) {
-                    var targetFile = $_GET("f");
-                    var targetFileFound = false;
+                    const targetFile = $_GET("f");
+                    let targetFileFound = false;
                     // Loop through file objects and search for the right one
-                    var i = 0;
+                    i = 0;
                     window.fileObjects.forEach(f => {
                         if (f.name == targetFile && !targetFileFound) {
                             showFilePreview(i);
@@ -739,7 +743,7 @@ function showFilePreview(id = null) {
     window.canClickEntries = true;
     // If a file is requested and the passed object ID is set
     if ($_GET("f") !== null && id !== null) {
-        var data = window.fileObjects[id];
+        const data = window.fileObjects[id];
         if (data.mimeType == "directory") return;
         window.currentFile = data;
         window.currentFileId = id;
@@ -760,7 +764,7 @@ function showFilePreview(id = null) {
         idPrev = id;
         while (idPrev > 0) {
             idPrev--;
-            var filePrev = window.fileObjects[idPrev];
+            const filePrev = window.fileObjects[idPrev];
             if (filePrev.mimeType != "directory") {
                 _("previewPrev").classList.remove("disabled");
                 _("previewPrev").dataset.tooltip = `${window.lang.previewPrev}<br>${filePrev.name}`;
@@ -771,7 +775,7 @@ function showFilePreview(id = null) {
         idNext = id;
         while (idNext < window.fileObjects.length) {
             idNext++;
-            var fileNext = window.fileObjects[idNext];
+            const fileNext = window.fileObjects[idNext];
             if (!fileNext) break;
             if (fileNext.mimeType != "directory") {
                 _("previewNext").classList.remove("disabled");
@@ -803,7 +807,7 @@ function showFilePreview(id = null) {
                 <video id="videoPreview" controls src="${encodeURIComponent(data.name)}"></video>
             `;
             // Variables
-            var vid = _("videoPreview");
+            const vid = _("videoPreview");
             vid.autoplay = window.conf.videoAutoplay;
             window.vidProgLastSave = 0;
             window.vidProgCanSave = false;
@@ -875,7 +879,7 @@ function showFilePreview(id = null) {
             _("previewFile").innerHTML = `
                 <audio id="audioPreview" controls src="${encodeURIComponent(data.name)}"></audio>
             `;
-            var aud = _("audioPreview");
+            const aud = _("audioPreview");
             aud.autoplay = window.conf.audioAutoplay;
         } else if (data.ext.match(/^(JPG|JPEG|PNG|SVG|GIF)$/)) {
             _("previewFile").className = "";
@@ -890,7 +894,7 @@ function showFilePreview(id = null) {
                 <iframe src="${encodeURIComponent(data.name)}"></iframe>
             `;
         } else if (data.mimeType.match(/^text\/.*$/)) {
-            var getTextPreview = async function(f) {
+            const getTextPreview = async function(f) {
                 _("previewFile").style.display = "none";
                 await fetch(`${encodeURIComponent(f.name)}?t=${f.modified}`).then((response) => {
                     // If the response was ok
@@ -938,7 +942,7 @@ function showFilePreview(id = null) {
 
 // Handle moving to the next and previous file previews
 function navFilePreview(el) {
-    var f = window.fileObjects[el.dataset.objectid];
+    const f = window.fileObjects[el.dataset.objectid];
     console.log(f);
     if (el.classList.contains("disabled")) return;
     if (!f) {
@@ -959,7 +963,7 @@ function hideFilePreview() {
     meta_themeColor(window.theme.browserTheme);
     _("previewContainer").style.opacity = 0;
     _("body").style.overflowY = "";
-    var newPath = currentDir();
+    let newPath = currentDir();
     if (newPath != "/") newPath = `${currentDir()}/`;
     historyReplaceState('', newPath);
     window.timeoutPreviewHide = setTimeout(() => {
@@ -969,7 +973,7 @@ function hideFilePreview() {
 }
 
 // Function to do stuff when a file entry is clicked
-var canClickEntries = true;
+let canClickEntries = true;
 function fileEntryClicked(el, event) {
     event.preventDefault();
     document.activeElement.blur();
@@ -981,14 +985,14 @@ function fileEntryClicked(el, event) {
     // See if this is the up button
     if (el.id == "fileEntryUp" || (el.id == "topbarButtonUp" && !el.classList.contains("disabled"))) {
         console.log("Up entry clicked: "+currentDir(1));
-        var upPath = currentDir(1);
+        let upPath = currentDir(1);
         if (upPath != "/") upPath = `${currentDir(1)}/`;
         historyPushState('', upPath);
         loadFileList();
         return;
     }
     console.log("File entry clicked:")
-    var f = window.fileObjects[el.dataset.objectindex];
+    const f = window.fileObjects[el.dataset.objectindex];
     console.log(f);
     // If this is a directory, move into it
     if (f.mimeType == "directory") {
@@ -1019,8 +1023,8 @@ function showPopup(id = "", title = "", body = "", actions = [], clickAwayHide =
         </div>
     `;
     for (i = 0; i < actions.length; i++) {
-        var a = actions[i];
-        var fullActionId = `popup-${id}-action-${a.id}`;
+        let a = actions[i];
+        let fullActionId = `popup-${id}-action-${a.id}`;
         _(`popup-${id}-actions`).insertAdjacentHTML('beforeend', `
             <button id="${fullActionId}" class="popupButton">${a.text}</button>
         `);
@@ -1055,7 +1059,7 @@ function hidePopup(id) {
 
 // Prebuilt popups
 function popup_fileInfo(id) {
-    var data = window.fileObjects[id];
+    let data = window.fileObjects[id];
     showPopup("fileInfo", window.lang.popupFileInfoTitle, `
         <p>
             <b>${window.lang.fileDetailsName}</b><br>
@@ -1113,8 +1117,8 @@ function popup_about() {
 }
 
 // Show a dropdown menu
-var timeoutShowDropdown = [];
-var timeoutHideDropdown = [];
+let timeoutShowDropdown = [];
+let timeoutHideDropdown = [];
 function showDropdown(id, data, anchorId) {
     if (!_(`dropdown-${id}`)) {
         _("body").insertAdjacentHTML('beforeend', `
@@ -1161,18 +1165,18 @@ function showDropdown(id, data, anchorId) {
     _(`dropdown-${id}`).style.display = "block";
     if (anchorId !== null) {
         // Position the dropdown
-        var anchorX = _getX2(anchorId);
-        var anchorY = _getY(anchorId);
-        var windowW = window.innerWidth;
-        var windowH = window.innerHeight;
+        let anchorX = _getX2(anchorId);
+        let anchorY = _getY(anchorId);
+        let windowW = window.innerWidth;
+        let windowH = window.innerHeight;
         _(`dropdown-${id}`).style.top = `${anchorY-5}px`;
         if (anchorX > (windowW/2))
             _(`dropdown-${id}`).style.left = `${anchorX-_getW(`dropdown-${id}`)-10}px`;
         else
             _(`dropdown-${id}`).style.left = `${anchorX+10}px`;
         // Check for height and scrolling
-        var elY = _getY(`dropdown-${id}`);
-        var elH = _getH(`dropdown-${id}`);
+        let elY = _getY(`dropdown-${id}`);
+        let elH = _getH(`dropdown-${id}`);
         if ((elY+elH) > windowH-20) {
             _(`dropdown-${id}`).style.height = `calc(100% - ${elY}px - 20px)`;
         } else {
@@ -1273,7 +1277,7 @@ function showDropdown_sort() {
             'action': function() { sortFileList(null, null) }
         });
     }
-    var dropdownId = showDropdown("sort", data, "topbarButtonMenu");
+    let dropdownId = showDropdown("sort", data, "topbarButtonMenu");
     // Hide all icons
     _(`${dropdownId}-name-icon`).style.opacity = 0;
     _(`${dropdownId}-nameDesc-icon`).style.opacity = 0;
@@ -1283,7 +1287,7 @@ function showDropdown_sort() {
     _(`${dropdownId}-extDesc-icon`).style.opacity = 0;
     _(`${dropdownId}-size-icon`).style.opacity = 0;
     _(`${dropdownId}-sizeDesc-icon`).style.opacity = 0;
-    var sortString = `${window.fileListSort.type}-${window.fileListSort.desc.toString()}`;
+    let sortString = `${window.fileListSort.type}-${window.fileListSort.desc.toString()}`;
     // Show the icon of the sort item matching the current file list
     switch (sortString) {
         case 'name-false':
@@ -1322,22 +1326,22 @@ function showDropdown_recents() {
         'icon': 'history',
         'action': function() { console.log("It works") }
     });*/
-    var getUrl = function(f) {
+    const getUrl = function(f) {
         if (f.type == "directory") return f.dir;
         if (f.dir == "/") return `/?f=${encodeURIComponent(f.name)}`;
         return `${f.dir}/?f=${encodeURIComponent(f.name)}`;
     }
-    var uniqueEntries = [];
-    var entries = locStoreArrayGet("history").entries;
+    let uniqueEntries = [];
+    let entries = locStoreArrayGet("history").entries;
     entries.reverse();
     uniqueEntries.push(entries[0].dir);
     uniqueEntries.push(getUrl(entries[0]));
-    var i = 0;
+    let i = 0;
     entries.forEach(f => {
         if (uniqueEntries.length-2 <= 50) {
-            var url = getUrl(f);
+            let url = getUrl(f);
             if (!uniqueEntries.includes(url)) {
-                var icon = "insert_drive_file";
+                let icon = "insert_drive_file";
                 if (f.type == "directory") icon = "folder";
                 if (f.name == "") {
                     f.name = window.lang.fileListRootName;
@@ -1397,12 +1401,12 @@ _("topbarButtonMenu").addEventListener("click", function() {
         'text': window.lang.dropdownRandomFile,
         'icon': 'shuffle',
         'action': function() {
-            var filesOnly = [];
+            let filesOnly = [];
             window.fileObjects.forEach(f => {
                 if (f.mimeType != "directory") filesOnly.push(f);
             });
             if (filesOnly.length != 0) {
-                var id = Math.floor(Math.random()*(filesOnly.length-1));
+                let id = Math.floor(Math.random()*(filesOnly.length-1));
                 historyPushState('', `?f=${encodeURIComponent(filesOnly[id].name)}`);
                 loadFileList('', id);
             } else showPopup("noValidRandomFile", window.lang.popupErrorTitle, window.lang.popupNoRandomFile, [{'id': 'close', 'text': window.lang.popupClose}]);
@@ -1457,7 +1461,7 @@ _("topbarButtonMenu").addEventListener("click", function() {
 });
 _("previewButtonMenu").addEventListener("click", function() {
     this.blur();
-    var fileData = window.currentFile;
+    let fileData = window.currentFile;
     data = [];
     data.push({
         'type': 'item',
@@ -1536,7 +1540,7 @@ _("previewButtonMenu").addEventListener("click", function() {
 
 // Show a toast notification
 function showToast(text) {
-    var id = Date.now();
+    let id = Date.now();
     _("body").insertAdjacentHTML('beforeend', `
         <div id="toast-${id}" class="toastContainer ease-in-out-100ms" style="display: none;">
             <div class="toast">${text}</div>
@@ -1578,14 +1582,14 @@ function showTooltip(el, text) {
         _("tooltip").style.right = "";
         _("tooltip").style.top = "";
         _("tooltip").style.bottom = "";
-        var winW = window.innerWidth;
-        var winH = window.innerHeight;
-        var elW = Math.floor(_getW("tooltip"));
-        var elH = Math.floor(_getH("tooltip"));
-        var left = Math.floor(window.mouseX);
-        var right = Math.floor(window.innerWidth-window.mouseX);
-        var top = Math.floor(window.mouseY);
-        var bottom = Math.floor(window.innerHeight-window.mouseY);
+        let winW = window.innerWidth;
+        let winH = window.innerHeight;
+        let elW = Math.floor(_getW("tooltip"));
+        let elH = Math.floor(_getH("tooltip"));
+        let left = Math.floor(window.mouseX);
+        let right = Math.floor(window.innerWidth-window.mouseX);
+        let top = Math.floor(window.mouseY);
+        let bottom = Math.floor(window.innerHeight-window.mouseY);
         // Position horizontally
         if (window.mouseX > (winW/2)
           && left > (winW-elW-30)) {
@@ -1636,7 +1640,7 @@ _("fileListFilterClear").addEventListener("click", function(event) {
     filterFiles(event, _("fileListFilter"));
 });
 function filterFiles(event, elBar) {
-    var value = elBar.value.toLowerCase();
+    let value = elBar.value.toLowerCase();
     if (event.key == "Escape" || event.keyCode == 27) elBar.blur();
     // To reduce system resource usage, we'll wait a set amount of time after the user hasn't typed anything to actually run the filter
     clearTimeout(window.filterInterval);
@@ -1644,16 +1648,16 @@ function filterFiles(event, elBar) {
         console.log(`Filtering files that match "${value}"`);
         if (value == "") {
             for (i = 0; i < window.fileElements.length; i++) {
-                var el = window.fileElements[i];
+                const el = window.fileElements[i];
                 el.style.display = "";
             }
             _("fileListHint").innerHTML = window.fileListHint;
             if (window.dirHeader) _("directoryHeader").style.display = "";
             _("fileListFilterClear").style.display = "none";
         } else {
-            var matches = 0;
+            let matches = 0;
             for (i = 0; i < window.fileElements.length; i++) {
-                var el = window.fileElements[i];
+                const el = window.fileElements[i];
                 if (el.dataset.filename.toLowerCase().includes(value)) {
                     el.style.display = "";
                     matches++;
@@ -1690,12 +1694,12 @@ _("topbarTitle").addEventListener("click", function() {
 // Do this stuff when the window is resized
 window.addEventListener("resize", function(event) {
     // Loop through dropdown menus
-    var els = document.getElementsByClassName("dropdown");
+    const els = document.getElementsByClassName("dropdown");
     for (i = 0; i < els.length; i++) {
-        var el = els[i];
+        const el = els[i];
         // If this dropdown is visible, hide it
         if (el.style.display != "none") {
-            var id = el.id.replace(/^dropdown-(.*)$/, "$1");
+            let id = el.id.replace(/^dropdown-(.*)$/, "$1");
             hideDropdown(id);
         }
     }
@@ -1705,14 +1709,15 @@ window.addEventListener("resize", function(event) {
 
 // Make the breadcrumbs responsive
 function reflowBreadcrumbs() {
-    var breadcrumbs = document.getElementsByClassName("breadcrumb");
+    const breadcrumbs = document.getElementsByClassName("breadcrumb");
+    let i = 0;
     if (breadcrumbs.length == 0) return;
     for (i = 0; i < breadcrumbs.length; i++)
         breadcrumbs[i].style.display = "";
-    var i = 0;
+    i = 0;
     while (true) {
-        var contX2 = _getX2("breadcrumbs");
-        var bcX2 = _getX2(breadcrumbs[breadcrumbs.length-1].id);
+        let contX2 = _getX2("breadcrumbs");
+        let bcX2 = _getX2(breadcrumbs[breadcrumbs.length-1].id);
         if (bcX2 < contX2) return;
         breadcrumbs[i].style.display = "none";
         i++;
@@ -1753,7 +1758,7 @@ if ($_GET("badShortLink") === '') {
 
 // Wait for a complete load to start stuff
 window.onload = function() { window.loaded = true; };
-var loadCheck = setInterval(() => {
+let loadCheck = setInterval(() => {
     if (window.loaded && window.lang && window.theme && window.conf) {
         clearInterval(window.loadCheck);
         document.getElementById("body").classList.remove("no-transitions");

@@ -2,6 +2,10 @@
 # CyberFilesRewrite Changelog
 I'll try my best to keep track of all changes to CyberFilesRewrite, big and small, right here in this changelog. I do most of my web development late at night, so the dates here tend to extend into the following day.
 
+## 1.10.1 - September 29th, 2021
+* Switched to using `let` and `const` instead of `var` in the Javascript
+    * This could introduce unforeseen bugs that we'll catch later
+
 ## 1.10.0 - September 28th, 2021
 * Improved cross-browser consistency of scrollbars
 * Now tooltips are only shown when the user's input device is capable of hovering
