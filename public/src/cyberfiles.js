@@ -1758,7 +1758,8 @@ if ($_GET("badShortLink") === '') {
 
 // Wait for a complete load to start stuff
 window.onload = function() { window.loaded = true; };
-let loadCheck = setInterval(() => {
+// * For some reason, using `let` to define this global variable makes the inner function unable to clear the timeout linked to said variable
+loadCheck = setInterval(() => {
     if (window.loaded && window.lang && window.theme && window.conf) {
         clearInterval(window.loadCheck);
         document.getElementById("body").classList.remove("no-transitions");
