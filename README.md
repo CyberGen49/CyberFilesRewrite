@@ -1,13 +1,11 @@
 # CyberFilesRewrite
-A capable and customizable file index for the web, based in PHP.
+A capable and customizable file index for the web, built to make viewing and sharing server files easy.
 
-This project is a complete rewrite of my previous file index, with improvements in nearly every aspect. 
-
-*Things are still under very heavy development, so they could be vastly changing over short spans of time. Keep an eye on [Changelog.md](https://github.com/CyberGen49/CyberFilesRewrite/blob/main/Changelog.md) to see updates.*
+This project is a complete ground-up rewrite of my previous file index, with improvements in nearly every aspect.
 
 ## Features
 * A responsive, mobile-friendly interface
-* View videos, audio files, images, and documents without leaving the page
+* View videos, audio, images, and documents without leaving the page
 * Quickly sort file lists by clicking column headers (or using the Sort menu)
 * Completely customizable colours, no CSS tinkering required
 * Completely customizable text, stored in language files
@@ -39,7 +37,11 @@ Remember this path, we'll use it again in a bit.
 
 Be sure to check back here from time to time to get updates.
 
-### Set up Apache
+### Set up the webserver
+Install Apache, PHP, and the PHP YAML extension if you haven't already:
+```sh
+sudo apt install apache2 php php-yaml -y
+```
 Create a new Apache configuration file:
 ```sh
 sudo nano /etc/apache2/sites-available/cyberfiles.conf
@@ -69,9 +71,9 @@ In the text editor, paste this example configuration:
     </Directory>
 </VirtualHost>
 ```
-Don't forget to change `files.example.com` to your domain, and `/path/to/cyberfiles` to the path of the folder you created earlier. **Make sure your path doesn't have a trailing slash.**
+Don't forget to change `files.example.com` to your domain, and `/path/to/cyberfiles` to the path of the folder you created earlier. **Make sure your path doesn't have a trailing slash!**
 
-Note that these settings are just the bare bones required to get things working. If you plan on using extra features like SSL (for HTTPS), you can find guides online.
+Note that these settings are just the bare bones required to get things working. If you plan on using extra features like SSL (for HTTPS), there are plenty of online guides to help.
 
 ## Configuration
 To change settings for CyberFiles, open the configuration file located at `/_cyberfiles/private/config.yml`. Below is a description of each setting.
@@ -205,7 +207,9 @@ To use the API, open the target folder in CyberFiles, then add `?api` to the end
 
 For example, to get the index of the `/Images` folder, use `https://files.example.com/Images?api`, where `files.example.com` is your domain.
 
-The API will always respond with a JSON string that can then be parsed into an array for further processing. See below for actions that define what the API responds with..
+The API will always respond with a JSON string that can then be parsed into an array for further processing. See below for actions that define what the API responds with.
+
+**Don't rely on the structure of this API staying consistent. It could change at any time. When updating CyberFiles, be sure to check the changelog to see if there were any API changes.**
 
 ### Actions - `get=...`
 

@@ -79,7 +79,13 @@ popupAboutDesc: "CyberFiles is an open-sourced, capable, and customizable file i
 popupAboutDescLink: "Check it out on GitHub"
 popupAboutTitle: About CyberFiles
 popupErrorTitle: "Uh oh!"
-popupFetchError: "Something went wrong while fetching the file list. Check your internet connection and try again."
+popupClientError: "Something went wrong! See below for details."
+popupClientError2: "If this problem continues, try the following:"
+popupClientError2a: "Check your internet connection"
+popupClientError2b: "Reload the page"
+popupClientError2c: "Clear your site data and cache"
+popupClientError3: "If the issue still persists, try to identify the cause, then %0. Be sure to include the error message in the box above."
+popupClientError3Lnk: "submit an issue"
 popupFileInfoTitle: File info
 popupFileNotFound: "We couldn't find the file you requested. It was probably moved or deleted."
 popupFileNotFound2: "The directory it was in still exists, so take a look around to see if it's listed under a different name."

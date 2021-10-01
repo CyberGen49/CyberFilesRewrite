@@ -20,7 +20,7 @@
         return Promise.reject();
     });
 })();
-let loaded = false;
+loaded = false;
 
 // Initializes functions that use to local storage
 function initLocStore() {
@@ -85,6 +85,16 @@ function copyText(value) {
     console.log("Copied text to clipboard: "+value);
 }
 
+// Escapes HTML special characters in a string and returns the result
+function escapeHtml(unsafe) {
+    return unsafe
+         .replace(/&/g, "&amp;")
+         .replace(/</g, "&lt;")
+         .replace(/>/g, "&gt;")
+         .replace(/"/g, "&quot;")
+         .replace(/'/g, "&#039;");
+ }
+
 // Get a query string parameter
 function $_GET(name, url = window.location.href) {
     name = name.replace(/[\[\]]/g, '\\$&');
@@ -144,7 +154,7 @@ function addLeadingZeroes(string, newLength = 2, char = "0") {
 }
 
 // Pushes a state to history
-let lastUrl = window.location.href;
+lastUrl = window.location.href;
 function historyPushState(title, url) {
     window.history.pushState("", title, url);
     window.lastUrl = window.location.href;
@@ -338,7 +348,7 @@ function getFileTypeIcon(mimeType) {
 }
 
 // Loads a file list with the API
-window.fileListLoaded = false;
+fileListLoaded = false;
 addTooltip("topbarButtonUp");
 async function loadFileList(dir = "", entryId = null, forceReload = false) {
     // Set variables
@@ -396,15 +406,14 @@ async function loadFileList(dir = "", entryId = null, forceReload = false) {
             if (response.status >= 400 && response.status < 600) {
                 showGenericErrors = false;
                 // Set the right popup body text
+                let errorBody = window.lang.popupServerErrorOther;
                 if (window.lang[`popupServerError${response.status}`]) {
-                    let errorBody = window.lang[`popupServerError${response.status}`];
+                    errorBody = window.lang[`popupServerError${response.status}`];
                     switch (response.status) {
                         case 500:
                             errorBody = errorBody.replace("%0", `<a href="https://github.com/CyberGen49/CyberFilesRewrite/issues" target="_blank">${window.lang.popupServerError500Lnk}</a>`)
                             break;
                     }
-                } else {
-                    let errorBody = window.lang.popupServerErrorOther;
                 }
                 // Show the error popup
                 showPopup("serverError", window.lang.popupServerErrorTitle.replace("%0", response.status), errorBody, [{
@@ -419,7 +428,7 @@ async function loadFileList(dir = "", entryId = null, forceReload = false) {
                     "action": function() { window.location.href = "" }
                 }], false);
             }
-            throw new Error("Fetch failed");
+            throw new Error("Unknown Fetch error.");
         // Wait for the server to return file list data
         }).then(data => {
             // If the return status is good
@@ -648,24 +657,11 @@ async function loadFileList(dir = "", entryId = null, forceReload = false) {
                 window.loadDir = dir;
             } else {
                 console.log("Failed to fetch file list: "+data.status);
-                throw new Error("Bad API return");
+                throw new Error(`CyberFiles API responded with a status of '${data.status}'`);
             }
         }).catch(error => {
             cancelLoad();
-            if (!showGenericErrors) return Promise.reject();
-            // Show a generic error message
-            showPopup("fetchError", window.lang.popupErrorTitle, `<p>${window.lang.popupFetchError}</p><p>${error}</p>`, [{
-                "id": "retry",
-                "text": window.lang.popupRetry,
-                "action": function() {
-                    loadFileList(dir, entryId);
-                }
-            }, {
-                "id": "retry",
-                "text": window.lang.popupHome,
-                "action": function() { window.location.href = "/"; }
-            }], false);
-            return Promise.reject();
+            throw new Error(error);
         });
     // If the directory is the same, skip loading the file list and just try showing a file preview
     } else {
@@ -973,7 +969,7 @@ function hideFilePreview() {
 }
 
 // Function to do stuff when a file entry is clicked
-let canClickEntries = true;
+canClickEntries = true;
 function fileEntryClicked(el, event) {
     event.preventDefault();
     document.activeElement.blur();
@@ -1117,8 +1113,8 @@ function popup_about() {
 }
 
 // Show a dropdown menu
-let timeoutShowDropdown = [];
-let timeoutHideDropdown = [];
+timeoutShowDropdown = [];
+timeoutHideDropdown = [];
 function showDropdown(id, data, anchorId) {
     if (!_(`dropdown-${id}`)) {
         _("body").insertAdjacentHTML('beforeend', `
@@ -1754,6 +1750,36 @@ if ($_GET("badShortLink") === '') {
         'id': "close",
         'text': window.lang.popupOkay
     }]);
+}
+
+// Do this stuff any time an error is thrown and not caught by a try-catch
+// We're defining the error handler before anything else since an error in the global scope kills everything below it
+window.onerror = function (msg, url, lineNo, columnNo, error) {
+    showPopup("fetchError", window.lang.popupErrorTitle, `
+        <p>${window.lang.popupClientError}</p>
+        <pre><code>${escapeHtml(error.stack)}</code></pre>
+        <p>
+            ${window.lang.popupClientError2}
+            <ul>
+                <li>${window.lang.popupClientError2a}</li>
+                <li>${window.lang.popupClientError2b}</li>
+                <li><a href="https://github.com/CyberGen49/CyberFilesRewrite/issues" target="_blank">${window.lang.popupClientError2c}</a></li>
+            </ul>
+        </p>
+        <p>${window.lang.popupClientError3.replace("%0", `<a href="https://github.com/CyberGen49/CyberFilesRewrite/issues" target="_blank">${window.lang.popupClientError3Lnk}</a>`)}</p>
+    `, [{
+        "id": "reload",
+        "text": window.lang.popupReload,
+        "action": function() { window.location.href = ""; }
+    }, {
+        "id": "home",
+        "text": window.lang.popupHome,
+        "action": function() { window.location.href = "/"; }
+    }, {
+        "id": "close",
+        "text": window.lang.popupClose
+    }], false);
+    return false;
 }
 
 // Wait for a complete load to start stuff
