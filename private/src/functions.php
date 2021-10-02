@@ -15,7 +15,7 @@ try {
         $conf = array_merge($conf, yaml_parse_file(document_root."/_cyberfiles/private/configUser.yml"));
     $themeDef = yaml_parse_file(document_root."/_cyberfiles/private/themes/Default.yml");
     $theme = yaml_parse_file(document_root."/_cyberfiles/private/themes/{$conf['theme']}.yml");
-    array_merge($themeDef, $theme);
+    $theme = array_merge($themeDef, $theme);
     // Parse variables within theme variables
     foreach (array_keys($theme) as $v) {
         if (preg_match("/\+(.*)/", $theme[$v], $matches)) {

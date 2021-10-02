@@ -1,0 +1,32 @@
+
+# CyberFiles default light theme
+
+# The theme's display name
+name: CyberFiles Light
+
+bg: '#f3f3fc'
+bg2: "#dddde5"
+fg: '#1E1E24'
+fg2: "#5e5d65"
+accent: "#00acf5"
+fileC: "rgba(0, 0, 0, 0.2)"
+bgTopbar: +bg2
+fgTopbar: +fg
+fgTopbarH: +fg2
+topbarBorder: +bgTopbar
+topbarShadow: rgba(0, 0, 0, 0.4);
+scrollbarC: +accent
+bgPreview: +bg
+bgPreviewH: +bgTopbarButtonH
+fgPreviewH: +fg
+bgPreviewC: +bgTopbarButtonC
+bgPreviewTopbar: +bgTopbar
+bgTextPreview: +bg2
+bgDropdown: +bg
+bgDropdownC: +bg2
+fgDropdown: +fg
+fgDropdownD: +fg2
+bgTooltip: +bg
+fgTooltip: +fg
+bgMarkdownCode: rgba(0, 0, 0, 0.15)
+bgMarkdownBlockquote: rgba(0, 0, 0, 0.05)

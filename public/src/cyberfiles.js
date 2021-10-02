@@ -20,7 +20,7 @@
         return Promise.reject();
     });
 })();
-loaded = false;
+window.doOnLoad = [];
 
 // Initializes functions that use to local storage
 function initLocStore() {
@@ -1371,6 +1371,46 @@ function showDropdown_recents() {
 }
 
 // Handle dropdown menu buttons
+doOnLoad.push(() => {
+    window.standardDropdownEntries = [{
+        // Recents
+        'type': 'item',
+        'id': 'history',
+        'text': window.lang.dropdownRecents,
+        'icon': 'history',
+        'action': function() { showDropdown_recents() }
+    }, { 'type': 'sep' }, {
+        // Theme
+        'disabled': true,
+        'type': 'item',
+        'id': 'theme',
+        'text': window.lang.dropdownTheme,
+        'icon': 'palette',
+        'action': function() { showDropdown_theme() }
+    }, {
+        // Lang
+        'disabled': true,
+        'type': 'item',
+        'id': 'lang',
+        'text': window.lang.dropdownLang,
+        'icon': 'translate',
+        'action': function() { showDropdown_lang() }
+    }, {
+        // About
+        'type': 'item',
+        'id': 'about',
+        'text': window.lang.dropdownAbout,
+        'icon': 'info',
+        'action': function() { popup_about() }
+    }, {
+        // Reload
+        'type': 'item',
+        'id': 'reload',
+        'text': window.lang.dropdownRefreshPage,
+        'icon': 'refresh',
+        'action': function() { window.location.href = "" }
+    }];
+});
 _("topbarButtonMenu").addEventListener("click", function() {
     this.blur();
     data = [];
@@ -1431,28 +1471,7 @@ _("topbarButtonMenu").addEventListener("click", function() {
         }
     });
     data.push({ 'type': 'sep' });
-    data.push({
-        'type': 'item',
-        'id': 'history',
-        'text': window.lang.dropdownRecents,
-        'icon': 'history',
-        'action': function() { showDropdown_recents() }
-    });
-    data.push({ 'type': 'sep' });
-    data.push({
-        'type': 'item',
-        'id': 'about',
-        'text': window.lang.dropdownAbout,
-        'icon': 'info',
-        'action': function() { popup_about() }
-    });
-    data.push({
-        'type': 'item',
-        'id': 'reload',
-        'text': window.lang.dropdownRefreshPage,
-        'icon': 'refresh',
-        'action': function() { window.location.href = "" }
-    });
+    data = data.concat(window.standardDropdownEntries);
     showDropdown("mainMenu", data, this.id);
 });
 _("previewButtonMenu").addEventListener("click", function() {
@@ -1509,28 +1528,7 @@ _("previewButtonMenu").addEventListener("click", function() {
         }
     });
     data.push({ 'type': 'sep' });
-    data.push({
-        'type': 'item',
-        'id': 'history',
-        'text': window.lang.dropdownRecents,
-        'icon': 'history',
-        'action': function() { showDropdown_recents() }
-    });
-    data.push({ 'type': 'sep' });
-    data.push({
-        'type': 'item',
-        'id': 'about',
-        'text': window.lang.dropdownAbout,
-        'icon': 'info',
-        'action': function() { popup_about() }
-    });
-    data.push({
-        'type': 'item',
-        'id': 'reload',
-        'text': window.lang.dropdownRefreshPage,
-        'icon': 'refresh',
-        'action': function() { window.location.href = "" }
-    });
+    data = data.concat(window.standardDropdownEntries);
     showDropdown("previewMenu", data, this.id);
 });
 
@@ -1777,12 +1775,14 @@ window.onerror = function (msg, url, lineNo, columnNo, error) {
         "action": function() { window.location.href = "/"; }
     }, {
         "id": "close",
-        "text": window.lang.popupClose
+        "text": window.lang.popupContinue
     }], false);
     return false;
 }
 
 // Wait for a complete load to start stuff
+loaded = false;
+loadComplete = false;
 window.onload = function() { window.loaded = true; };
 // * For some reason, using `let` to define this global variable makes the inner function unable to clear the timeout linked to said variable
 loadCheck = setInterval(() => {
@@ -1802,5 +1802,8 @@ loadCheck = setInterval(() => {
         addTooltip("topbarButtonMenu", window.lang.tooltipMenu);
         addTooltip("previewButtonMenu", window.lang.tooltipMenu);
         addTooltip("previewButtonClose", window.lang.tooltipPreviewClose);
+        window.doOnLoad.forEach(func => {
+            func();
+        });
     }
 }, 100);

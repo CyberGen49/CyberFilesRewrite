@@ -9,15 +9,17 @@
 # Once you have your file, any theme variables you set in there will override
 # the ones set here
 
+# The theme's display name
+name: CyberFiles Dark
+
 bg: '#1E1E24'
 bg2: "#3f3f45"
 fg: '#f3f3fc'
 fg2: "#9a9aa2"
-fg2H: "#b9b9c1"
 accent: "#A3E7FC"
 fileSep: +bg2
 fileH: +bg2
-fileC: "#5e5d65"
+fileC: "rgba(255, 255, 255, 0.2)"
 bgDirectoryHeader: +bg2
 fgDirectoryHeader: +fg
 directoryHeaderBorder: +accent
@@ -39,6 +41,7 @@ fgTopbarH: +bg2
 bgTopbarButtonH: rgba(0, 0, 0, 0.1)
 bgTopbarButtonC: rgba(0, 0, 0, 0.2)
 topbarBorder: +bg2
+topbarShadow: rgba(0, 0, 0, 0.7);
 fgTextboxPlaceholder: +fg2
 bgFilterBarBorder: +bg2
 bgFilterBarBorderF: +accent
@@ -53,7 +56,7 @@ fgPopupButton: +accent
 bgPopupButtonH: rgba(163, 231, 252, 0.3)
 bgPopupButtonC: rgba(163, 231, 252, 0.5)
 bgDropdown: +fg
-bgDropdownH: +fg2H
+bgDropdownH: rgba(0, 0, 0, 0.2)
 bgDropdownC: +fg2
 bgDropdownSep: rgba(0, 0, 0, 0.15)
 fgDropdown: +bg
@@ -65,6 +68,7 @@ bgPreview: '#000'
 bgPreviewH: rgba(255, 255, 255, 0.1)
 bgPreviewC: rgba(255, 255, 255, 0.2)
 bgPreviewTopbar: +bg
+previewTopbarShadow: +topbarShadow
 fgPreview: +fg
 fg2Preview: +fg
 fgPreviewH: +accent
@@ -91,6 +95,6 @@ bgButtonC: +fg2
 fgButtonC: +bg
 loadingSpinner: +accent
 browserTheme: +bgTopbar
-browserThemePreview: +bg
+browserThemePreview: +bgPreviewTopbar
 textHighlightBg: +accent
 textHighlightFg: +bg

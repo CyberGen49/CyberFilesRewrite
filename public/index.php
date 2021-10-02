@@ -111,7 +111,7 @@ while (isset($_GET['f'])) {
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
         <!-- Main CyberFiles CSS -->
-        <link rel="stylesheet" href="/_cyberfiles/public/src/cyberfiles.css.php?t=<?= filemtime(document_root."/_cyberfiles/public/src/cyberfiles.css.php") ?>">
+        <link rel="stylesheet" href="/_cyberfiles/public/src/cyberfiles.css.php?t=<?= filemtime(document_root."/_cyberfiles/public/src/cyberfiles.css") ?>">
     </head>
     
     <body id="body" class="no-transitions">

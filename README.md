@@ -3,6 +3,8 @@ A capable and customizable file index for the web, built to make viewing and sha
 
 This project is a complete ground-up rewrite of my previous file index, with improvements in nearly every aspect.
 
+Keep an eye on [the changelog](https://github.com/CyberGen49/CyberFilesRewrite/blob/main/Changelog.md) to see what's changing!    
+
 ## Features
 * A responsive, mobile-friendly interface
 * View videos, audio, images, and documents without leaving the page
@@ -33,13 +35,12 @@ Remember this path, we'll use it again in a bit.
 * Create a new folder named **_cyberfiles** in the root of your website (the folder you just created)
 * Extract the downloaded .zip file into the new folder
 
-**Note:** Cloning from the `main` branch will provide you with the most reliable experience, but switching to the `dev` branch will get you the most up-to-date version of CyberFiles, while sacrificing stability.
-
 Be sure to check back here from time to time to get updates.
 
 ### Set up the webserver
 Install Apache, PHP, and the PHP YAML extension if you haven't already:
 ```sh
+sudo apt update
 sudo apt install apache2 php php-yaml -y
 ```
 Create a new Apache configuration file:

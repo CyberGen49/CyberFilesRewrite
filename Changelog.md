@@ -2,6 +2,9 @@
 # CyberFilesRewrite Changelog
 I'll try my best to keep track of all changes to CyberFilesRewrite, big and small, right here in this changelog. I do most of my web development late at night, so the dates here tend to extend into the following day.
 
+## 1.10.3 - October 1st, 2021
+* Made two new themes: Light and Blackout (AMOLED dark)
+
 ## 1.10.2 - September 30th, 2021
 * Added a standard popup for all Javascript errors
     * This should always leave the user informed when something goes wrong, and it should make reporting errors a more straightforward process for normal users.
