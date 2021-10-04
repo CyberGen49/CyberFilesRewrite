@@ -75,6 +75,14 @@ Don't forget to change `files.example.com` to your domain, and `/path/to/cyberfi
 
 Note that these settings are just the bare bones required to get things working. If you plan on using extra features like SSL (for HTTPS), there are plenty of online guides to help.
 
+After pasting the config, press `Ctrl + O`, then `Enter`.
+
+Enable the site in Apache, then reload
+```
+sudo a2ensite cyberfiles.conf
+sudo service apache2 restart
+```
+
 ## Configuration
 To change settings for CyberFiles, open the configuration file located at `/_cyberfiles/private/config.yml`. Below is a description of each setting.
 
