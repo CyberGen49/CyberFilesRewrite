@@ -48,4 +48,4 @@ logUserIpHeader: REMOTE_ADDR
 theme: Default
 
 # Other things
-version: v1.10.2
+version: v1.10.3
