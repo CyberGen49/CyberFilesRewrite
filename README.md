@@ -30,8 +30,7 @@ mkdir /path/to/cyberfiles
 Remember this path, we'll use it again in a bit.
 
 ### Install CyberFiles
-* Click the **Clone** button
-* Choose **Download ZIP**
+* [Clone the latest zip file](https://github.com/CyberGen49/CyberFilesRewrite/archive/refs/heads/main.zip)
 * Create a new folder named **_cyberfiles** in the root of your website (the folder you just created)
 * Extract the downloaded .zip file into the new folder
 
