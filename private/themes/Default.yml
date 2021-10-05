@@ -23,6 +23,7 @@ fileC: "rgba(255, 255, 255, 0.2)"
 bgDirectoryHeader: +bg2
 fgDirectoryHeader: +fg
 directoryHeaderBorder: +accent
+directoryHeaderShadow: rgba(0, 0, 0, 0.2)
 fileListHeaders: +fg2
 fileListHeadersH: +accent
 fileIcon: +fg2
@@ -43,6 +44,7 @@ bgTopbarButtonC: rgba(0, 0, 0, 0.2)
 topbarBorder: +bg2
 topbarShadow: rgba(0, 0, 0, 0.7);
 fgTextboxPlaceholder: +fg2
+bgFilterBar: +bg
 bgFilterBarBorder: +bg2
 bgFilterBarBorderF: +accent
 bgFilterBarF: +bg2
@@ -55,6 +57,7 @@ fgPopup: +fg
 fgPopupButton: +accent
 bgPopupButtonH: rgba(163, 231, 252, 0.3)
 bgPopupButtonC: rgba(163, 231, 252, 0.5)
+popupShadow: rgba(0, 0, 0, 0.3)
 bgDropdown: +fg
 bgDropdownH: rgba(0, 0, 0, 0.2)
 bgDropdownC: +fg2
@@ -65,9 +68,10 @@ bgToast: +bg2
 fgToast: +fg
 bgToastBorder: +accent
 bgPreview: '#000'
+bgPreviewTopbar: +bg
 bgPreviewH: rgba(255, 255, 255, 0.1)
 bgPreviewC: rgba(255, 255, 255, 0.2)
-bgPreviewTopbar: +bg
+previewTopbarBorder: +bgPreviewTopbar
 previewTopbarShadow: +topbarShadow
 fgPreview: +fg
 fg2Preview: +fg

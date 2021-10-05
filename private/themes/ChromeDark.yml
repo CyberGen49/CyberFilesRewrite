@@ -1,0 +1,32 @@
+
+# A dark theme using Chrome's pallette
+
+# The theme's display name
+name: Chrome Dark
+
+bg: '#202124'
+bg2: "#2A2B2E"
+fg: "#E8EAED"
+fg2: "#9AA0A6"
+accent: "#8AB4F8"
+bgTopbar: +bg2
+fgTopbar: +fg
+fgTopbarH: +accent
+bgTopbarButtonH: rgba(255, 255, 255, 0.1)
+bgTopbarButtonC: rgba(255, 255, 255, 0.2)
+topbarBorder: "#3F4042"
+fileSep: +topbarBorder
+fileH: rgba(255, 255, 255, 0.1)
+bgFilterBarBorder: +topbarBorder
+bgFilterBarF: rgba(0, 0, 0, 0.3)
+bgPreview: +bg
+bgPreviewTopbar: +bgTopbar
+previewTopbarBorder: +topbarBorder
+bgTextPreview: +bg2
+scrollbarC: +accent
+bgDropdown: "#404243"
+bgDropdownH: rgba(255, 255, 255, 0.2)
+bgDropdownC: rgba(255, 255, 255, 0.3)
+bgDropdownSep: rgba(255, 255, 255, 0.15)
+fgDropdown: +fg
+fgDropdownD: +fg2

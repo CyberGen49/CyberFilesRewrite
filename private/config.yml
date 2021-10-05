@@ -4,7 +4,7 @@
 
 # General settings
 language: en
-siteName: CyberFiles
+siteName: ''
 siteDesc: Browse and preview server files with ease.
 hiddenFiles:
   - '*.php'
@@ -48,4 +48,4 @@ logUserIpHeader: REMOTE_ADDR
 theme: Default
 
 # Other things
-version: v1.10.3
+version: v1.10.4

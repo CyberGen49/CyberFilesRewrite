@@ -285,7 +285,7 @@ function dateFormatRelative(timestamp) {
     let future = "";
     if (time < 0) {
         future = "future";
-        time = abs(time);
+        time = Math.abs(time);
     }
     time /= 1000;
     if (time < 120) return window.lang[`dtRelNow`];

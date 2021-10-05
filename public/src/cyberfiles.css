@@ -292,7 +292,7 @@ br {
 #fileListFilter {
     width: 100%;
     padding: 10px 16px;
-    background: rgba(0, 0, 0, 0);
+    background: var(--bgFilterBar);
     border: none;
     border-bottom: 2px solid var(--bgFilterBarBorder);
     border-radius: 4px 4px 0px 0px;
@@ -336,6 +336,7 @@ br {
     background: var(--bgDirectoryHeader);
     border-left: 6px solid var(--directoryHeaderBorder);
     border-radius: 6px;
+    box-shadow: 0px 1px 4px 1px var(--directoryHeaderShadow);
 }
 
 #fileListHeaders {
@@ -486,18 +487,15 @@ br {
     position: absolute;
     top: 0px;
     left: 0px;
-    /* height: 75px; */
     height: 55px;
     width: 100%;
     padding: 0px 15px;
     background: var(--bgPreviewTopbar);
-    /* background: linear-gradient(180deg, var(--bgPreviewTopbar) 0%, rgba(0,0,0,0) 100%); */
-    /* padding-bottom: 20px; */
+    border-bottom: 1px solid var(--previewTopbarBorder);
     user-select: none;
     transition: 0.1s ease-in-out;
-    z-index: 22;
-    /* pointer-events: none; */
     box-shadow: 0px -17px 15px 14px var(--previewTopbarShadow);
+    z-index: 22;
 }
 
 .previewTopbarButton {
@@ -679,7 +677,7 @@ br {
     padding: 15px 20px;
     background: var(--bgPopup);
     border-radius: 12px;
-    box-shadow: 0px 4px 20px 8px rgba(0,0,0,0.3);
+    box-shadow: 0px 4px 20px 8px var(--popupShadow);
     overflow-y: scroll;
     scrollbar-width: none;
 }

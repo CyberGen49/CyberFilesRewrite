@@ -100,6 +100,8 @@ The site will always include `en` first, then override it with the language set 
 Type: `string`  
 The name of the file index. This is displayed in the tab title and link previews, as well as in the index navigation bar.
 
+If left as an empty string (`''` or `""`), the hostname/domain will be used (files.example.com, for example).
+
 #### `siteDesc`
 Type: `string`  
 The description of the file index. This is displayed in link previews.
@@ -146,7 +148,7 @@ If this file exists in a directory, its file order will be reversed. Folders wil
 
 #### `defaultSort`
 Defines the global default sort type and direction. This can be overridden by the sort files above, the user's chosen sort order takes priority over everything.
-* `type`: `name`, `date`, or `size`
+* `type`: `name`, `date`, `ext` (for type), or `size`
 * `desc`: Set to `true` to reverse the order of the file list, keeping folders on top
 
 #### `dateFormatShort`
@@ -202,7 +204,9 @@ For example, Cloudflare's user IP variable is `HTTP_CF_CONNECTING_IP`
 
 #### `theme`
 Type: `string`  
-The name (without extension) of a theme file located in `/_cyberfiles/private/themes`. File free to edit the existing themes or create your own to customize the experience.
+The name (without extension) of a theme file located in `/_cyberfiles/private/themes`. File free to edit the existing themes or create your own! All themes override the default, so not all of the constants need to be set in every file.
+
+It may be smart to not touch `Default.yml` and instead make a new theme to change what you want, then change `theme` to the name of your new file.
 
 **Remember:** Hashtags/pound symbols are comment characters in YAML, so if you're using hex codes, be sure to enclose them in quotation marks.
 

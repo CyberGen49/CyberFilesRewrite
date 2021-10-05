@@ -1,0 +1,40 @@
+
+# A light theme using Chrome's pallette
+
+# The theme's display name
+name: Chrome Light
+
+bg: '#F8F9FA'
+bg2: "#FFFFFF"
+fg: '#393A3D'
+fg2: "#84878B"
+accent: "#3367D6"
+bgTopbar: +accent
+bgTopbarButtonH: rgba(255, 255, 255, 0.1)
+bgTopbarButtonC: rgba(255, 255, 255, 0.2)
+fgTopbar: +bg
+fgTopbarH: +bg2
+topbarBorder: +bgTopbar
+fileSep: "#DFE0E1"
+fileH: +fileSep
+fileC: "rgba(0, 0, 0, 0.2)"
+bgFilterBarBorder: +fileSep
+bgFilterBarF: +fileSep
+scrollbarC: +accent
+bgPreview: +bg2
+bgPreviewH: rgba(0, 0, 0, 0.1)
+fgPreviewH: +accent
+bgPreviewC: rgba(0, 0, 0, 0.2)
+bgPreviewTopbar: +bg
+bgTextPreview: +bg
+bgDropdown: +bg2
+bgDropdownC: +bg
+fgDropdown: +fg
+fgDropdownD: +fg2
+bgTooltip: +bg2
+fgTooltip: +fg
+popupShadow: rgba(0, 0, 0, 0.2)
+bgPopupButtonH: rgba(51, 103, 214, 0.2)
+bgPopupButtonC: rgba(51, 103, 214, 0.4)
+bgMarkdownCode: rgba(0, 0, 0, 0.15)
+bgMarkdownBlockquote: rgba(0, 0, 0, 0.05)

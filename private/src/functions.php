@@ -13,9 +13,15 @@ try {
     $conf = yaml_parse_file(document_root."/_cyberfiles/private/config.yml");
     if (file_exists(document_root."/_cyberfiles/private/configUser.yml"))
         $conf = array_merge($conf, yaml_parse_file(document_root."/_cyberfiles/private/configUser.yml"));
+    // Set siteName correctly
+    if ($conf['siteName'] == "") $conf['siteName'] = $_SERVER['SERVER_NAME'];
+    // Import theme
     $themeDef = yaml_parse_file(document_root."/_cyberfiles/private/themes/Default.yml");
-    $theme = yaml_parse_file(document_root."/_cyberfiles/private/themes/{$conf['theme']}.yml");
-    $theme = array_merge($themeDef, $theme);
+    $userTheme = document_root."/_cyberfiles/private/themes/{$conf['theme']}.yml";
+    if (file_exists($userTheme)) {
+        $theme = yaml_parse_file($userTheme);
+        $theme = array_merge($themeDef, $theme);
+    } else $theme = $themeDef;
     // Parse variables within theme variables
     foreach (array_keys($theme) as $v) {
         if (preg_match("/\+(.*)/", $theme[$v], $matches)) {

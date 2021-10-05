@@ -2,6 +2,14 @@
 # CyberFilesRewrite Changelog
 I'll try my best to keep track of all changes to CyberFilesRewrite, big and small, right here in this changelog. I do most of my web development late at night, so the dates here tend to extend into the following day.
 
+## 1.10.4 - October 4th, 2021
+* Now, when the `siteName` config option is set to an empty string (as it is by default), PHP `$_SERVER['SERVER_NAME']` will be used as the site name instead.
+* Added a shadow to directory headers
+* Added some more theme constants
+* Added the `ChromeDark` and `ChromeLight` themes
+* Fixed using the default theme when the one set in the config doesn't exist
+* Fixed a small Javascript bug
+
 ## 1.10.3 - October 1st, 2021
 * Made two new themes: Light and Blackout (AMOLED dark)
 
@@ -21,13 +29,13 @@ I'll try my best to keep track of all changes to CyberFilesRewrite, big and smal
         * This is done by checking the width of an element that's changed with the CSS hover media query
 * Tooltips will now automatically hide after 20 seconds
 * Fixed a line height issue with tooltips on Firefox
-* Revamped the way theme variables are used in CSS
+* Revamped the way theme constants are used in CSS
     * They work just like custom properties now: `var(--variableName)`
 * Set up Javascript to fetch config, language, and theme from the server instead of using PHP to insert it directly into the document
 * Switched to using a regular .js file and referencing it from the main PHP script
     * Before, the PHP file containing the Javascript was dumped onto the main page inside a `<script>` element
 * Switched to using a regular .css file for CSS styling
-    * `cyberfiles.css` is still parsed by a PHP script to apply theme variables, so the client actually makes a request for `cyberfiles.css.php`
+    * `cyberfiles.css` is still parsed by a PHP script to apply theme constants, so the client actually makes a request for `cyberfiles.css.php`
     * Before, like the JS, the PHP file containing the CSS was just dumped onto the page in a `<style>` element
 
 ## 1.9.0 - September 27th, 2021
@@ -217,7 +225,7 @@ I'll try my best to keep track of all changes to CyberFilesRewrite, big and smal
     * Later, we'll implement an interface for browsing your file history
 
 ## 0.4.0 - September 8th, 2021
-* Continued refining theme variables to be more specific
+* Continued refining theme constants to be more specific
 * Made it so the loading spinner only displays after we've been waiting on a file list for over 500ms (subject to change)
     * This prevents the quick spinner flash between fast loads
 * Started work on the handling of non-directory file entries (actual files!)
@@ -235,7 +243,7 @@ I'll try my best to keep track of all changes to CyberFilesRewrite, big and smal
 * Added the `hideDirWhenContains` config option
 * Added future proofing to JS `dateFormatRelative()`
 * Now using custom file types defined in the language file, displayed in file details (the tooltip when hovering over an entry)
-* Added the ability to reference theme variables from other theme variables
+* Added the ability to reference theme constants from other theme constants
     * This means we can add much deeper theming of specific elements without having to repeat colour codes
 
 ## 0.2.0 - September 6th, 2021
