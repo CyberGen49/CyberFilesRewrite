@@ -180,7 +180,7 @@ br {
 
 #topbarTitle {
     padding: 5px 8px 4px 8px;
-    font-family: "Montserrat", sans-serif;
+    font-family: "Montserrat";
     font-size: 24px;
     font-weight: bold;
     color: var(--fgTopbar);
@@ -747,8 +747,7 @@ br {
     position: fixed;
     top: 0px;
     left: 0px;
-    max-width: 300px;
-    max-height: 600px;
+    max-width: 350px;
     margin: 10px;
     background: var(--bgDropdown);
     padding: 8px 0px;
@@ -762,6 +761,12 @@ br {
 
 .dropdown::-webkit-scrollbar {
     width: 0px;
+}
+
+.dropdownHeader {
+    padding: 5px 12px 3px 12px;
+    font-size: 14px;
+    color: var(--fgDropdownHeader);
 }
 
 .dropdownItem {
@@ -844,7 +849,7 @@ br {
 
 .buttonMain {
     padding: 10px 16px;
-    font-family: "Montserrat", "Segoe UI", sans-serif;
+    font-family: "Montserrat";
     font-size: 15px;
     font-weight: bold;
     color: var(--fgButton);
@@ -872,7 +877,7 @@ br {
 }
 
 /* Handle devices that can't hover */
-@media (hover: none) and (pointer: coarse) {
+@media (hover: none) {
     #hoverCapable { width: 0px; }
 }
 
@@ -938,6 +943,11 @@ br {
 
     .dropdownItem {
         padding: 10px 15px;
+    }
+
+    .dropdownHeader {
+        padding: 7px 15px 4px 15px;
+        font-size: 16px;
     }
 
     .dropdownItemIcon {

@@ -11,6 +11,8 @@
         window.lang = data.lang;
         window.conf = data.config;
         window.theme = data.theme;
+        window.themes = data.themes;
+        window.languages = data.languages;
         window.vidProgConf = data.config.videoProgressSave;
         window.defaultSort = data.config.defaultSort;
         window.textPreviewMaxSize = data.config.textPreviewMaxSize;
@@ -167,6 +169,31 @@ function historyReplaceState(title, url) {
 function roundSmart(number, decimalPlaces = 0) {
     const factorOfTen = Math.pow(10, decimalPlaces)
     return Math.round(number * factorOfTen) / factorOfTen
+}
+
+// Sets a cookie
+function setCookie(cname, cvalue, exdays) {
+    const d = new Date();
+    d.setTime(d.getTime() + (exdays*24*60*60*1000));
+    let expires = "expires="+ d.toUTCString();
+    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+}
+
+// Returns the value of a cookie
+function getCookie(cname) {
+    let name = cname + "=";
+    let decodedCookie = decodeURIComponent(document.cookie);
+    let ca = decodedCookie.split(';');
+    for(let i = 0; i <ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+        }
+    }
+    return "";
 }
 
 // Saves an array to localstorage
@@ -349,7 +376,6 @@ function getFileTypeIcon(mimeType) {
 
 // Loads a file list with the API
 fileListLoaded = false;
-addTooltip("topbarButtonUp");
 async function loadFileList(dir = "", entryId = null, forceReload = false) {
     // Set variables
     if (dir == "") dir = currentDir();
@@ -531,7 +557,7 @@ async function loadFileList(dir = "", entryId = null, forceReload = false) {
                             <div class="col-auto fileEntrySize fileListDesktop noBoost">${f.sizeF}</div>
                         </a>
                     `);
-                    addTooltip(`fileEntry-${i}`, f.title);
+                    _(`fileEntry-${i}`).dataset.tooltip = f.title;
                     _(`fileEntry-${i}`).href = f.nameUri;
                     window.fileObjects[i] = f;
                     i++;
@@ -560,14 +586,14 @@ async function loadFileList(dir = "", entryId = null, forceReload = false) {
                         </div>
                     `);
                     if (i != 0) {
-                        addTooltip(`breadcrumb-${i}`, window.lang.tooltipBreadcrumb.replace("%0", bcName));
+                        _(`breadcrumb-${i}`).dataset.tooltip = window.lang.tooltipBreadcrumb.replace("%0", bcName);
                         _(`breadcrumb-${i}`).addEventListener("click", function() {
                             this.blur();
                             breadcrumbAddClick(bcDir);
                         });
                     } else {
                         _(`breadcrumb-${i}`).classList.remove("hover");
-                        addTooltip(`breadcrumb-${i}`, window.lang.tooltipBreadcrumbCurrent);
+                        _(`breadcrumb-${i}`).dataset.tooltip = window.lang.tooltipBreadcrumbCurrent;
                     }
                     i++;
                 }
@@ -733,8 +759,6 @@ _("fileListHeaderSize").addEventListener("click", function() {
 });
 
 // Displays a file preview
-addTooltip("previewPrev");
-addTooltip("previewNext");
 function showFilePreview(id = null) {
     window.canClickEntries = true;
     // If a file is requested and the passed object ID is set
@@ -1134,6 +1158,11 @@ function showDropdown(id, data, anchorId) {
     _(`dropdown-${id}`).innerHTML = "";
     data.forEach(item => {
         switch (item.type) {
+            case 'header':
+                _(`dropdown-${id}`).insertAdjacentHTML('beforeend', `
+                    <div class="dropdownHeader">${item.text}</div>
+                `);
+                break;
             case 'item':
                 _(`dropdown-${id}`).insertAdjacentHTML('beforeend', `
                     <div id="dropdown-${id}-${item.id}" class="dropdownItem row no-gutters">
@@ -1141,9 +1170,11 @@ function showDropdown(id, data, anchorId) {
                         <div class="col dropdownItemName">${item.text}</div>
                     </div>
                 `);
+                if (item.tooltip)
+                    _(`dropdown-${id}-${item.id}`).dataset.tooltip = item.tooltip;
                 if (item.disabled) {
                     _(`dropdown-${id}-${item.id}`).classList.add("disabled");
-                    addTooltip(`dropdown-${id}-${item.id}`, window.lang.dropdownDisabled);
+                    _(`dropdown-${id}-${item.id}`).dataset.tooltip = window.lang.dropdownDisabled;
                 } else {
                     _(`dropdown-${id}-${item.id}`).addEventListener("click", item.action);
                     _(`dropdown-${id}-${item.id}`).addEventListener("click", function() { hideDropdown(id) });
@@ -1207,6 +1238,10 @@ function hideDropdown(id) {
 // Prebuilt dropdown menus
 function showDropdown_sort() {
     data = [];
+    data.push({
+        'type': 'header',
+        'text': window.lang.dropdownHeaderSort
+    });
     data.push({
         'type': 'item',
         'id': 'name',
@@ -1314,14 +1349,10 @@ function showDropdown_sort() {
 }
 function showDropdown_recents() {
     data = [];
-    /*data.push({
-        'disabled': true,
-        'type': 'item',
-        'id': 'viewFull',
-        'text': window.lang.dropdownRecentsViewFull,
-        'icon': 'history',
-        'action': function() { console.log("It works") }
-    });*/
+    data.push({
+        'type': 'header',
+        'text': window.lang.dropdownHeaderRecents
+    });
     const getUrl = function(f) {
         if (f.type == "directory") return f.dir;
         if (f.dir == "/") return `/?f=${encodeURIComponent(f.name)}`;
@@ -1348,6 +1379,7 @@ function showDropdown_recents() {
                     'id': i,
                     'text': f.name,
                     'icon': icon,
+                    'tooltip': `<b>${f.name}</b><br>${window.lang.dropdownRecentsTooltipLocation.replace("%0", decodeURIComponent(f.dir))}`,
                     'action': function() {
                         hideFilePreview();
                         historyPushState('', url);
@@ -1369,33 +1401,111 @@ function showDropdown_recents() {
     });
     showDropdown("recents", data, "topbarButtonMenu");
 }
+function showDropdown_themes() {
+    data = [];
+    data.push({
+        'type': 'header',
+        'text': window.lang.dropdownHeaderTheme
+    });
+    window.themes.forEach(t => {
+        data.push({
+            'type': 'item',
+            'id': t.file,
+            'text': t.name,
+            'icon': 'check',
+            'tooltip': t.desc,
+            'action': function() {
+                setCookie("theme", t.file, 900);
+                window.location.href = "";
+            }
+        });
+    });
+    if (getCookie('theme') !== '') {
+        data.push({ 'type': 'sep' });
+        data.push({
+            'type': 'item',
+            'id': 'default',
+            'text': window.lang.dropdownThemeDefault,
+            'icon': 'public',
+            'action': function() {
+                setCookie("theme", '', -1);
+                window.location.href = "";
+            }
+        });
+    }
+    let dropdownId = showDropdown("themes", data, "topbarButtonMenu");
+    window.themes.forEach(t => {
+        _(`${dropdownId}-${t.file}-icon`).style.opacity = 0;
+        if (window.theme.name == t.name)
+            _(`${dropdownId}-${t.file}-icon`).style.opacity = 1;
+    });
+}
+function showDropdown_lang() {
+    data = [];
+    data.push({
+        'type': 'header',
+        'text': window.lang.dropdownHeaderLang
+    });
+    window.languages.forEach(t => {
+        data.push({
+            'type': 'item',
+            'id': t.file,
+            'text': t.name,
+            'icon': 'check',
+            'action': function() {
+                setCookie("lang", t.file, 900);
+                window.location.href = "";
+            }
+        });
+    });
+    if (getCookie('lang') !== '') {
+        data.push({ 'type': 'sep' });
+        data.push({
+            'type': 'item',
+            'id': 'default',
+            'text': window.lang.dropdownLangDefault,
+            'icon': 'public',
+            'action': function() {
+                setCookie("lang", '', -1);
+                window.location.href = "";
+            }
+        });
+    }
+    let dropdownId = showDropdown("lang", data, "topbarButtonMenu");
+    window.languages.forEach(t => {
+        _(`${dropdownId}-${t.file}-icon`).style.opacity = 0;
+        if (window.lang.name == t.name)
+            _(`${dropdownId}-${t.file}-icon`).style.opacity = 1;
+    });
+}
 
 // Handle dropdown menu buttons
 doOnLoad.push(() => {
     window.standardDropdownEntries = [{
+        'type': 'header',
+        'text': window.lang.dropdownHeaderSubmenus
+    }, {
         // Recents
         'type': 'item',
         'id': 'history',
         'text': window.lang.dropdownRecents,
         'icon': 'history',
         'action': function() { showDropdown_recents() }
-    }, { 'type': 'sep' }, {
+    }, {
         // Theme
-        'disabled': true,
         'type': 'item',
         'id': 'theme',
         'text': window.lang.dropdownTheme,
         'icon': 'palette',
-        'action': function() { showDropdown_theme() }
+        'action': function() { showDropdown_themes() }
     }, {
         // Lang
-        'disabled': true,
         'type': 'item',
         'id': 'lang',
         'text': window.lang.dropdownLang,
         'icon': 'translate',
         'action': function() { showDropdown_lang() }
-    }, {
+    }, { 'type': 'sep' }, {
         // About
         'type': 'item',
         'id': 'about',
@@ -1414,6 +1524,10 @@ doOnLoad.push(() => {
 _("topbarButtonMenu").addEventListener("click", function() {
     this.blur();
     data = [];
+    data.push({
+        'type': 'header',
+        'text': window.lang.dropdownHeaderDirectory
+    });
     data.push({
         'disabled': !window.fileListLoaded,
         'type': 'item',
@@ -1450,6 +1564,10 @@ _("topbarButtonMenu").addEventListener("click", function() {
     });
     data.push({ 'type': 'sep' });
     data.push({
+        'type': 'header',
+        'text': window.lang.dropdownHeaderShare
+    });
+    data.push({
         'type': 'item',
         'id': 'share',
         'text': window.lang.dropdownShareDirectory,
@@ -1479,6 +1597,10 @@ _("previewButtonMenu").addEventListener("click", function() {
     let fileData = window.currentFile;
     data = [];
     data.push({
+        'type': 'header',
+        'text': window.lang.dropdownHeaderFile
+    });
+    data.push({
         'type': 'item',
         'id': 'fileInfo',
         'text': window.lang.dropdownFileInfo,
@@ -1496,6 +1618,10 @@ _("previewButtonMenu").addEventListener("click", function() {
         }
     });
     data.push({ 'type': 'sep' });
+    data.push({
+        'type': 'header',
+        'text': window.lang.dropdownHeaderShare
+    });
     data.push({
         'type': 'item',
         'id': 'share',
@@ -1556,19 +1682,12 @@ function showToast(text) {
     }, 100);
 }
 
-// Adds a tooltip to an element
-function addTooltip(id, text = null) {
-    _(id).addEventListener("mousemove", function() { showTooltip(this, text) });
-    _(id).addEventListener("mouseleave", function() { hideTooltip() });
-    _(id).addEventListener("click", function() { showTooltip(this, text) });
-}
-
 // Shows a tooltip at the cursor's current location
-function showTooltip(el, text) {
+function showTooltip(el) {
     hideTooltip();
     if (!canHover()) return;
     window.tooltipTimeout = setTimeout(() => {
-        if (text === null) text = el.dataset.tooltip;
+        let text = el.dataset.tooltip;
         _("tooltip").innerHTML = text;
         _("tooltip").style.opacity = 0;
         _("tooltip").style.display = "block";
@@ -1626,6 +1745,22 @@ function hideTooltip() {
         _("tooltip").style.display = "none";
     }, 200);
 }
+
+// Check for tooltip data tags on elements and add their event listeners
+setInterval(() => {
+    const els = document.querySelectorAll('[data-tooltip]');
+    for (i = 0; i < els.length; i++) {
+        let el = els[i];
+        if (!el.hasAttribute("data-tooltip-listening")) {
+            el.addEventListener("mousemove", function() { showTooltip(this) });
+            el.addEventListener("mouseleave", function() { hideTooltip() });
+            el.addEventListener("click", function() { showTooltip(this) });
+            el.dataset.tooltipListening = 'true';
+            //console.log(`Added tooltip to ${el.id}`);
+        }
+        el.ariaLabel = el.dataset.tooltip;
+    }
+}, 500);
 
 // Handle the filter bar
 _("fileListFilter").addEventListener("keyup", function(event) { filterFiles(event, this) });
@@ -1755,7 +1890,7 @@ if ($_GET("badShortLink") === '') {
 window.onerror = function (msg, url, lineNo, columnNo, error) {
     showPopup("fetchError", window.lang.popupErrorTitle, `
         <p>${window.lang.popupClientError}</p>
-        <pre><code>${escapeHtml(error.stack)}</code></pre>
+        <pre><code>Error in CyberFiles ${window.conf.version}:\n${escapeHtml(error.stack)}</code></pre>
         <p>
             ${window.lang.popupClientError2}
             <ul>
@@ -1798,10 +1933,10 @@ loadCheck = setInterval(() => {
         // Do this stuff initially
         initLocStore();
         loadFileList();
-        addTooltip("topbarTitle", window.lang.tooltipTopbarTitle);
-        addTooltip("topbarButtonMenu", window.lang.tooltipMenu);
-        addTooltip("previewButtonMenu", window.lang.tooltipMenu);
-        addTooltip("previewButtonClose", window.lang.tooltipPreviewClose);
+        _("topbarTitle").dataset.tooltip = window.lang.tooltipTopbarTitle;
+        _("topbarButtonMenu").dataset.tooltip = window.lang.tooltipMenu;
+        _("previewButtonMenu").dataset.tooltip = window.lang.tooltipMenu;
+        _("previewButtonClose").dataset.tooltip = window.lang.tooltipPreviewClose;
         window.doOnLoad.forEach(func => {
             func();
         });

@@ -5,7 +5,7 @@
 # If you want to translate CyberFiles to your language, create a pull request
 # on the Github repo and make your changes.
 
-# The language's display name
+# The language's display name (localized)
 name: English
 
 dropdownAbout: "About CyberFiles"
@@ -17,6 +17,7 @@ dropdownRandomFile: "Preview a random file"
 dropdownRecents: "Recents..."
 dropdownRecentsClearHistory: "Clear history..."
 dropdownRecentsViewFull: "View full history..."
+dropdownRecentsTooltipLocation: "Location: %0"
 dropdownRefreshList: "Refresh files"
 dropdownRefreshPage: "Refresh page"
 dropdownShareDirectory: "Copy directory URL"
@@ -35,6 +36,16 @@ dropdownSortListSizeDesc: Largest first
 dropdownSortListType: Extension A-Z
 dropdownSortListTypeDesc: Extension Z-A
 dropdownTheme: Theme...
+dropdownThemeDefault: Use server default
+dropdownLangDefault: Use server default
+dropdownHeaderShare: Share
+dropdownHeaderDirectory: This directory
+dropdownHeaderFile: This file
+dropdownHeaderSubmenus: Data and settings
+dropdownHeaderTheme: Themes
+dropdownHeaderLang: Language
+dropdownHeaderSort: Sort file list
+dropdownHeaderRecents: Recent files
 toastCopyDirectoryLink: Copied directory URL to clipboard.
 toastCopyDirectoryLinkShort: Copied short directory URL to clipboard.
 toastCopyFilePreviewLink: Copied file preview URL to clipboard.
@@ -89,7 +100,7 @@ popupClientError2: "If this problem continues, try the following:"
 popupClientError2a: "Check your internet connection"
 popupClientError2b: "Reload the page"
 popupClientError2c: "Clear your site data and cache"
-popupClientError3: "If the issue still persists, try to identify the cause, then %0. Be sure to include the error message in the box above."
+popupClientError3: "If the issue still persists, try to identify the cause, then %0. Be sure to include the whole error message in the box above."
 popupClientError3Lnk: "submit an issue"
 popupFileInfoTitle: File info
 popupFileNotFound: "We couldn't find the file you requested. It was probably moved or deleted."
@@ -97,7 +108,7 @@ popupFileNotFound2: "The directory it was in still exists, so take a look around
 popupNoJsDesc: "Seems like you have Javascript disabled! The core functionality of CyberFiles requires Javascript, so you'll need to enable it to continue. See the Help link below if you're having trouble."
 popupClearHistoryTitle: Clear history
 popupClearHistoryDesc: Are you sure you want to clear your history?
-popupClearHistoryDesc2: This only affects CyberFiles
+popupClearHistoryDesc2: This only affects CyberFiles.
 popupNotImplementedTitle: Not implemented
 popupNotImplementedDesc: The action you just tried to perform hasn't been implemented yet. Check back later!
 popupVideoResumeTitle: Resume video

@@ -1,8 +1,7 @@
 
-# A light theme using Chrome's pallette
-
-# The theme's display name
+# Theme metadata
 name: Chrome Light
+desc: "A light theme using Chrome's pallette"
 
 bg: '#F8F9FA'
 bg2: "#FFFFFF"

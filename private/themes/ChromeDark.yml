@@ -1,8 +1,7 @@
 
-# A dark theme using Chrome's pallette
-
-# The theme's display name
+# Theme metadata
 name: Chrome Dark
+desc: "A dark theme using Chrome's pallette"
 
 bg: '#202124'
 bg2: "#2A2B2E"
@@ -24,6 +23,8 @@ bgPreviewTopbar: +bgTopbar
 previewTopbarBorder: +topbarBorder
 bgTextPreview: +bg2
 scrollbarC: +accent
+bgPopupButtonH: rgba(138, 180, 248, 0.2)
+bgPopupButtonC: rgba(138, 180, 248, 0.4)
 bgDropdown: "#404243"
 bgDropdownH: rgba(255, 255, 255, 0.2)
 bgDropdownC: rgba(255, 255, 255, 0.3)

@@ -18,6 +18,11 @@ try {
     // Import theme
     $themeDef = yaml_parse_file(document_root."/_cyberfiles/private/themes/Default.yml");
     $userTheme = document_root."/_cyberfiles/private/themes/{$conf['theme']}.yml";
+    if (isset($_COOKIE['theme'])) {
+        $cookieTheme = str_replace(["/", "\\"], "", $_COOKIE['theme']);
+        if ($conf['theme'] == $cookieTheme) setcookie("theme", '', -3600, '/');
+        else $userTheme = document_root."/_cyberfiles/private/themes/{$cookieTheme}.yml";
+    }
     if (file_exists($userTheme)) {
         $theme = yaml_parse_file($userTheme);
         $theme = array_merge($themeDef, $theme);
@@ -29,13 +34,41 @@ try {
         }
     }
     // Import language
-    $lang = yaml_parse_file(document_root."/_cyberfiles/private/lang/en.yml");
-    if ($conf['language'] != "en") {
-        if (file_exists(document_root."/_cyberfiles/private/lang/${$conf['language']}.yml")) {
-            $lang = array_merge($lang, yaml_parse_file(document_root."/_cyberfiles/private/lang/${$conf['language']}.yml"));
-        } else {
-            trigger_error("[CyberFiles] Failed to load a nonexistent language file. Check your config.", E_USER_WARNING);
-        }
+    $langDef = yaml_parse_file(document_root."/_cyberfiles/private/lang/en.yml");
+    $userLang = document_root."/_cyberfiles/private/lang/{$conf['language']}.yml";
+    if (isset($_COOKIE['lang'])) {
+        $cookieLang = str_replace(["/", "\\"], "", $_COOKIE['lang']);
+        if ($conf['language'] == $cookieLang) setcookie("lang", '', -3600, '/');
+        else $userLang = document_root."/_cyberfiles/private/lang/{$cookieLang}.yml";
+    }
+    if (file_exists($userLang)) {
+        $lang = yaml_parse_file($userLang);
+        $lang = array_merge($langDef, $lang);
+    } else $lang = $langDef;
+    // Get theme list
+    $scandir = scandir(document_root."/_cyberfiles/private/themes");
+    $themes = [];
+    foreach ($scandir as $t) {
+        if ($t == "." || $t == "..") continue;
+        $path = document_root."/_cyberfiles/private/themes/${t}";
+        $content = yaml_parse_file($path);
+        $themes[] = [
+            'file' => pathinfo($path)['filename'],
+            'name' => $content['name'],
+            'desc' => $content['desc'],
+        ];
+    }
+    // Get language list
+    $scandir = scandir(document_root."/_cyberfiles/private/lang");
+    $languages = [];
+    foreach ($scandir as $t) {
+        if ($t == "." || $t == "..") continue;
+        $path = document_root."/_cyberfiles/private/lang/${t}";
+        $content = yaml_parse_file($path);
+        $languages[] = [
+            'file' => pathinfo($path)['filename'],
+            'name' => $content['name'],
+        ];
     }
 } catch (\Throwable $th) {
     print("CyberFiles requires the php_yaml extension. Install the extension and reload to continue.");
@@ -406,6 +439,8 @@ class ApiCall {
                     $data['config']['logIpHeader'],
                     $data['config']['theme'],
                 );
+                $data['themes'] = $GLOBALS['themes'];
+                $data['languages'] = $GLOBALS['languages'];
                 $data['status'] = "GOOD";
             } else {
                 $data['status'] = "INVALID";

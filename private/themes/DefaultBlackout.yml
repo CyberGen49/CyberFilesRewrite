@@ -1,8 +1,7 @@
 
-# CyberFiles default AMOLED dark theme
-
 # The theme's display name
-name: CyberFiles Blackout (AMOLED)
+name: CyberFiles Blackout
+desc: "CyberFiles default AMOLED dark theme"
 
 bg: '#000'
 bg2: "#1E1E24"

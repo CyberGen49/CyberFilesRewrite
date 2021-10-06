@@ -2,6 +2,17 @@
 # CyberFilesRewrite Changelog
 I'll try my best to keep track of all changes to CyberFilesRewrite, big and small, right here in this changelog. I do most of my web development late at night, so the dates here tend to extend into the following day.
 
+## 1.11.0 - October 5th, 2021
+* Added the current CyberFiles version to error popups
+* Added the theme selection menu
+* Improved the setting and updating of element tooltips
+* Added `aria-label` attributes to elements with tooltips to help screen readers
+    * These are updated dynamically to match the content of the tooltip
+* Added headers to dropdown menus
+* Added tooltips to entries in the recent files menu
+* Added the language selection menu
+    * Of course, English is the only option for now
+
 ## 1.10.4 - October 4th, 2021
 * Now, when the `siteName` config option is set to an empty string (as it is by default), PHP `$_SERVER['SERVER_NAME']` will be used as the site name instead.
 * Added a shadow to directory headers

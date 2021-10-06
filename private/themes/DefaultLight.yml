@@ -1,8 +1,7 @@
 
-# CyberFiles default light theme
-
-# The theme's display name
+# Theme metadata
 name: CyberFiles Light
+desc: CyberFiles default light theme
 
 bg: '#f3f3fc'
 bg2: "#dddde5"
@@ -15,6 +14,7 @@ fgTopbar: +fg
 fgTopbarH: +fg2
 topbarBorder: +bgTopbar
 topbarShadow: rgba(0, 0, 0, 0.4);
+directoryHeaderShadow: rgba(0, 0, 0, 0.15)
 scrollbarC: +accent
 bgPreview: +bg
 bgPreviewH: +bgTopbarButtonH

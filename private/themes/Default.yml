@@ -9,8 +9,9 @@
 # Once you have your file, any theme variables you set in there will override
 # the ones set here
 
-# The theme's display name
+# Theme metadata
 name: CyberFiles Dark
+desc: CyberFiles default dark theme
 
 bg: '#1E1E24'
 bg2: "#3f3f45"
@@ -64,6 +65,7 @@ bgDropdownC: +fg2
 bgDropdownSep: rgba(0, 0, 0, 0.15)
 fgDropdown: +bg
 fgDropdownD: +bg2
+fgDropdownHeader: +fgDropdownD
 bgToast: +bg2
 fgToast: +fg
 bgToastBorder: +accent

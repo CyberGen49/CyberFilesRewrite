@@ -19,6 +19,10 @@ Keep an eye on [the changelog](https://github.com/CyberGen49/CyberFilesRewrite/b
 * Hide files matching name patterns
 * Hide directories from their parent file lists
 
+## Getting updates
+For those here looking to update their CyberFiles installation:
+* Use the download link below
+
 ## Installation
 We can only guarantee everything will work as expected if you're using an Apache webserver. Your mileage may vary with other setups. The tutorials below assume that you're on a Debian-based Linux distribution and that you plan on using Apache.
 
@@ -30,11 +34,9 @@ mkdir /path/to/cyberfiles
 Remember this path, we'll use it again in a bit.
 
 ### Install CyberFiles
-* [Clone the latest zip file](https://github.com/CyberGen49/CyberFilesRewrite/archive/refs/heads/main.zip)
+* [Download the current archive](https://github.com/CyberGen49/CyberFilesRewrite/archive/refs/heads/main.zip)
 * Create a new folder named `_cyberfiles` in the root of your website (the folder we made earlier)
-* Extract the downloaded .zip file into the new folder
-
-Be sure to check back here from time to time to get updates.
+* Extract the downloaded .zip file into `_cyberfiles`
 
 ### Set up the webserver
 Install Apache, PHP, and the PHP YAML extension if you haven't already:
