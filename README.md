@@ -21,7 +21,13 @@ Keep an eye on [the changelog](https://github.com/CyberGen49/CyberFilesRewrite/b
 
 ## Getting updates
 For those here looking to update their CyberFiles installation:
-* Use the download link below
+* Download the current archive from the link below
+* Back up your `config.yml` file, as well as any stock themes and languages that you've modified
+* Unzip the newly downloaded .zip file to your existing `_cyberfiles` folder
+* Open your old and new config files side by side and move over your custom-set config options
+    * Do the same with any other files you backed up
+
+Alternatively, make your own themes, languages, and config file that won't be overwritten by updates. Create `configUser.yml` in the same directory as `config.yml` and copy over the config options you want to change.
 
 ## Installation
 We can only guarantee everything will work as expected if you're using an Apache webserver. Your mileage may vary with other setups. The tutorials below assume that you're on a Debian-based Linux distribution and that you plan on using Apache.
