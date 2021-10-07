@@ -2,6 +2,10 @@
 # CyberFiles language file
 # English
 
+# NOTE: This file will be overwritten when updating CyberFiles! To make your
+# own changes, create a new file named <language>.yml in the same directory as
+# this one, then copy the constants you want to change.
+
 # If you want to translate CyberFiles to your language, create a pull request
 # on the Github repo and make your changes.
 

@@ -5,7 +5,6 @@ I'll try my best to keep track of all changes to CyberFilesRewrite, big and smal
 ## 1.11.1 - October 6th, 2021
 * Updated documentation
 * Made PHP errors log to a separate log file `yyyy-mm-dd.errors.log`
-* Moved some files around
 
 ## 1.11.0 - October 5th, 2021
 * Added the current CyberFiles version to error popups

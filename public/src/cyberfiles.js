@@ -16,6 +16,7 @@
         window.vidProgConf = data.config.videoProgressSave;
         window.defaultSort = data.config.defaultSort;
         window.textPreviewMaxSize = data.config.textPreviewMaxSize;
+        window.cfVersion = data.version;
         console.log(`Loaded config, language, and theme constants from the server:`);
         console.log(data);
     }).catch(error => {
@@ -1125,11 +1126,11 @@ function popup_notImplemented() {
 }
 function popup_about() {
     showPopup("about", window.lang.popupAboutTitle, `
-        <p>${window.lang.popupAboutVersion.replace("%0", `<b>${window.conf.version}</b>`)}</p>
+        <p>${window.lang.popupAboutVersion.replace("%0", `<b>${window.cfVersion}</b>`)}</p>
         <p>${window.lang.popupAboutDesc}</p>
         <p>${window.lang.popupAboutDesc2}</p>
         <p><a href="https://github.com/CyberGen49/CyberFilesRewrite" target="_blank">${window.lang.popupAboutDescLink}</a></p>
-        <p><a href="/_cyberfiles/?f=Changelog.md">${window.lang.popupAboutChangelog}</a></p>
+        <p><a href="/_cyberfiles/docs/?f=Changelog.md">${window.lang.popupAboutChangelog}</a></p>
     `, [{
         'id': "close",
         'text': window.lang.popupClose
@@ -1748,7 +1749,7 @@ function hideTooltip() {
 
 // Check for tooltip data tags on elements and add their event listeners
 setInterval(() => {
-    const els = document.querySelectorAll('[data-tooltip]');
+    let els = document.querySelectorAll('[data-tooltip]');
     for (i = 0; i < els.length; i++) {
         let el = els[i];
         if (!el.hasAttribute("data-tooltip-listening")) {
@@ -1759,6 +1760,12 @@ setInterval(() => {
             //console.log(`Added tooltip to ${el.id}`);
         }
         el.ariaLabel = el.dataset.tooltip;
+    }
+    els = document.querySelectorAll('[title]');
+    for (i = 0; i < els.length; i++) {
+        let el = els[i];
+        el.dataset.tooltip = el.title;
+        el.removeAttribute("title");
     }
 }, 500);
 
@@ -1890,7 +1897,7 @@ if ($_GET("badShortLink") === '') {
 window.onerror = function (msg, url, lineNo, columnNo, error) {
     showPopup("fetchError", window.lang.popupErrorTitle, `
         <p>${window.lang.popupClientError}</p>
-        <pre><code>Error in CyberFiles ${window.conf.version}:\n${escapeHtml(error.stack)}</code></pre>
+        <pre><code>Error in CyberFiles ${window.cfVersion}:\n${escapeHtml(error.stack)}</code></pre>
         <p>
             ${window.lang.popupClientError2}
             <ul>

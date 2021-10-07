@@ -2,6 +2,10 @@
 # Configuration for CyberFiles
 # See https://github.com/CyberGen49/CyberFiles2#configuration for documentation
 
+# To ensure your settings aren't wiped when updating, create a file named
+# 'configUser.yml' in the same folder as this one. In that file, paste the
+# options from here that you want to change.
+
 # General settings
 language: en
 siteName: ''
@@ -18,11 +22,12 @@ hideDirWhenContains:
 headerFileNameMarkdown: _cf_header.md
 headerFileNameHtml: _cf_header.html
 hideContentsFile: _cf_hideContents
-sortFileName: _cf_sortName
-sortFileDate: _cf_sortDate
-sortFileExt: _cf_sortType
-sortFileSize: _cf_sortSize
-sortFileDesc: _cf_sortDesc
+sortTriggers:
+  name: _cf_sortName
+  date: _cf_sortDate
+  ext: _cf_sortType
+  size: _cf_sortSize
+  desc: _cf_sortDesc
 defaultSort:
   type: name
   desc: false
@@ -46,6 +51,3 @@ logUserIpHeader: REMOTE_ADDR
 
 # Colour settings
 theme: Default
-
-# Other things
-version: v1.11.0

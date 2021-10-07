@@ -3,6 +3,9 @@
 // CyberFiles PHP functions
 // See the APICall class at the bottom for the CyberFiles API
 
+// CyberFiles version
+$version = 'v1.11.1';
+
 // Get relative and absolute directory paths
 $dirRel = clean_path(rawurldecode(explode("?", $_SERVER['REQUEST_URI'])[0]));
 $dir = clean_path(document_root.$dirRel);
@@ -202,12 +205,15 @@ function unique_string(int $length = 8):string {
 }
 
 date_default_timezone_set($conf['logTimezone']);
-function writeLog(string $type, string $message) {
+function writeLog(string $type, string $message, bool $error = false) {
     $logDir = document_root."/_cyberfiles/private/logs";
     if (!file_exists($logDir)) mkdir($logDir);
     $date = new DateTime();
     $formattedDate = $date->format("o-m-d H:i:s");
-    $fileName = $date->format("o-m-d").".log";
+    if ($error)
+        $fileName = $date->format("o-m-d").".errors.log";
+    else
+        $fileName = $date->format("o-m-d").".log";
     file_put_contents("$logDir/$fileName", "[$formattedDate] [$type] $message\n", FILE_APPEND);
 }
 
@@ -355,15 +361,15 @@ class ApiCall {
                 $data['sort']['desc'] = false;
                 $data['sort']['type'] = $conf['defaultSort']['type'];
                 $data['sort']['desc'] = $conf['defaultSort']['desc'];
-                if (file_exists("$dir/{$conf['sortFileName']}"))
+                if (file_exists("$dir/{$conf['sortTriggers']['name']}"))
                     $data['sort']['type'] = "name";
-                else if (file_exists("$dir/{$conf['sortFileDate']}"))
+                else if (file_exists("$dir/{$conf['sortTriggers']['date']}"))
                     $data['sort']['type'] = "date";
-                else if (file_exists("$dir/{$conf['sortFileSize']}"))
+                else if (file_exists("$dir/{$conf['sortTriggers']['size']}"))
                     $data['sort']['type'] = "size";
-                else if (file_exists("$dir/{$conf['sortFileExt']}"))
+                else if (file_exists("$dir/{$conf['sortTriggers']['ext']}"))
                     $data['sort']['type'] = "ext";
-                if (file_exists("$dir/{$conf['sortFileDesc']}"))
+                if (file_exists("$dir/{$conf['sortTriggers']['desc']}"))
                     $data['sort']['desc'] = true;
                 // Check sort parameters
                 if (isset($params['sort']) and preg_match("/^(name|date|size|ext)$/", $params['sort']))
@@ -428,6 +434,7 @@ class ApiCall {
                 $data['files'] = array_merge($folders, $files);
                 $data['status'] = "GOOD";
             } else if ($params['get'] == "config") {
+                $data['version'] = $GLOBALS['version'];
                 $data['config'] = $GLOBALS['conf'];
                 $data['lang'] = $GLOBALS['lang'];
                 $data['theme'] = $GLOBALS['theme'];
