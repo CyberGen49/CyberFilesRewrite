@@ -1,7 +1,11 @@
 
 /* 
-    CyberFiles CSS
-    This is what makes everything look good!
+CyberFiles CSS
+This is what makes everything look good!
+
+cyberfiles.css.php handles parsing theme constants, so they can be referenced just
+like CSS custom properties in this file. For example, var(--bgTopbar) references
+the 'bgTopbar' theme constant.
 */
 
 /* Import fonts */
@@ -261,7 +265,7 @@ br {
 .breadcrumbName {
     border: none;
     background: none;
-    padding: 5px 8px 3px 8px;
+    padding: 5px 8px 4px 8px;
     font-family: "Montserrat", sans-serif;
     font-size: 18px;
     font-weight: bold;
@@ -714,7 +718,7 @@ br {
     font-weight: bold;
     font-size: 15px;
     color: var(--fgPopupButton);
-    background: none;
+    background: var(--bgPopupButton);
     border: none;
     border-radius: 6px;
     cursor: default;

@@ -16,17 +16,26 @@ dropdownAbout: "About CyberFiles"
 dropdownDisabled: "This option isn't available right now."
 dropdownFileDownload: "Download (%0)"
 dropdownFileInfo: "File info..."
+dropdownHeaderDirectory: This directory
+dropdownHeaderFile: This file
+dropdownHeaderLang: Language
+dropdownHeaderRecents: Recent files
+dropdownHeaderShare: Share
+dropdownHeaderSort: Sort file list
+dropdownHeaderSubmenus: Data and settings
+dropdownHeaderTheme: Theme
 dropdownLang: Language...
+dropdownLangDefault: Use server default
 dropdownRandomFile: "Preview a random file"
 dropdownRecents: "Recents..."
 dropdownRecentsClearHistory: "Clear history..."
-dropdownRecentsViewFull: "View full history..."
 dropdownRecentsTooltipLocation: "Location: %0"
+dropdownRecentsViewFull: "View full history..."
 dropdownRefreshList: "Refresh files"
 dropdownRefreshPage: "Refresh page"
 dropdownShareDirectory: "Copy directory URL"
 dropdownShareDirectoryShort: "Copy short directory URL"
-dropdownShareFile: "Copy file URL"
+dropdownShareFile: "Copy raw file URL"
 dropdownShareFilePreview: "Copy preview URL"
 dropdownShareFilePreviewShort: "Copy short preview URL"
 dropdownSortList: "Sort files..."
@@ -41,28 +50,19 @@ dropdownSortListType: Extension A-Z
 dropdownSortListTypeDesc: Extension Z-A
 dropdownTheme: Theme...
 dropdownThemeDefault: Use server default
-dropdownLangDefault: Use server default
-dropdownHeaderShare: Share
-dropdownHeaderDirectory: This directory
-dropdownHeaderFile: This file
-dropdownHeaderSubmenus: Data and settings
-dropdownHeaderTheme: Themes
-dropdownHeaderLang: Language
-dropdownHeaderSort: Sort file list
-dropdownHeaderRecents: Recent files
 toastCopyDirectoryLink: Copied directory URL to clipboard.
 toastCopyDirectoryLinkShort: Copied short directory URL to clipboard.
+toastCopyFileLink: Copied direct file URL to clipboard.
 toastCopyFilePreviewLink: Copied file preview URL to clipboard.
 toastCopyFilePreviewLinkShort: Copied short file preview URL to clipboard.
-toastCopyFileLink: Copied direct file URL to clipboard.
 toastFileDownload: Downloading file...
 toastVideoResumed: Resumed video at %0
-tooltipTopbarUpRoot: This is the root directory.
-tooltipTopbarTitle: Go home
 tooltipBreadcrumb: Move into %0
-tooltipBreadcrumbCurrent: "You're already in this directory"
+tooltipBreadcrumbCurrent: "You're already in this folder."
 tooltipMenu: Menu
 tooltipPreviewClose: Close preview
+tooltipTopbarTitle: Go home
+tooltipTopbarUpRoot: This is the root directory.
 fileDetailsDate: Last modified
 fileDetailsName: Name
 fileDetailsSize: File size
@@ -74,9 +74,9 @@ fileListDetails2: "Total size: %0"
 fileListDetailsFilterMulti: "Filtered %0 files"
 fileListDetailsFilterNone: "No files match your filter"
 fileListDetailsFilterSingle: "Filtered 1 file"
-fileListError: An error occurred.
 fileListEmpty: There's nothing here.
 fileListEntryUp: "Up to %0"
+fileListError: An error occurred.
 fileListFilter: Filter files in this folder...
 fileListFilterClear: Clear filter
 fileListFilterDisabled: Filtering is unavailable right now
@@ -85,13 +85,13 @@ fileListHidden: This folder's contents have been hidden.
 fileListMobileLine2: "%0 • %1"
 fileListRootName: "Home"
 previewTitlebar2: "%0 • %1"
-previewTitle: "This file can't be previewed!"
 previewDesc: "You'll have to download it to view its contents."
 previewDownload: "Download file (%0)"
 previewFirstFile: "This is the first file."
 previewLastFile: "This is the last file."
 previewNext: "Next file:"
 previewPrev: "Previous file:"
+previewTitle: "This file can't be previewed!"
 popupAboutVersion: "Version: %0"
 popupAboutChangelog: "Local Changelog"
 popupAboutDesc2: "Built with love by CyberGen49"

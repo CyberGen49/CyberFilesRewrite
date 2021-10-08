@@ -9,7 +9,8 @@
 # General settings
 language: en
 siteName: ''
-siteDesc: Browse and preview server files with ease.
+siteDesc: "Browse and preview server files with ease."
+theme: Default
 hiddenFiles:
   - '*.php'
   - 'index.html'
@@ -40,14 +41,11 @@ audioAutoplay: true
 videoProgressSave:
   enable: true
   minDuration: 600 # 10 minutes
-  minPercent: 10
-  maxPercent: 90
+  minTime: 150 # 2m 30s
+  maxTime: 150 # 2m 30s
   expire: 168 # 7 days
   prompt: true
 textPreviewMaxSize: 1000000
 shortLinkSlugLength: 8
 logTimezone: America/Chicago
 logUserIpHeader: REMOTE_ADDR
-
-# Colour settings
-theme: Default

@@ -2,6 +2,9 @@
 # CyberFilesRewrite Changelog
 I'll try my best to keep track of all changes to CyberFilesRewrite, big and small, right here in this changelog. I do most of my web development late at night, so the dates here tend to extend into the following day.
 
+## 1.11.2 - October 7th, 2021
+* Replaced the video progress `minPercent` and `maxPercent` config options with `minTime` and `maxTime`, which specify a fixed amount of time before and after which progress shouldn't be saved
+
 ## 1.11.1 - October 6th, 2021
 * Updated documentation
 * Made PHP errors log to a separate log file `yyyy-mm-dd.errors.log`

@@ -13,6 +13,7 @@
 name: CyberFiles Dark
 desc: CyberFiles default dark theme
 
+invis: rgba(0, 0, 0, 0)
 bg: '#1E1E24'
 bg2: "#3f3f45"
 fg: '#f3f3fc'
@@ -55,6 +56,7 @@ fgFilterBarClearH: +fg
 fgFilterBarClearC: +accent
 bgPopup: +bg
 fgPopup: +fg
+bgPopupButton: +invis
 fgPopupButton: +accent
 bgPopupButtonH: rgba(163, 231, 252, 0.3)
 bgPopupButtonC: rgba(163, 231, 252, 0.5)

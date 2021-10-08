@@ -842,10 +842,9 @@ function showFilePreview(id = null) {
                         // If this video has saved progress, and if it hasn't expired, and if it's later than the minimum, and if its earlier than the maximum
                         if (typeof vidProg.entries[vid.src] !== 'undefined'
                           && Date.now()-vidProg.entries[vid.src].updated < (window.vidProgConf.expire*60*60*1000)
-                          && vidProg.entries[vid.src].progress > Math.floor(vid.duration*(window.vidProgConf.minPercent/100))
-                          && vidProg.entries[vid.src].progress < Math.floor(vid.duration*(window.vidProgConf.maxPercent/100))) {
-                              console.log(vidProg.entries[vid.src].progress);
-                              console.log(vid.duration*(window.vidProgConf.maxPercent/100));
+                          && vidProg.entries[vid.src].progress > window.vidProgConf.minTime
+                          && vidProg.entries[vid.src].progress < (vid.duration-window.vidProgConf.maxTime)) {
+                            console.log(vidProg.entries[vid.src].progress);
                             // If the user should be prompted to resume
                             if (window.vidProgConf.prompt) {
                                 // Pause the video
@@ -882,8 +881,8 @@ function showFilePreview(id = null) {
                 // If the last saved progress doesn't match the current progress, and saving is enabled, and if the current progress is later than the minimum, and if its earlier than the maximum
                 if (Math.floor(vid.currentTime) != Math.floor(window.vidProgLastSave)
                   && window.vidProgCanSave
-                  && vid.currentTime > (vid.duration*(window.vidProgConf.minPercent/100))
-                  && vid.currentTime < (vid.duration*(window.vidProgConf.maxPercent/100))) {
+                  && vid.currentTime > window.vidProgConf.minTime
+                  && vid.currentTime < (vid.duration-window.vidProgConf.maxTime)) {
                     // Save the new progress
                     window.vidProgLastSave = Math.floor(vid.currentTime);
                     vidProg.entries[vid.src] = {
@@ -1892,12 +1891,18 @@ if ($_GET("badShortLink") === '') {
     }]);
 }
 
-// Do this stuff any time an error is thrown and not caught by a try-catch
-// We're defining the error handler before anything else since an error in the global scope kills everything below it
+// Do this stuff any time an uncaught error occurs
 window.onerror = function (msg, url, lineNo, columnNo, error) {
+    if (msg.match(/ResizeObserver/gi)) {
+        console.log(`Error ignored: ${msg}`);
+        return false;
+    }
+    let message = `${msg} (${url}:${lineNo}:${columnNo})`;
+    try { message = error.stack; }
+    catch (error) { console.log("Error stack is unavailable."); }
     showPopup("fetchError", window.lang.popupErrorTitle, `
         <p>${window.lang.popupClientError}</p>
-        <pre><code>Error in CyberFiles ${window.cfVersion}:\n${escapeHtml(error.stack)}</code></pre>
+        <pre><code>Error in CyberFiles ${window.cfVersion}:\n${escapeHtml(message)}</code></pre>
         <p>
             ${window.lang.popupClientError2}
             <ul>

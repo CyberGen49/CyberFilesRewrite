@@ -187,10 +187,10 @@ Whether or not audio file previews should autoplay when opened.
 #### `videoProgressSave`
 Options for video progress saving. When enabled, users will be given the option to pick up where they left off previewing a video file. This data, like history, is stored on the user's computer only.
 * `enable`: If `true`, video progress saving is enabled
-* `minDuration`: The minimum duration, in seconds, a video needs to be for progress to be saved
-* `minPercent`: Video progress will only be saved once the user is this far into a video, as a percentage. For example, when set to 10, progress will start saving 2 minutes into a 20 minute video.
-* `maxPercent`: Video progress will stop saving after the user is this far into a video. Functions the same as `minPercent`.
-* `expire`: The time, in hours, after which a video's saved progress can't be resumed anymore. 
+* `minDuration`: A video needs to be at least this many seconds long to have its progress saved
+* `minTime`: The number of seconds into a video that progress saving should start
+* `maxTime`: The number of seconds before the end of a video that progress saving should stop
+* `expire`: The number of hours after which a video's saved progress can't be resumed anymore
 * `prompt`: If `true`, the user will be given the option to resume or not. If `false`, the video will be resumed automatically, and the user will see a toast notification about it.
 
 #### `textPreviewMaxSize`
