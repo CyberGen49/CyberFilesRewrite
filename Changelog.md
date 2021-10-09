@@ -2,6 +2,12 @@
 # CyberFilesRewrite Changelog
 I'll try my best to keep track of all changes to CyberFilesRewrite, big and small, right here in this changelog. I do most of my web development late at night, so the dates here tend to extend into the following day.
 
+## 1.11.3 - October 8th, 2021
+* Added a folder info popup
+* Slightly changed the shadow of popups
+* Updated the format of paths shown in the tooltips of recent file entries
+* Fixed a bug where scrolling dropdowns (those that are taller than the window height) wouldn't become scrollable sometimes
+
 ## 1.11.2 - October 7th, 2021
 * Replaced the video progress `minPercent` and `maxPercent` config options with `minTime` and `maxTime`, which specify a fixed amount of time before and after which progress shouldn't be saved
 

@@ -33,7 +33,7 @@ defaultSort:
   type: name
   desc: false
 dateFormatShort: '%b %d, %Y'
-dateFormatFull: '%m/%d/%Y %I:%+M %p'
+dateFormatFull: '%Y/%m/%d %I:%+M %p'
 upButtonInFileList: true
 mobileFileListBorders: false
 videoAutoplay: true

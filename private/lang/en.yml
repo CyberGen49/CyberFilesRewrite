@@ -16,7 +16,8 @@ dropdownAbout: "About CyberFiles"
 dropdownDisabled: "This option isn't available right now."
 dropdownFileDownload: "Download (%0)"
 dropdownFileInfo: "File info..."
-dropdownHeaderDirectory: This directory
+dropdownFolderInfo: "Folder info..."
+dropdownHeaderDirectory: This folder
 dropdownHeaderFile: This file
 dropdownHeaderLang: Language
 dropdownHeaderRecents: Recent files
@@ -29,7 +30,7 @@ dropdownLangDefault: Use server default
 dropdownRandomFile: "Preview a random file"
 dropdownRecents: "Recents..."
 dropdownRecentsClearHistory: "Clear history..."
-dropdownRecentsTooltipLocation: "Location: %0"
+dropdownRecentsTooltipLocation: "%0"
 dropdownRecentsViewFull: "View full history..."
 dropdownRefreshList: "Refresh files"
 dropdownRefreshPage: "Refresh page"
@@ -67,6 +68,14 @@ fileDetailsDate: Last modified
 fileDetailsName: Name
 fileDetailsSize: File size
 fileDetailsType: File type
+folderDetailsName: Name
+folderDetailsTotalSize: Total size
+folderDetailsContents: Contents
+folderDetailsContentsEmpty: None
+folderDetailsContentItem: "%0 %1 file"
+folderDetailsContentItemMulti: "%0 %1 files"
+folderDetailsContentItemFolder: "%0 folder"
+folderDetailsContentItemFolderMulti: "%0 folders"
 fileListColumnGeneric: "File list"
 fileListDetails1Multi: "%0 files in %1"
 fileListDetails1Single: "1 file in %0"
@@ -107,6 +116,7 @@ popupClientError2c: "Clear your site data and cache"
 popupClientError3: "If the issue still persists, try to identify the cause, then %0. Be sure to include the whole error message in the box above."
 popupClientError3Lnk: "submit an issue"
 popupFileInfoTitle: File info
+popupFolderInfoTitle: Folder info
 popupFileNotFound: "We couldn't find the file you requested. It was probably moved or deleted."
 popupFileNotFound2: "The directory it was in still exists, so take a look around to see if it's listed under a different name."
 popupNoJsDesc: "Seems like you have Javascript disabled! The core functionality of CyberFiles requires Javascript, so you'll need to enable it to continue. See the Help link below if you're having trouble."
@@ -235,7 +245,7 @@ fileTypes:
   ASF: Advanced Systems Format File
   ASP: Active Server Page
   ASPX: Active Server Page Extended File
-  AVI: Audio Video Interleave File
+  AVI: AVI Video File
   B: Grand Theft Auto 3 Saved Game File
   BAK: Backup File
   BAT: Windows Batch File
@@ -267,7 +277,7 @@ fileTypes:
   DDS: DirectDraw Surface Image
   DEB: Debian Software Package
   DEM: Video Game Demo File
-  DESKTHEMEPACK: Windows 8 Desktop Theme Pack File
+  DESKTHEMEPACK: Windows Desktop Theme Pack File
   DLL: Dynamic Link Library
   DMG: Apple Disk Image
   DMP: Windows Memory Dump
@@ -317,7 +327,7 @@ fileTypes:
   LUA: Lua Source File
   M: Objective-C Implementation File
   M3U: Media Playlist File
-  M4A: MPEG-4 Audio File
+  M4A: M4A Audio File
   M4V: iTunes Video File
   MARKDOWN: Markdown Document
   MAX: 3ds Max Scene File
@@ -328,8 +338,8 @@ fileTypes:
   MIM: Multi-Purpose Internet Mail Message File
   MOV: Apple QuickTime Movie
   MP3: MP3 Audio File
-  MP4: MPEG-4 Video File
-  MPA: MPEG-2 Audio File
+  MP4: MP4 Video File
+  MPA: MPA Audio File
   MPG: MPEG Video File
   MSG: Outlook Mail Message
   MSI: Windows Installer Package
@@ -339,7 +349,7 @@ fileTypes:
   OGG: Ogg Vorbis Audio File
   OSK: osu! Skin
   OSR: osu! Replay
-  OSZ: osu! Beatmap Set
+  OSZ: osu! Beatmap
   OTF: OpenType Font
   PAGES: Apple Pages Document
   PART: Partially Downloaded File
@@ -384,6 +394,7 @@ fileTypes:
   TIF: Tagged Image File
   TIFF: Tagged Image File Format
   TMP: Temporary File
+  TEMP: Temporary File
   TOAST: Toast Disc Image
   TORRENT: BitTorrent File
   TTF: TrueType Font

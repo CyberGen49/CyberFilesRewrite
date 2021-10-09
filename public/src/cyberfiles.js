@@ -1098,11 +1098,58 @@ function popup_fileInfo(id) {
         'id': "close",
         'text': window.lang.popupClose
     }], true);
-    /* {
-        'id': "dl",
-        'text': "Download",
-        'action': function() { downloadFile(encodeURIComponent(data.name)) }
-    } */
+}
+function popup_folderInfo() {
+    let data = window.fileObjects;
+    let folderName = currentDir().split('/');
+    folderName = decodeURIComponent(folderName[folderName.length-1]);
+    let totalSize = 0;
+    let contents = `<div class="col">${window.lang.folderDetailsContentsEmpty}</div>`;
+    let contentsArr = {};
+    if (data.length > 0) contents = "";
+    data.forEach(f => {
+        let ext = f.ext;
+        if (f.mimeType == "directory")
+            ext = window.lang.fileTypeDirectory;
+        else if (typeof ext == 'undefined')
+            ext = window.lang.fileTypeDefault;
+        else
+            totalSize += f.size;
+        if (!contentsArr[ext]) contentsArr[ext] = 0;
+        contentsArr[ext]++;
+    });
+    Object.keys(contentsArr).forEach(k => {
+        let multi = 'Multi';
+        if (contentsArr[k] == 1) multi = '';
+        let content = '';
+        if (k == window.lang.fileTypeDirectory) {
+            content = `${window.lang[`folderDetailsContentItemFolder${multi}`]
+                .replace("%0", `<b>${contentsArr[k]}</b>`)
+            }`;
+        } else {
+            content = `${window.lang[`folderDetailsContentItem${multi}`]
+                .replace("%0", `<b>${contentsArr[k]}</b>`)
+                .replace("%1", k)
+            }`;
+        }
+        contents += `<div class="col-auto" style="padding-right: 15px;">${content}</div>`;
+    });
+    showPopup("fileInfo", window.lang.popupFolderInfoTitle, `
+        <p>
+            <b>${window.lang.folderDetailsName}</b><br>
+            ${folderName}
+        </p><p>
+            <b>${window.lang.folderDetailsTotalSize}</b><br>
+            ${formattedSize(totalSize)}
+        </p>
+        <div class="row no-gutters">
+            <div class="col-12"><b>${window.lang.folderDetailsContents}</b></div>
+            ${contents}
+        </div>
+    `, [{
+        'id': "close",
+        'text': window.lang.popupClose
+    }], true);
 }
 function popup_clearHistory() {
     showPopup("clearHistory", window.lang.popupClearHistoryTitle, `<p>${window.lang.popupClearHistoryDesc}</p><p>${window.lang.popupClearHistoryDesc2}</p>`, [{
@@ -1140,6 +1187,7 @@ function popup_about() {
 timeoutShowDropdown = [];
 timeoutHideDropdown = [];
 function showDropdown(id, data, anchorId) {
+    // Create the dropdown element
     if (!_(`dropdown-${id}`)) {
         _("body").insertAdjacentHTML('beforeend', `
             <div id="dropdownArea-${id}" class="dropdownHitArea" style="display: none;"></div>
@@ -1147,15 +1195,18 @@ function showDropdown(id, data, anchorId) {
         `);
         _(`dropdownArea-${id}`).addEventListener("click", function() { hideDropdown(id) });
     }
+    // Set initial element properties
     _(`dropdownArea-${id}`).style.display = "none";
     _(`dropdown-${id}`).classList.remove("ease-in-out-100ms");
     _(`dropdown-${id}`).style.display = "none";
     _(`dropdown-${id}`).style.opacity = 0;
     _(`dropdown-${id}`).style.marginTop = "5px";
+    _(`dropdown-${id}`).style.height = "";
     _(`dropdown-${id}`).style.top = "";
     _(`dropdown-${id}`).style.left = "";
     _(`dropdown-${id}`).style.right = "";
     _(`dropdown-${id}`).innerHTML = "";
+    // Add items to the dropdown
     data.forEach(item => {
         switch (item.type) {
             case 'header':
@@ -1187,6 +1238,7 @@ function showDropdown(id, data, anchorId) {
                 break;
         }
     });
+    // Show the dropdown
     console.log(`Showing dropdown "${id}"`);
     _(`dropdownArea-${id}`).style.display = "block";
     _(`dropdown-${id}`).style.display = "block";
@@ -1204,6 +1256,7 @@ function showDropdown(id, data, anchorId) {
         // Check for height and scrolling
         let elY = _getY(`dropdown-${id}`);
         let elH = _getH(`dropdown-${id}`);
+        console.log(`${elY} - ${elH} - ${windowH}`);
         if ((elY+elH) > windowH-20) {
             _(`dropdown-${id}`).style.height = `calc(100% - ${elY}px - 20px)`;
         } else {
@@ -1358,6 +1411,18 @@ function showDropdown_recents() {
         if (f.dir == "/") return `/?f=${encodeURIComponent(f.name)}`;
         return `${f.dir}/?f=${encodeURIComponent(f.name)}`;
     }
+    const getDir = function(f) {
+        let arr = [];
+        let tmp = f.dir.split('/');
+        let final = '';
+        tmp.unshift(window.lang.fileListRootName);
+        tmp.forEach(n => {
+            if (n != '') arr.push(decodeURIComponent(n));
+        });
+        if (f.type == 'directory') arr.pop();
+        final = arr.join(' > ');
+        return final;
+    }
     let uniqueEntries = [];
     let entries = locStoreArrayGet("history").entries;
     entries.reverse();
@@ -1368,18 +1433,23 @@ function showDropdown_recents() {
         if (uniqueEntries.length-2 <= 50) {
             let url = getUrl(f);
             if (!uniqueEntries.includes(url)) {
+                let dir = getDir(f);
                 let icon = "insert_drive_file";
+                let tooltipLocation = '';
                 if (f.type == "directory") icon = "folder";
                 if (f.name == "") {
                     f.name = window.lang.fileListRootName;
                     icon = "home";
-                } else icon = getFileTypeIcon(f.type);
+                } else {
+                    icon = getFileTypeIcon(f.type);
+                    tooltipLocation = `<br>${window.lang.dropdownRecentsTooltipLocation.replace("%0", dir)}`;
+                }
                 data.push({
                     'type': 'item',
                     'id': i,
                     'text': f.name,
                     'icon': icon,
-                    'tooltip': `<b>${f.name}</b><br>${window.lang.dropdownRecentsTooltipLocation.replace("%0", decodeURIComponent(f.dir))}`,
+                    'tooltip': `<b>${f.name}</b>${tooltipLocation}`,
                     'action': function() {
                         hideFilePreview();
                         historyPushState('', url);
@@ -1399,7 +1469,10 @@ function showDropdown_recents() {
         'icon': 'delete',
         'action': function() { popup_clearHistory() }
     });
-    showDropdown("recents", data, "topbarButtonMenu");
+    // Make sure we're finished with the rest of the function before showing the menu
+    setTimeout(() => {
+        showDropdown("recents", data, "topbarButtonMenu");
+    }, 5);
 }
 function showDropdown_themes() {
     data = [];
@@ -1539,6 +1612,14 @@ _("topbarButtonMenu").addEventListener("click", function() {
     data.push({
         'disabled': !window.fileListLoaded,
         'type': 'item',
+        'id': 'folderInfo',
+        'text': window.lang.dropdownFolderInfo,
+        'icon': 'topic',
+        'action': function() { popup_folderInfo() }
+    });
+    data.push({
+        'disabled': !window.fileListLoaded,
+        'type': 'item',
         'id': 'sort',
         'text': window.lang.dropdownSortList,
         'icon': 'sort',
@@ -1568,6 +1649,7 @@ _("topbarButtonMenu").addEventListener("click", function() {
         'text': window.lang.dropdownHeaderShare
     });
     data.push({
+        'disabled': !window.fileListLoaded,
         'type': 'item',
         'id': 'share',
         'text': window.lang.dropdownShareDirectory,

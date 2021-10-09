@@ -681,7 +681,7 @@ br {
     padding: 15px 20px;
     background: var(--bgPopup);
     border-radius: 12px;
-    box-shadow: 0px 4px 20px 8px var(--popupShadow);
+    box-shadow: 0px 5px 20px 5px var(--popupShadow);
     overflow-y: scroll;
     scrollbar-width: none;
 }
