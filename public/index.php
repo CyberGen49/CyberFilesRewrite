@@ -211,5 +211,7 @@ while (isset($_GET['f'])) {
         <script src="/_cyberfiles/public/src/cyberfiles.js?t=<?= filemtime(document_root."/_cyberfiles/public/src/cyberfiles.js") ?>"></script>
         <!-- Marked -->
         <script src="/_cyberfiles/public/src/marked.min.js"></script>
+        <!-- Lodash -->
+        <script src="/_cyberfiles/public/src/lodash.js"></script>
     </body>
 </html>

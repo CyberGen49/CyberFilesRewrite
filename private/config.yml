@@ -34,7 +34,7 @@ defaultSort:
   desc: false
 dateFormatShort: '%b %d, %Y'
 dateFormatFull: '%Y/%m/%d %I:%+M %p'
-upButtonInFileList: true
+upButtonInFileList: false
 mobileFileListBorders: false
 videoAutoplay: true
 audioAutoplay: true
@@ -45,7 +45,10 @@ videoProgressSave:
   maxTime: 150 # 2m 30s
   expire: 168 # 7 days
   prompt: true
+generateThumbs: true
+thumbnailSize: 196
 textPreviewMaxSize: 1000000
 shortLinkSlugLength: 8
+chunkInterval: 5
 logTimezone: America/Chicago
 logUserIpHeader: REMOTE_ADDR

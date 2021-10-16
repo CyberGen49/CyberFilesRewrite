@@ -4,7 +4,7 @@
 // See the APICall class at the bottom for the CyberFiles API
 
 // CyberFiles version
-$version = 'v1.11.3';
+$version = 'v1.12.0';
 
 // Get relative and absolute directory paths
 $dirRel = clean_path(rawurldecode(explode("?", $_SERVER['REQUEST_URI'])[0]));
@@ -227,7 +227,8 @@ function errorHandler(int $errno, string $errstr, string $errfile = null, int $e
             "%0", $errstr, str_replace(
             "%1", $errfile, str_replace(
             "%2", $errline, $lang['loggerPhpError']
-        )))
+        ))),
+        true
     );
     return null;
 }
@@ -293,6 +294,7 @@ class ApiCall {
     }
     // Pieces the call together and returns it to the client
     function start() {
+        // Process request
         $params = $this->params;
         $conf = $this->conf;
         $data = &$this->data;
@@ -319,9 +321,9 @@ class ApiCall {
                 natsort($scandir);
                 // Check for header files
                 if (file_exists("$dir/{$conf['headerFileNameMarkdown']}"))
-                    $data['headerMarkdown'] = file_get_contents("$dir/{$conf['headerFileNameMarkdown']}");
+                    $data['headerMarkdown'] = base64_encode(file_get_contents("$dir/{$conf['headerFileNameMarkdown']}"));
                 if (file_exists("$dir/{$conf['headerFileNameHtml']}"))
-                    $data['headerHtml'] = file_get_contents("$dir/{$conf['headerFileNameHtml']}");
+                    $data['headerHtml'] = base64_encode(file_get_contents("$dir/{$conf['headerFileNameHtml']}"));
                 // Check if contents are hidden
                 $data['files'] = [];
                 if (file_exists("$dir/{$conf['hideContentsFile']}")) {
@@ -329,11 +331,22 @@ class ApiCall {
                     break;
                 }
                 // Loop through files and add
-                $files = [];
-                $folders = [];
-                foreach ($scandir as $file) {
+                $chunkingStart = time();
+                $data['chunking']['totalFiles'] = count($scandir);
+                $data['chunking']['offset'] = 0;
+                $data['chunking']['complete'] = true;
+                $offset = 0;
+                if (isset($params['offset'])) $offset = $params['offset'];
+                for ($i = $offset; $i < count($scandir); $i++) {
+                    $file = $scandir[$i];
                     if ($file == ".") continue;
                     if ($file == "..") continue;
+                    // Check for chunking
+                    $data['chunking']['offset'] = $i;
+                    if (time() > ($chunkingStart+$GLOBALS['conf']['chunkInterval'])) {
+                        $data['chunking']['complete'] = false;
+                        break;
+                    }
                     // Skip files that match hidden filters
                     foreach ($conf['hiddenFiles'] as $s) {
                         if (fnmatch($s, $file)) continue 2;
@@ -352,9 +365,16 @@ class ApiCall {
                         $fileObject['shortSlug'] = $this->getShortSlug("$dirRel/$file");
                     else
                         $fileObject['shortSlug'] = $this->getShortSlug("$dirRel/?f=$file");
-                    // Add to the appropriate array
-                    if (is_dir($f)) $folders[] = $fileObject;
-                    else $files[] = $fileObject;
+                    // Add the file object
+                    $data['files'][] = $fileObject;
+                    // Output something to the client
+                    print(" ");
+                    flush();
+                    // Abort the script if the user has disconnected
+                    if(connection_status() != CONNECTION_NORMAL) {
+                        writeLog($GLOBALS['lang']['loggerTypeAccess'], $GLOBALS['lang']['loggerClientAbort']);
+                        exit;
+                    }
                 }
                 // Check for sort override files
                 $data['sort']['type'] = "name";
@@ -371,67 +391,7 @@ class ApiCall {
                     $data['sort']['type'] = "ext";
                 if (file_exists("$dir/{$conf['sortTriggers']['desc']}"))
                     $data['sort']['desc'] = true;
-                // Check sort parameters
-                if (isset($params['sort']) and preg_match("/^(name|date|size|ext)$/", $params['sort']))
-                    $data['sort']['type'] = $params['sort'];
-                if (isset($params['desc'])) {
-                    if ($params['desc'] == "true")
-                        $data['sort']['desc'] = true;
-                    else if ($params['desc'] == "false")
-                        $data['sort']['desc'] = false;
-                }
-                // Set sort functions
-                $funcSortDate = function($a, $b) {
-                    if ($a['modified'] < $b['modified']) return -1;
-                    if ($a['modified'] > $b['modified']) return 1;
-                    if ($a['modified'] == $b['modified']) return 0;
-                };
-                $funcSortSize = function($a, $b) {
-                    if ($a['size'] < $b['size']) return -1;
-                    if ($a['size'] > $b['size']) return 1;
-                    if ($a['size'] == $b['size']) return 0;
-                };
-                // Sort files
-                switch ($data['sort']['type']) {
-                    case "name": {
-                        // Nothing happens
-                        break;
-                    }
-                    case "date": {
-                        uasort($folders, $funcSortDate);
-                        uasort($files, $funcSortDate);
-                        break;
-                    }
-                    case "size": {
-                        // Folders stay as-is
-                        uasort($files, $funcSortSize);
-                        break;
-                    }
-                    case "ext": {
-                        // Separate files by extension
-                        $extFiles = [];
-                        foreach ($files as $f) {
-                            $ext = strtolower(pathinfo($f['name'])['extension']);
-                            $extFiles[$ext][] = $f;
-                        }
-                        // Sort extensions
-                        $exts = array_keys($extFiles);
-                        natsort($exts);
-                        // Rebuild files array by adding extension groups in order
-                        $files = [];
-                        foreach ($exts as $e) {
-                            $files = array_merge($files, $extFiles[$e]);
-                        }
-                        break;
-                    }
-                }
-                // Reverse if necessary
-                if ($data['sort']['desc']) {
-                    $folders = array_reverse($folders);
-                    $files = array_reverse($files);
-                }
                 // Merge the arrays and finish
-                $data['files'] = array_merge($folders, $files);
                 $data['status'] = "GOOD";
             } else if ($params['get'] == "config") {
                 $data['version'] = $GLOBALS['version'];
@@ -458,6 +418,7 @@ class ApiCall {
         if (isset($this->db)) $this->db->close();
         if (isset($this->dbLnks)) $this->dbLnks->close();
         // Set processing time
+        if (isset($params['sendTime'])) $data['sendTime'] = $params['sendTime'];
         $data['processingTime'] = abs(ceil(microtime(true)*1000)-$this->startTime);
         // Send the data
         print(json_encode($data));
@@ -470,6 +431,8 @@ class ApiCall {
         $file['path'] = $path;
         $file['name'] = pathinfo($path)['basename'];
         $file['modified'] = filemtime($path);
+        $file['ext'] = strtoupper(pathinfo($path)['extension']);
+        $file['thumbnail'] = null;
         $file['indexed'] = false;
         // If the database is open
         if (isset($this->db)) {
@@ -509,6 +472,37 @@ class ApiCall {
                 ));
             }
         }
+        // Create a thumbnail for the file if needed
+        if ((preg_match("/^image\/(.*)$/", $file['mimeType'])
+          or preg_match("/^video\/(.*)$/", $file['mimeType']))
+          and $GLOBALS['conf']['generateThumbs']) {
+            $thumbName = md5($file['path']).'.png';
+            $thumbsDir = document_root."/_cyberfiles/public/thumbs";
+            if (!file_exists($thumbsDir)) mkdir($thumbsDir);
+            // Check if the thumbnail file doesn't exist or if the file is being recached
+            if (!file_exists("$thumbsDir/$thumbName") or $reindex) {
+                // Create thumbnail
+                $thumbTime = (microtime(true)*1000);
+                $thumbPath = document_root.'/_cyberfiles/public/thumbs/'.$thumbName;
+                if (preg_match("/^image\/(.*)$/", $file['mimeType']))
+                    $cmd = 'convert -define png:size='.$GLOBALS['conf']['thumbnailSize'].'x'.$GLOBALS['conf']['thumbnailSize'].' "'.$file['path'].'"  -thumbnail 256x256^ -gravity center -extent 256x256  "'.$thumbPath.'"';
+                if (preg_match("/^video\/(.*)$/", $file['mimeType']))
+                    $cmd = 'ffmpeg -i "'.$file['path'].'" -ss 00:00:01.000 -vframes 1 "'.$thumbPath.'"; convert -define png:size='.$GLOBALS['conf']['thumbnailSize'].'x'.$GLOBALS['conf']['thumbnailSize'].' "'.$thumbPath.'"  -thumbnail 256x256^ -gravity center -extent 256x256  "'.$thumbPath.'"';
+                exec($cmd);
+                // Make sure the new thumb exists
+                if (file_exists("$thumbsDir/$thumbName")) {
+                    writeLog($GLOBALS['lang']['loggerTypeGeneric'], str_replace(
+                        "%0", number_format(ceil(microtime(true)*1000)-$thumbTime, 2), str_replace(
+                        "%1", $path, $GLOBALS['lang']['loggerThumbnailGenerated']
+                    )));
+                }
+            }
+            // Add thumbnail file name to object
+            if (file_exists("$thumbsDir/$thumbName")) {
+                $file['thumbnail'] = $thumbName;
+            }
+        }
+        // Finish
         unset($file['path']);
         return $file;
     }

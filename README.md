@@ -193,13 +193,33 @@ Options for video progress saving. When enabled, users will be given the option 
 * `expire`: The number of hours after which a video's saved progress can't be resumed anymore
 * `prompt`: If `true`, the user will be given the option to resume or not. If `false`, the video will be resumed automatically, and the user will see a toast notification about it.
 
+#### `generateThumbs`
+Type: `boolean`  
+Whether or not image and video thumbnails should be generated.
+
+`ImageMagick` needs to be installed to get image thumbnails. For video thumbnails, you'll need both `ImageMagick` and `FFMPEG` installed. Make sure these programs are in the path by confirming the `mogrify` and `ffmpeg` commands can be run in your terminal.
+
+When this is enabled, the initial loading of directories will be significantly slower, especially for videos.
+
+Thumbnails are stored in `/_cyberfiles/public/thumbs`. This folder can be deleted to clear the thumbnails.
+
+#### `thumbnailWidth`
+Type: `integer`  
+The width, in pixels, of image and video thumbnails, while maintaining aspect ratio. Higher values will make thumbnails look clearer on high resolution displays, but they'll take longer to load and take up more space on the server.
+
+You'll need to delete the `thumbs` folder (path above) to update the size of existing thumbnails.
+
 #### `textPreviewMaxSize`
-Type: `string`  
+Type: `integer`  
 The largest a text file can be to still have a file preview, in bytes.
 
 #### `shortLinkSlugLength`
-Type: `string`  
+Type: `integer`  
 The length of random strings generated for short links. These are hex strings, meaning the number of possible unique short links is 16 to the power of this length. The default 8 characters make for nearly 4.3 billion possible links.
+
+#### `chunkInterval`
+Type: `integer`  
+The number of seconds to process each file list chunk. After processing for longer than this time, the server will respond to the client so the client can request the next chunk. Larger values will decrease the number of times the client needs to make requests, but it means the user will see less frequent updates to the loading percentage.
 
 #### `logTimezone`
 Type: `string`  
@@ -244,6 +264,7 @@ The API will always respond with a JSON string that can then be parsed into an a
 ##### Parameters
 * `sort`: The column to sort files by, should be `name`, `date`, `ext`, or `size`, defaults to `name`
 * `desc`: If set to `true`, the sort order will be reversed
+* `offset`: The offset at which to continue scanning files - see `chunking.offset` below
 
 ##### Response
 * `files`: Contains 0 or more file objects
@@ -251,17 +272,23 @@ The API will always respond with a JSON string that can then be parsed into an a
         * `name`: The file name
         * `modified`: The file's modification date, as a Unix timestamp
         * `size`: The file's size, in bytes
+        * `ext`: The file's extension, or an empty string if the file has no extension
+        * `thumbnail`: The file's thumbnail file name, if applicable - see [`generateThumbs`](#generatethumbs)
         * `mimeType`: The file's [MIME Type](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types)
         * `indexed`: `true` if the file's details were loaded from cache, `false` if they needed to be updated
 * `sort`: Contains information about how the file list is sorted
     * `type`: `name`, `date`, or `size`
     * `desc`: `true` if the list is descending, `false` otherwise
-* `headerMarkdown`: If a header Markdown file exists in the directory, this will contain its contents  - see [`headerFileNameMarkdown`](#headerfilenamemarkdown)
+* `headerMarkdown`: If a header Markdown file exists in the directory, this will contain its contents - see [`headerFileNameMarkdown`](#headerfilenamemarkdown)
 * `headerHtml`: If a header HTML file exists in the directory, this will contain its contents - see [`headerFileNameHtml`](#headerfilenamehtml)
+* `chunking`: Contains information about chunked responses
+    * `complete`: If `true`, then the end of the file list has been reached
+    * `totalFiles`: The total number of files in the directory, including hidden ones
+    * `offset`: The file scanning offset at which the API stopped at. If `complete` is `false`, another request should be made with the inclusion of the `offset` parameter (listed above) to continue getting directory contents.
 
 All API responses include these values:
 * `status`: A **status code** - can be any of the following:
-    * `GOOD`: No errors were encountered
+    * `GOOD`: The request was successful
     * `CONTENTS_HIDDEN`: No errors were encountered, but the directory contents have been hidden from view
     * `DIRECTORY_NONEXISTENT`: The current directory doesn't exist on the server
     * `UNFINISHED`: The requested action isn't finished

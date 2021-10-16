@@ -14,7 +14,7 @@
         window.themes = data.themes;
         window.languages = data.languages;
         window.vidProgConf = data.config.videoProgressSave;
-        window.defaultSort = data.config.defaultSort;
+        //window.defaultSort = data.config.defaultSort;
         window.textPreviewMaxSize = data.config.textPreviewMaxSize;
         window.cfVersion = data.version;
         console.log(`Loaded config, language, and theme constants from the server:`);
@@ -114,7 +114,7 @@ function $_GET(name, url = window.location.href) {
 }
 
 // Shorthand function for document.getElementById()
-function _(id) {
+function _id(id) {
     return document.getElementById(id);
 }
 
@@ -141,13 +141,13 @@ function _getH(id) {
 // Function to start a direct file download
 function downloadFile(url, elThis) {
     let id = `fileDownload-${Date.now}`;
-    _("body").insertAdjacentHTML('beforeend', `
+    _id("body").insertAdjacentHTML('beforeend', `
         <a id="${id}" download></a>
     `);
-    _(id).href = url;
+    _id(id).href = url;
     console.log(`Starting direct download of "${url}"`);
-    _(id).click();
-    _(id).remove();
+    _id(id).click();
+    _id(id).remove();
     if (elThis) elThis.blur();
 }
 
@@ -377,7 +377,7 @@ function getFileTypeIcon(mimeType) {
 
 // Loads a file list with the API
 fileListLoaded = false;
-async function loadFileList(dir = "", entryId = null, forceReload = false) {
+function loadFileList(dir = "", entryId = null, forceReload = false) {
     // Set variables
     if (dir == "") dir = currentDir();
     const dirSplit = dir.split("/");
@@ -386,310 +386,388 @@ async function loadFileList(dir = "", entryId = null, forceReload = false) {
     // If the directory has changed since the last load
     if (dir != window.loadDir || forceReload) {
         // Prepare for loading
-        let loadStart = Date.now();
         window.fileListLoaded = false;
-        let showGenericErrors = true;
+        let loadStart = Date.now();
         let seamlessTimeout = setTimeout(() => {
-            _("fileListLoading").style.display = "";
+            _id("fileListLoading").style.display = "";
         }, 300);
         const cancelLoad = function() {
             // Hide spinner and update footer text
             clearTimeout(seamlessTimeout);
-            _("fileListLoading").style.display = "none";
-            _("fileListHint").innerHTML = window.lang.fileListError;
-            _("fileListHint").style.display = "";
-            _("fileListHint").style.opacity = 1;
+            _id("fileListLoading").style.display = "none";
+            _id("fileListHint").innerHTML = window.lang.fileListError;
+            _id("fileListHint").style.display = "";
+            _id("fileListHint").style.opacity = 1;
         }
-        _("fileList").style.display = "none";
-        _("fileList").style.opacity = 0;
-        _("fileListHint").style.display = "none";
-        _("fileListHint").style.opacity = 0;
-        _("directoryHeader").style.display = "none";
-        _("directoryHeader").style.opacity = 0;
-        _("fileListFilter").disabled = true;
-        _("fileListFilter").value = "";
-        _("fileListFilter").placeholder = window.lang.fileListFilterDisabled;
-        _("fileListFilterClear").style.display = "none";
+        _id("fileList").style.display = "none";
+        _id("fileList").style.opacity = 0;
+        _id("fileListHint").style.display = "none";
+        _id("fileListHint").style.opacity = 0;
+        _id("directoryHeader").style.display = "none";
+        _id("directoryHeader").style.opacity = 0;
+        _id("fileListFilter").disabled = true;
+        _id("fileListFilter").value = "";
+        _id("fileListFilter").placeholder = window.lang.fileListFilterDisabled;
+        _id("fileListFilterClear").style.display = "none";
         const sortIndicators = document.getElementsByClassName("fileListSortIndicator");
-        for (i = 0; i < sortIndicators.length; i++) sortIndicators[i].innerHTML = "";
-        // Get sort order
-        let sortType = defaultSort.type;
-        let sortDesc = defaultSort.desc.toString();
-        let customSort = dirSort[currentDir()];
-        let sortString = '';
-        if (typeof customSort !== 'undefined') {
-            sortType = customSort.type;
-            sortDesc = customSort.desc.toString();
-            console.log(`Using custom sort: ${sortType} ${sortDesc}`);
-            sortString = `&sort=${sortType}&desc=${sortDesc}`;
-        }
-        // Make the API call and handle errors
-        await fetch(`${dir}?api&get=files&${sortString}`).then((response) => {
-            // If the response was ok
-            if (response.ok) return response.json();
-            // Otherwise, handle the error
-            cancelLoad();
-            // If an error code was returned by the server
-            if (response.status >= 400 && response.status < 600) {
-                showGenericErrors = false;
-                // Set the right popup body text
-                let errorBody = window.lang.popupServerErrorOther;
-                if (window.lang[`popupServerError${response.status}`]) {
-                    errorBody = window.lang[`popupServerError${response.status}`];
-                    switch (response.status) {
-                        case 500:
-                            errorBody = errorBody.replace("%0", `<a href="https://github.com/CyberGen49/CyberFilesRewrite/issues" target="_blank">${window.lang.popupServerError500Lnk}</a>`)
-                            break;
-                    }
-                }
-                // Show the error popup
-                showPopup("serverError", window.lang.popupServerErrorTitle.replace("%0", response.status), errorBody, [{
-                    "id": "home",
-                    "text": window.lang.popupHome,
-                    "action": function() {
-                        _("topbarTitle").click();
-                    }
-                }, {
-                    "id": "reload",
-                    "text": window.lang.popupReload,
-                    "action": function() { window.location.href = "" }
-                }], false);
-            }
-            throw new Error("Unknown Fetch error.");
-        // Wait for the server to return file list data
-        }).then(data => {
-            // If the return status is good
-            if (data.status == "GOOD" || data.status == "CONTENTS_HIDDEN") {
-                console.log("Fetched file list:");
-                console.log(data);
-                // Update history
-                fileHistory.entries.push({
-                    'created': Date.now(),
-                    'dir': dir,
-                    'name': dirName,
-                    'type': 'directory'
-                });
-                locStoreArraySet("history", fileHistory);
-                // Update global sort variable
-                window.fileListSort = data.sort;
-                // If we aren't in the document root
-                _("fileList").innerHTML = "";
-                if (dir != "/") {
-                    // Set the appropriate parent directory name
-                    let dirParentName;
-                    if (dirSplit.length > 2)
-                        dirParentName = decodeURI(dirSplit[dirSplit.length-2]);
-                    else
-                        dirParentName = window.lang.fileListRootName;
-                    // Set the up entry text
-                    let upTitle = window.lang.fileListEntryUp.replace("%0", dirParentName);
-                    // Build the HTML
-                    if (window.conf.upButtonInFileList) {
-                        _("fileList").insertAdjacentHTML('beforeend', `
-                            <a id="fileEntryUp" class="row no-gutters fileEntry" tabindex=0 onClick='fileEntryClicked(this, event)'">
-                                <div class="col-auto fileEntryIcon material-icons">arrow_back</div>
-                                <div class="col fileEntryName">
-                                    <div class="fileEntryNameInner noBoost">${upTitle}</div>
-                                </div>
-                                <div class="col-auto fileEntryDate fileListDesktop">-</div>
-                                <div class="col-auto fileEntryType fileListDesktopBig noBoost"><div class="fileEntryTypeInner noBoost">-</div></div>
-                                <div class="col-auto fileEntrySize fileListDesktop">-</div>
-                            </a>
-                        `);
-                    }
-                    // Handle the up button in the topbar
-                    _("topbarButtonUp").classList.remove("disabled");
-                    _("topbarButtonUp").dataset.tooltip = upTitle;
-                } else {
-                    _("topbarButtonUp").classList.add("disabled");
-                    _("topbarButtonUp").dataset.tooltip = window.lang.tooltipTopbarUpRoot;
-                }
-                // Loop through the returned file objects
-                window.fileObjects = [];
-                let totalSize = 0;
-                i = 0;
-                data.files.forEach(f => {
-                    // Get formatted dates
-                    f.modifiedF = dateFormatRelative(f.modified);
-                    f.modifiedFF = dateFormatPreset(f.modified, "full");
-                    // If the file is a directory
-                    if (f.mimeType == "directory") {
-                        // Set texts
-                        f.sizeF = "-";
-                        f.typeF = window.lang.fileTypeDirectory;
-                        f.icon = getFileTypeIcon(f.mimeType);
-                        // Set tooltip
-                        f.title = `<b>${f.name}</b><br>${window.lang.fileDetailsDate}: ${f.modifiedFF}<br>${window.lang.fileDetailsType}: ${f.typeF}`;
-                        // Set mobile details
-                        f.detailsMobile = f.modifiedF;
-                    } else {
-                        // Get formatted size and add to total
-                        f.sizeF = formattedSize(f.size);
-                        totalSize += f.size;
-                        // Set file type from type list
-                        f.typeF = window.lang.fileTypeDefault;
-                        f.ext = '.';
-                        if (f.name.match(/^.*\..*$/)) {
-                            let fileNameSplit = f.name.split(".");
-                            f.ext = fileNameSplit[fileNameSplit.length-1].toUpperCase();
-                            if (typeof window.lang.fileTypes[f.ext] !== 'undefined')
-                                f.typeF = window.lang.fileTypes[f.ext];
+        for (i = 0; i < sortIndicators.length; i++)
+            sortIndicators[i].innerHTML = "";
+        let combinedFiles = {};
+        let serverProcessingTime = 0;
+        const loadFileList_get = async function(offset = 0) {
+            window.sendTime = Date.now();
+            // Make the API call and handle errors
+            await fetch(`${dir}?api&get=files&offset=${offset}&sendTime=${window.sendTime}`).then((response) => {
+                // If the response was ok
+                if (response.ok) return response.json();
+                // Otherwise, handle the error
+                cancelLoad();
+                // If an error code was returned by the server
+                if (response.status >= 400 && response.status < 600) {
+                    // Set the right popup body text
+                    let errorBody = window.lang.popupServerErrorOther;
+                    if (window.lang[`popupServerError${response.status}`]) {
+                        errorBody = window.lang[`popupServerError${response.status}`];
+                        switch (response.status) {
+                            case 500:
+                                errorBody = errorBody.replace("%0", `<a href="https://github.com/CyberGen49/CyberFilesRewrite/issues" target="_blank">${window.lang.popupServerError500Lnk}</a>`)
+                                break;
                         }
-                        // Set icon based on MIME type
-                        f.icon = getFileTypeIcon(f.mimeType);
-                        // Set tooltip
-                        f.title = `<b>${f.name}</b><br>${window.lang.fileDetailsDate}: ${f.modifiedFF}<br>${window.lang.fileDetailsType}: ${f.typeF}<br>${window.lang.fileDetailsSize}: ${f.sizeF}`;
-                        // Set mobile details
-                        f.detailsMobile = window.lang.fileListMobileLine2.replace("%0", f.modifiedF).replace("%1", f.sizeF);
                     }
-                    f.nameUri = encodeURIComponent(f.name);
-                    // Build HTML
-                    _("fileList").insertAdjacentHTML('beforeend', `
-                        <a id="fileEntry-${i}" class="row no-gutters fileEntry" tabindex=0 data-filename='${f.name}' data-objectindex=${i} onClick='fileEntryClicked(this, event)'>
-                            <div class="col-auto fileEntryIcon material-icons">${f.icon}</div>
+                    // Show the error popup
+                    showPopup("serverError", window.lang.popupServerErrorTitle.replace("%0", response.status), errorBody, [{
+                        "id": "home",
+                        "text": window.lang.popupHome,
+                        "action": function() {
+                            _id("topbarTitle").click();
+                        }
+                    }, {
+                        "id": "reload",
+                        "text": window.lang.popupReload,
+                        "action": function() { window.location.href = "" }
+                    }], false);
+                }
+                throw new Error("Unknown Fetch error.");
+            // Wait for the server to return file list data
+            }).then(data => {
+                if (data.sendTime != window.sendTime) {
+                    console.log(`Received server response, but it doesn't match the one we requested (${data.sendTime} != ${window.sendTime})`);
+                    return;
+                }
+                // If the return status is good
+                if (data.status == "GOOD" || data.status == "CONTENTS_HIDDEN") {
+                    serverProcessingTime += data.processingTime;
+                    console.log(`Fetched file list chunk (${data.chunking.offset+1}/${data.chunking.totalFiles}, ${Math.round(serverProcessingTime/1000)}s):`);
+                    console.log(data);
+                    if (typeof combinedFiles.files === 'undefined')
+                        combinedFiles = data;
+                    else
+                        combinedFiles.files = combinedFiles.files.concat(data.files);
+                    combinedFiles.processingTime = serverProcessingTime;
+                    if (data.chunking.complete) {
+                        console.log("File list fetch finished");
+                        loadFileList_display();
+                    } else {
+                        let loadPercent = Math.ceil((data.chunking.offset/data.chunking.totalFiles)*100);
+                        let loadTimeRemaining = Math.ceil(((serverProcessingTime/1000)/data.chunking.offset)*(data.chunking.totalFiles-data.chunking.offset));
+                        _id("fileListHint").innerHTML = `
+                            ${window.lang.fileListDetailsLoading1}
+                            <br>${window.lang.fileListDetailsLoading2.replace("%0", loadPercent).replace("%1", secondsFormat(loadTimeRemaining))}
+                        `;
+                        _id("fileListHint").style.display = "block";
+                        _id("fileListHint").style.opacity = 1;
+                        loadFileList_get(data.chunking.offset);
+                    }
+                } else {
+                    console.log("Failed to fetch file list: "+data.status);
+                    throw new Error(`CyberFiles API responded with a status of '${data.status}'`);
+                }
+            }).catch(error => {
+                cancelLoad();
+                throw new Error(error);
+            });
+        }
+        const loadFileList_display = function() {
+            let data = combinedFiles;
+            // Update history
+            fileHistory.entries.push({
+                'created': Date.now(),
+                'dir': dir,
+                'name': dirName,
+                'type': 'directory'
+            });
+            locStoreArraySet("history", fileHistory);
+            // If we aren't in the document root
+            _id("fileList").innerHTML = "";
+            if (dir != "/") {
+                // Set the appropriate parent directory name
+                let dirParentName;
+                if (dirSplit.length > 2)
+                    dirParentName = decodeURI(dirSplit[dirSplit.length-2]);
+                else
+                    dirParentName = window.lang.fileListRootName;
+                // Set the up entry text
+                let upTitle = window.lang.fileListEntryUp.replace("%0", dirParentName);
+                // Build the HTML
+                if (window.conf.upButtonInFileList) {
+                    _id("fileList").insertAdjacentHTML('beforeend', `
+                        <a id="fileEntryUp" class="row no-gutters fileEntry" tabindex=0 onClick='fileEntryClicked(this, event)'">
+                            <div class="col-auto fileEntryIcon material-icons">arrow_back</div>
                             <div class="col fileEntryName">
-                                <div class="fileEntryNameInner noBoost">${f.name}</div>
-                                <div class="fileEntryMobileDetails fileListMobile noBoost">${f.detailsMobile}</div>
+                                <div class="fileEntryNameInner noBoost">${upTitle}</div>
                             </div>
-                            <div class="col-auto fileEntryDate fileListDesktop noBoost">${f.modifiedF}</div>
-                            <div class="col-auto fileEntryType fileListDesktopBig noBoost">
-                                <div class="fileEntryTypeInner noBoost">${f.typeF}</div>
-                            </div>
-                            <div class="col-auto fileEntrySize fileListDesktop noBoost">${f.sizeF}</div>
+                            <div class="col-auto fileEntryDate fileListDesktop">-</div>
+                            <div class="col-auto fileEntryType fileListDesktopBig noBoost"><div class="fileEntryTypeInner noBoost">-</div></div>
+                            <div class="col-auto fileEntrySize fileListDesktop">-</div>
                         </a>
                     `);
-                    _(`fileEntry-${i}`).dataset.tooltip = f.title;
-                    _(`fileEntry-${i}`).href = f.nameUri;
-                    window.fileObjects[i] = f;
+                }
+                // Handle the up button in the topbar
+                _id("topbarButtonUp").classList.remove("disabled");
+                _id("topbarButtonUp").dataset.tooltip = upTitle;
+            } else {
+                _id("topbarButtonUp").classList.add("disabled");
+                _id("topbarButtonUp").dataset.tooltip = window.lang.tooltipTopbarUpRoot;
+            }
+            // Get sort order
+            window.defaultSort = {
+                'type': data.sort.type,
+                'desc': data.sort.desc,
+            };
+            let sortType = defaultSort.type;
+            let sortDesc = defaultSort.desc;
+            let customSort = dirSort[currentDir()];
+            if (typeof customSort !== 'undefined') {
+                sortType = customSort.type;
+                sortDesc = customSort.desc;
+                console.log(`Using custom sort: ${sortType}-${sortDesc}`);
+            }
+            // Separate files and folders
+            let tmpFiles = [];
+            let tmpFolders = [];
+            data.files.forEach(f => {
+                if (f.mimeType == 'directory') tmpFolders.push(f);
+                else tmpFiles.push(f);
+            });
+            // Sort the files
+            // https://stackoverflow.com/questions/52660451/javascript-natural-sort-objects
+            // https://stackoverflow.com/questions/8837454/sort-array-of-objects-by-single-key-with-date-value
+            let func_sort = function(a, b) {
+                return a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' });
+            };
+            switch (sortType) {
+                case 'date':
+                    func_sort = function(a, b) {
+                        if (a.modified < b.modified) return -1;
+                        if (a.modified > b.modified) return 1;
+                        return 0;
+                    };
+                    break;
+                case 'size':
+                    func_sort = function(a, b) {
+                        if (a.size < b.size) return -1;
+                        if (a.size > b.size) return 1;
+                        return 0;
+                    };
+                    break;
+                case 'ext':
+                    func_sort = function(a, b) {
+                        if (a.ext < b.ext) return -1;
+                        if (a.ext > b.ext) return 1;
+                        return 0;
+                    };
+                    break;
+            }
+            tmpFolders.sort(func_sort);
+            tmpFiles.sort(func_sort);
+            // Reverse files if requested
+            if (sortDesc) {
+                tmpFolders.reverse();
+                tmpFiles.reverse();
+            }
+            // Merge files and folders back into the main files object
+            data.files = tmpFolders.concat(tmpFiles);
+            // Update global sort variable
+            window.fileListSort = {
+                'type': sortType,
+                'desc': sortDesc,
+            };
+            // Loop through the returned file objects
+            window.fileObjects = [];
+            let totalSize = 0;
+            i = 0;
+            data.files.forEach(f => {
+                // Get formatted dates
+                f.modifiedF = dateFormatRelative(f.modified);
+                f.modifiedFF = dateFormatPreset(f.modified, "full");
+                // If the file is a directory
+                if (f.mimeType == "directory") {
+                    // Set texts
+                    f.sizeF = "-";
+                    f.typeF = window.lang.fileTypeDirectory;
+                    f.icon = getFileTypeIcon(f.mimeType);
+                    // Set tooltip
+                    f.title = `<b>${f.name}</b><br>${window.lang.fileDetailsDate}: ${f.modifiedFF}<br>${window.lang.fileDetailsType}: ${f.typeF}`;
+                    // Set mobile details
+                    f.detailsMobile = f.modifiedF;
+                } else {
+                    // Get formatted size and add to total
+                    f.sizeF = formattedSize(f.size);
+                    totalSize += f.size;
+                    // Set file type from type list
+                    f.typeF = window.lang.fileTypeDefault;
+                    if (typeof window.lang.fileTypes[f.ext] !== '')
+                        f.typeF = window.lang.fileTypes[f.ext];
+                    // Set icon based on MIME type
+                    f.icon = getFileTypeIcon(f.mimeType);
+                    // Set tooltip
+                    f.title = `<b>${f.name}</b><br>${window.lang.fileDetailsDate}: ${f.modifiedFF}<br>${window.lang.fileDetailsType}: ${f.typeF}<br>${window.lang.fileDetailsSize}: ${f.sizeF}`;
+                    // Set mobile details
+                    f.detailsMobile = window.lang.fileListMobileLine2.replace("%0", f.modifiedF).replace("%1", f.sizeF);
+                }
+                f.nameUri = encodeURIComponent(f.name);
+                // Build HTML
+                _id("fileList").insertAdjacentHTML('beforeend', `
+                    <a id="fileEntry-${i}" class="row no-gutters fileEntry" tabindex=0 data-filename='${f.name}' data-objectindex=${i} onClick='fileEntryClicked(this, event)'>
+                        <div class="col-auto fileEntryIcon material-icons">${f.icon}</div>
+                        <div class="col fileEntryName">
+                            <div class="fileEntryNameInner noBoost">${f.name}</div>
+                            <div class="fileEntryMobileDetails fileListMobile noBoost">${f.detailsMobile}</div>
+                        </div>
+                        <div class="col-auto fileEntryDate fileListDesktop noBoost">${f.modifiedF}</div>
+                        <div class="col-auto fileEntryType fileListDesktopBig noBoost">
+                            <div class="fileEntryTypeInner noBoost">${f.typeF}</div>
+                        </div>
+                        <div class="col-auto fileEntrySize fileListDesktop noBoost">${f.sizeF}</div>
+                    </a>
+                `);
+                _id(`fileEntry-${i}`).dataset.tooltip = f.title;
+                _id(`fileEntry-${i}`).href = f.nameUri;
+                window.fileObjects[i] = f;
+                i++;
+            });
+            window.fileElements = document.getElementsByClassName("fileEntry");
+            // Get directory short link
+            window.shortSlug = data.shortSlug;
+            // Parse and set the directory header, if it exists
+            window.dirHeader = false;
+            if (typeof data.headerHtml !== 'undefined') {
+                _id("directoryHeader").innerHTML = atob(data.headerHtml);
+                window.dirHeader = true;
+            } else if (typeof data.headerMarkdown !== 'undefined') {
+                _id("directoryHeader").innerHTML = marked(atob(data.headerMarkdown));
+                window.dirHeader = true;
+            }
+            // Show the appropriate sort indicator
+            let sortIndicator = _id("sortIndicatorName");
+            if (sortType == 'date')
+                sortIndicator = _id("sortIndicatorDate");
+            else if (sortType == 'ext')
+                sortIndicator = _id("sortIndicatorType");
+            else if (sortType == 'size')
+                sortIndicator = _id("sortIndicatorSize");
+            if (sortDesc) sortIndicator.innerHTML = "keyboard_arrow_up";
+            else sortIndicator.innerHTML = "keyboard_arrow_down";
+            // Format load time
+            let loadElapsed = Date.now()-loadStart;
+            let loadTimeF = loadElapsed+window.lang.dtUnitShortMs;
+            if (loadElapsed >= 1000)
+                loadTimeF = roundSmart(loadElapsed/1000, 2)+window.lang.dtUnitShortSecs;
+            // If the folder contents have been hidden
+            if (data.status == "CONTENTS_HIDDEN") {
+                _id("fileListHint").innerHTML = window.lang.fileListHidden;
+            // If there aren't any files
+            } else if (data.files.length == 0) {
+                _id("fileListHint").innerHTML = window.lang.fileListEmpty;
+            // Otherwise, set the footer as planned
+            } else {
+                // Handle the filter bar while we're at it
+                _id("fileListFilter").disabled = false;
+                _id("fileListFilter").placeholder = window.lang.fileListFilter;
+                // Set the right footer
+                if (data.files.length == 1) {
+                    _id("fileListHint").innerHTML = window.lang.fileListDetails1Single.replace("%0", loadTimeF);
+                } else {
+                    _id("fileListHint").innerHTML = window.lang.fileListDetails1Multi.replace("%0", data.files.length).replace("%1", loadTimeF);
+                }
+                _id("fileListHint").innerHTML += "<br>"+window.lang.fileListDetails2.replace("%0", formattedSize(totalSize));
+            }
+            window.fileListHint = _id("fileListHint").innerHTML;
+            // Show elements
+            clearTimeout(seamlessTimeout);
+            _id("fileList").style.display = "";
+            _id("fileListHint").style.display = "";
+            if (dirHeader) _id("directoryHeader").style.display = "";
+            setTimeout(() => {
+                _id("fileListLoading").style.display = "none";
+                _id("fileList").style.opacity = 1;
+                _id("fileListHint").style.opacity = 1;
+                _id("directoryHeader").style.opacity = 1;
+            }, 50);
+            // Show a file preview if it was requested
+            if ($_GET("f") !== null) {
+                const targetFile = $_GET("f");
+                let targetFileFound = false;
+                // Loop through file objects and search for the right one
+                i = 0;
+                window.fileObjects.forEach(f => {
+                    if (f.name == targetFile && !targetFileFound) {
+                        showFilePreview(i);
+                        targetFileFound = true;
+                    }
                     i++;
                 });
-                window.fileElements = document.getElementsByClassName("fileEntry");
-                // Get directory short link
-                window.shortSlug = data.shortSlug;
-                // Build breadcrumbs
-                const breadcrumbAddClick = function(path) {
-                    historyReplaceState('', path);
-                    loadFileList();
-                };
-                _("breadcrumbs").innerHTML = "";
-                i = 0;
-                while (true) {
-                    let bcDir = currentDir(i);
-                    let bcName = bcDir.split('/');
-                    bcName = decodeURIComponent(bcName[bcName.length-1]);
-                    if (bcDir == '/') break;
-                    _("breadcrumbs").insertAdjacentHTML('afterbegin', `
-                        <div id="breadcrumb-${i}-cont" class="col-auto row no-gutters fileListDesktop breadcrumb" data-name="${bcName}" data-path="${bcDir}">
-                            <div class="col-auto material-icons breadcrumbSep">chevron_right</div>
-                            <div class="col-auto breadcrumbNameCont">
-                                <button id="breadcrumb-${i}" class="breadcrumbName hover">${bcName}</button>
-                            </div>
+                // If no file was found, show a popup
+                if (!targetFileFound) {
+                    showPopup("fileNotFound", window.lang.popupErrorTitle, `<p>${window.lang.popupFileNotFound}</p><p>${window.lang.popupFileNotFound2}</p>`, [{
+                        'id': "close",
+                        'text': window.lang.popupOkay
+                    }], false);
+                    hideFilePreview();
+                }
+            } else hideFilePreview();
+            // Finish up
+            window.canClickEntries = true;
+            window.fileListLoaded = true;
+            window.loadDir = dir;
+        }
+        const loadFileList_updateBreadcrumbs = function() {
+            // Build breadcrumbs
+            const breadcrumbAddClick = function(path) {
+                historyReplaceState('', path);
+                loadFileList();
+            };
+            _id("breadcrumbs").innerHTML = "";
+            i = 0;
+            while (true) {
+                let bcDir = currentDir(i);
+                let bcName = bcDir.split('/');
+                bcName = decodeURIComponent(bcName[bcName.length-1]);
+                if (bcDir == '/') break;
+                _id("breadcrumbs").insertAdjacentHTML('afterbegin', `
+                    <div id="breadcrumb-${i}-cont" class="col-auto row no-gutters fileListDesktop breadcrumb" data-name="${bcName}" data-path="${bcDir}">
+                        <div class="col-auto material-icons breadcrumbSep">chevron_right</div>
+                        <div class="col-auto breadcrumbNameCont">
+                            <button id="breadcrumb-${i}" class="breadcrumbName hover">${bcName}</button>
                         </div>
-                    `);
-                    if (i != 0) {
-                        _(`breadcrumb-${i}`).dataset.tooltip = window.lang.tooltipBreadcrumb.replace("%0", bcName);
-                        _(`breadcrumb-${i}`).addEventListener("click", function() {
-                            this.blur();
-                            breadcrumbAddClick(bcDir);
-                        });
-                    } else {
-                        _(`breadcrumb-${i}`).classList.remove("hover");
-                        _(`breadcrumb-${i}`).dataset.tooltip = window.lang.tooltipBreadcrumbCurrent;
-                    }
-                    i++;
-                }
-                reflowBreadcrumbs();
-                // Parse and set the directory header, if it exists
-                window.dirHeader = false;
-                if (typeof data.headerHtml !== 'undefined') {
-                    _("directoryHeader").innerHTML = data.headerHtml;
-                    window.dirHeader = true;
-                } else if (typeof data.headerMarkdown !== 'undefined') {
-                    _("directoryHeader").innerHTML = marked(data.headerMarkdown);
-                    window.dirHeader = true;
-                }
-                // Show the appropriate sort indicator
-                let sortIndicator = _("sortIndicatorName");
-                if (data.sort.type == 'name')
-                    sortIndicator = _("sortIndicatorName");
-                else if (data.sort.type == 'date')
-                    sortIndicator = _("sortIndicatorDate");
-                else if (data.sort.type == 'ext')
-                    sortIndicator = _("sortIndicatorType");
-                else if (data.sort.type == 'size')
-                    sortIndicator = _("sortIndicatorSize");
-                if (data.sort.desc) sortIndicator.innerHTML = "keyboard_arrow_up";
-                else sortIndicator.innerHTML = "keyboard_arrow_down";
-                // Format load time
-                let loadElapsed = Date.now()-loadStart;
-                let loadTimeF = loadElapsed+window.lang.dtUnitShortMs;
-                if (loadElapsed >= 1000)
-                    loadTimeF = roundSmart(loadElapsed/1000, 2)+window.lang.dtUnitShortSecs;
-                // If the folder contents have been hidden
-                if (data.status == "CONTENTS_HIDDEN") {
-                    _("fileListHint").innerHTML = window.lang.fileListHidden;
-                // If there aren't any files
-                } else if (data.files.length == 0) {
-                    _("fileListHint").innerHTML = window.lang.fileListEmpty;
-                // Otherwise, set the footer as planned
-                } else {
-                    // Handle the filter bar while we're at it
-                    _("fileListFilter").disabled = false;
-                    _("fileListFilter").placeholder = window.lang.fileListFilter;
-                    // Set the right footer
-                    if (data.files.length == 1) {
-                        _("fileListHint").innerHTML = window.lang.fileListDetails1Single.replace("%0", loadTimeF);
-                    } else {
-                        _("fileListHint").innerHTML = window.lang.fileListDetails1Multi.replace("%0", data.files.length).replace("%1", loadTimeF);
-                    }
-                    _("fileListHint").innerHTML += "<br>"+window.lang.fileListDetails2.replace("%0", formattedSize(totalSize));
-                }
-                window.fileListHint = _("fileListHint").innerHTML;
-                // Show elements
-                clearTimeout(seamlessTimeout);
-                _("fileList").style.display = "";
-                _("fileListHint").style.display = "";
-                if (dirHeader) _("directoryHeader").style.display = "";
-                setTimeout(() => {
-                    _("fileListLoading").style.display = "none";
-                    _("fileList").style.opacity = 1;
-                    _("fileListHint").style.opacity = 1;
-                    _("directoryHeader").style.opacity = 1;
-                }, 50);
-                // Show a file preview if it was requested
-                if ($_GET("f") !== null) {
-                    const targetFile = $_GET("f");
-                    let targetFileFound = false;
-                    // Loop through file objects and search for the right one
-                    i = 0;
-                    window.fileObjects.forEach(f => {
-                        if (f.name == targetFile && !targetFileFound) {
-                            showFilePreview(i);
-                            targetFileFound = true;
-                        }
-                        i++;
+                    </div>
+                `);
+                if (i != 0) {
+                    _id(`breadcrumb-${i}`).dataset.tooltip = window.lang.tooltipBreadcrumb.replace("%0", bcName);
+                    _id(`breadcrumb-${i}`).addEventListener("click", function() {
+                        this.blur();
+                        breadcrumbAddClick(bcDir);
                     });
-                    // If no file was found, show a popup
-                    if (!targetFileFound) {
-                        showPopup("fileNotFound", window.lang.popupErrorTitle, `<p>${window.lang.popupFileNotFound}</p><p>${window.lang.popupFileNotFound2}</p>`, [{
-                            'id': "close",
-                            'text': window.lang.popupOkay
-                        }], false);
-                        hideFilePreview();
-                    }
-                } else hideFilePreview();
-                // Finish up
-                window.canClickEntries = true;
-                window.fileListLoaded = true;
-                window.loadDir = dir;
-            } else {
-                console.log("Failed to fetch file list: "+data.status);
-                throw new Error(`CyberFiles API responded with a status of '${data.status}'`);
+                } else {
+                    _id(`breadcrumb-${i}`).classList.remove("hover");
+                    _id(`breadcrumb-${i}`).dataset.tooltip = window.lang.tooltipBreadcrumbCurrent;
+                }
+                i++;
             }
-        }).catch(error => {
-            cancelLoad();
-            throw new Error(error);
-        });
+            reflowBreadcrumbs();
+        }
+        loadFileList_get();
+        loadFileList_updateBreadcrumbs();
     // If the directory is the same, skip loading the file list and just try showing a file preview
     } else {
         showFilePreview(entryId);
@@ -723,14 +801,16 @@ function sortFileList(type, desc) {
                 }
             }
         }
-        // Add/update the custom sort
-        window.dirSort[currentDir()] = {
-            'type': type,
-            'desc': desc,
-        };
-        // If the default sort has been reselected, delete the custom sort
-        //if (type == window.defaultSort.type && desc == window.defaultSort.desc)
-        //    delete window.dirSort[currentDir()];
+        if (type == window.defaultSort.type && desc == window.defaultSort.desc) {
+            // Reset to default by deleting the entry
+            delete window.dirSort[currentDir()];
+        } else {
+            // Add/update the custom sort
+            window.dirSort[currentDir()] = {
+                'type': type,
+                'desc': desc,
+            };
+        }
     }
     // Commit to local storage and reload the file list
     locStoreArraySet('dirsort', window.dirSort);
@@ -738,22 +818,22 @@ function sortFileList(type, desc) {
 }
 
 // File list column header click event listeners
-_("fileListHeaderName").addEventListener("click", function() {
+_id("fileListHeaderName").addEventListener("click", function() {
     if (window.fileListLoaded) {
         sortFileList('name', null);
     }
 });
-_("fileListHeaderDate").addEventListener("click", function() {
+_id("fileListHeaderDate").addEventListener("click", function() {
     if (window.fileListLoaded) {
         sortFileList('date', null);
     }
 });
-_("fileListHeaderType").addEventListener("click", function() {
+_id("fileListHeaderType").addEventListener("click", function() {
     if (window.fileListLoaded) {
         sortFileList('ext', null);
     }
 });
-_("fileListHeaderSize").addEventListener("click", function() {
+_id("fileListHeaderSize").addEventListener("click", function() {
     if (window.fileListLoaded) {
         sortFileList('size', null);
     }
@@ -778,18 +858,18 @@ function showFilePreview(id = null) {
         });
         locStoreArraySet("history", fileHistory);
         // Get previous and next items
-        _("previewPrev").classList.add("disabled");
-        _("previewNext").classList.add("disabled");
-        _("previewPrev").dataset.tooltip = window.lang.previewFirstFile;
-        _("previewNext").dataset.tooltip = window.lang.previewLastFile;
+        _id("previewPrev").classList.add("disabled");
+        _id("previewNext").classList.add("disabled");
+        _id("previewPrev").dataset.tooltip = window.lang.previewFirstFile;
+        _id("previewNext").dataset.tooltip = window.lang.previewLastFile;
         idPrev = id;
         while (idPrev > 0) {
             idPrev--;
             const filePrev = window.fileObjects[idPrev];
             if (filePrev.mimeType != "directory") {
-                _("previewPrev").classList.remove("disabled");
-                _("previewPrev").dataset.tooltip = `${window.lang.previewPrev}<br>${filePrev.name}`;
-                _("previewPrev").dataset.objectid = idPrev;
+                _id("previewPrev").classList.remove("disabled");
+                _id("previewPrev").dataset.tooltip = `${window.lang.previewPrev}<br>${filePrev.name}`;
+                _id("previewPrev").dataset.objectid = idPrev;
                 break;
             }
         }
@@ -799,18 +879,18 @@ function showFilePreview(id = null) {
             const fileNext = window.fileObjects[idNext];
             if (!fileNext) break;
             if (fileNext.mimeType != "directory") {
-                _("previewNext").classList.remove("disabled");
-                _("previewNext").dataset.tooltip = `${window.lang.previewNext}<br>${fileNext.name}`;
-                _("previewNext").dataset.objectid = idNext;
+                _id("previewNext").classList.remove("disabled");
+                _id("previewNext").dataset.tooltip = `${window.lang.previewNext}<br>${fileNext.name}`;
+                _id("previewNext").dataset.objectid = idNext;
                 break;
             }
         }
         // Update element contents
-        _("previewFileName").innerHTML = data.name;
-        _("previewFileDesc").innerHTML = `${window.lang.previewTitlebar2.replace("%0", data.typeF).replace("%1", data.sizeF)}`;
+        _id("previewFileName").innerHTML = data.name;
+        _id("previewFileDesc").innerHTML = `${window.lang.previewTitlebar2.replace("%0", data.typeF).replace("%1", data.sizeF)}`;
         // Set default preview
-        _("previewFile").classList.add("previewTypeNone");
-        _("previewFile").innerHTML = `
+        _id("previewFile").classList.add("previewTypeNone");
+        _id("previewFile").innerHTML = `
             <div id="previewCard">
                 <div id="previewCardIcon">cloud_download</div>
                 <div id="previewCardTitle">${window.lang.previewTitle}</div>
@@ -822,13 +902,13 @@ function showFilePreview(id = null) {
         `;
         // Show file-specific previews
         if (data.ext.match(/^(MP4|WEBM)$/)) {
-            _("previewFile").className = "";
-            _("previewFile").classList.add("previewTypeVideo");
-            _("previewFile").innerHTML = `
+            _id("previewFile").className = "";
+            _id("previewFile").classList.add("previewTypeVideo");
+            _id("previewFile").innerHTML = `
                 <video id="videoPreview" controls src="${encodeURIComponent(data.name)}"></video>
             `;
             // Variables
-            const vid = _("videoPreview");
+            const vid = _id("videoPreview");
             vid.autoplay = window.conf.videoAutoplay;
             window.vidProgLastSave = 0;
             window.vidProgCanSave = false;
@@ -894,51 +974,51 @@ function showFilePreview(id = null) {
                 }
             });
         } else if (data.ext.match(/^(MP3|OGG|WAV|M4A)$/)) {
-            _("previewFile").className = "";
-            _("previewFile").classList.add("previewTypeAudio");
-            _("previewFile").innerHTML = `
+            _id("previewFile").className = "";
+            _id("previewFile").classList.add("previewTypeAudio");
+            _id("previewFile").innerHTML = `
                 <audio id="audioPreview" controls src="${encodeURIComponent(data.name)}"></audio>
             `;
-            const aud = _("audioPreview");
+            const aud = _id("audioPreview");
             aud.autoplay = window.conf.audioAutoplay;
         } else if (data.ext.match(/^(JPG|JPEG|PNG|SVG|GIF)$/)) {
-            _("previewFile").className = "";
-            _("previewFile").classList.add("previewTypeImage");
-            _("previewFile").innerHTML = `
+            _id("previewFile").className = "";
+            _id("previewFile").classList.add("previewTypeImage");
+            _id("previewFile").innerHTML = `
                 <img src="${encodeURIComponent(data.name)}"></img>
             `;
         } else if (data.ext.match(/^(PDF)$/)) {
-            _("previewFile").className = "";
-            _("previewFile").classList.add("previewTypeEmbed");
-            _("previewFile").innerHTML = `
+            _id("previewFile").className = "";
+            _id("previewFile").classList.add("previewTypeEmbed");
+            _id("previewFile").innerHTML = `
                 <iframe src="${encodeURIComponent(data.name)}"></iframe>
             `;
         } else if (data.mimeType.match(/^text\/.*$/)) {
             const getTextPreview = async function(f) {
-                _("previewFile").style.display = "none";
+                _id("previewFile").style.display = "none";
                 await fetch(`${encodeURIComponent(f.name)}?t=${f.modified}`).then((response) => {
                     // If the response was ok
                     if (response.ok) return response.text();
                     // Otherwise, handle the error
-                    _("previewFile").style.display = "";
+                    _id("previewFile").style.display = "";
                     throw new Error("Fetch failed");
                 // Wait for the server to return file list data
                 }).then(data => {
-                    _("previewFile").className = "";
-                    _("previewFile").classList.add("previewTypeText");
-                    _("previewFile").innerHTML = `
+                    _id("previewFile").className = "";
+                    _id("previewFile").classList.add("previewTypeText");
+                    _id("previewFile").innerHTML = `
                         <div id="textPreviewCont" class="container"></div>
                     `;
                     if (f.ext.match(/^(md|markdown)$/gi)) {
-                        _("textPreviewCont").innerHTML = `${marked(data)}`;
+                        _id("textPreviewCont").innerHTML = `${marked(data)}`;
                     } else if (f.ext.match(/^(htm|html)$/gi)) {
-                        _("textPreviewCont").innerHTML = `${data}`;
+                        _id("textPreviewCont").innerHTML = `${data}`;
                     } else {
-                        _("textPreviewCont").innerHTML = `<pre id="textPreviewPre"><code>${data.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;")}</code></pre>`;
+                        _id("textPreviewCont").innerHTML = `<pre id="textPreviewPre"><code>${data.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;")}</code></pre>`;
                     }
-                    _("previewFile").style.display = "";
+                    _id("previewFile").style.display = "";
                 }).catch(error => {
-                    _("previewFile").style.display = "";
+                    _id("previewFile").style.display = "";
                     return Promise.reject();
                 });
             };
@@ -947,11 +1027,11 @@ function showFilePreview(id = null) {
             }
         }
         // Show
-        _("previewContainer").style.display = "block";
-        _("body").style.overflowY = "hidden";
+        _id("previewContainer").style.display = "block";
+        _id("body").style.overflowY = "hidden";
         clearTimeout(window.timeoutPreviewHide);
         setTimeout(() => {
-            _("previewContainer").style.opacity = 1;
+            _id("previewContainer").style.opacity = 1;
             meta_themeColor(window.theme.browserThemePreview);
             document.title = `${data.name} - ${window.conf.siteName}`;
         }, 50);
@@ -975,20 +1055,20 @@ function navFilePreview(el) {
     el.blur();
 }
 
-_("previewPrev").addEventListener("click", function() { navFilePreview(this); })
-_("previewNext").addEventListener("click", function() { navFilePreview(this); })
+_id("previewPrev").addEventListener("click", function() { navFilePreview(this); })
+_id("previewNext").addEventListener("click", function() { navFilePreview(this); })
 
 // Hides the file preview
 function hideFilePreview() {
     meta_themeColor(window.theme.browserTheme);
-    _("previewContainer").style.opacity = 0;
-    _("body").style.overflowY = "";
+    _id("previewContainer").style.opacity = 0;
+    _id("body").style.overflowY = "";
     let newPath = currentDir();
     if (newPath != "/") newPath = `${currentDir()}/`;
     historyReplaceState('', newPath);
     window.timeoutPreviewHide = setTimeout(() => {
-        _("previewFile").innerHTML = "";
-        _("previewContainer").style.display = "none";
+        _id("previewFile").innerHTML = "";
+        _id("previewContainer").style.display = "none";
     }, 200);
 }
 
@@ -1028,14 +1108,14 @@ function fileEntryClicked(el, event) {
 
 // Display a popup
 function showPopup(id = "", title = "", body = "", actions = [], clickAwayHide = true, actionClickAway = null) {
-    if (!_(`popup-${id}`)) {
-        _("body").insertAdjacentHTML('beforeend', `
+    if (!_id(`popup-${id}`)) {
+        _id("body").insertAdjacentHTML('beforeend', `
             <div id="popup-${id}" class="popupBackground ease-in-out-100ms" style="display: none; opacity: 0"></div>
         `);
     }
-    _(`popup-${id}`).style.display = "none";
-    _(`popup-${id}`).style.opacity = 0;
-    _(`popup-${id}`).innerHTML = `
+    _id(`popup-${id}`).style.display = "none";
+    _id(`popup-${id}`).style.opacity = 0;
+    _id(`popup-${id}`).innerHTML = `
         <div class="popupCard" onclick="event.stopPropagation()">
             <div id="popup-${id}-title" class="popupTitle">${title}</div>
             <div id="popup-${id}-body" class="popupContent">${body}</div>
@@ -1045,35 +1125,35 @@ function showPopup(id = "", title = "", body = "", actions = [], clickAwayHide =
     for (i = 0; i < actions.length; i++) {
         let a = actions[i];
         let fullActionId = `popup-${id}-action-${a.id}`;
-        _(`popup-${id}-actions`).insertAdjacentHTML('beforeend', `
+        _id(`popup-${id}-actions`).insertAdjacentHTML('beforeend', `
             <button id="${fullActionId}" class="popupButton">${a.text}</button>
         `);
-        _(fullActionId).addEventListener("click", function() { hidePopup(id) });
-        if (a.action) _(fullActionId).addEventListener("click", a.action);
+        _id(fullActionId).addEventListener("click", function() { hidePopup(id) });
+        if (a.action) _id(fullActionId).addEventListener("click", a.action);
     }
     if (clickAwayHide) {
-        _(`popup-${id}`).addEventListener("click", function() { hidePopup(id) });
+        _id(`popup-${id}`).addEventListener("click", function() { hidePopup(id) });
         if (actionClickAway) {
-            _(`popup-${id}`).addEventListener("click", actionClickAway);
+            _id(`popup-${id}`).addEventListener("click", actionClickAway);
         }
     }
     console.log(`Showing popup "${id}"`);
-    _(`popup-${id}`).style.display = "flex";
+    _id(`popup-${id}`).style.display = "flex";
     clearTimeout(window.timeoutHidePopup);
     window.timeoutShowPopup = setTimeout(() => {
-        _(`popup-${id}`).style.opacity = 1;
-        //_("body").style.overflowY = "hidden";
+        _id(`popup-${id}`).style.opacity = 1;
+        //_id("body").style.overflowY = "hidden";
     }, 50);
 }
 
 // Hide an existing popup
 function hidePopup(id) {
     console.log(`Hiding popup "${id}"`);
-    _(`popup-${id}`).style.opacity = 0;
-    //_("body").style.overflowY = "";
+    _id(`popup-${id}`).style.opacity = 0;
+    //_id("body").style.overflowY = "";
     clearTimeout(window.timeoutShowPopup);
     window.timeoutHidePopup = setTimeout(() => {
-        _(`popup-${id}`).style.display = "none";
+        _id(`popup-${id}`).style.display = "none";
     }, 200);
 }
 
@@ -1103,6 +1183,7 @@ function popup_folderInfo() {
     let data = window.fileObjects;
     let folderName = currentDir().split('/');
     folderName = decodeURIComponent(folderName[folderName.length-1]);
+    if (folderName == "") folderName = window.lang.fileListRootName;
     let totalSize = 0;
     let contents = `<div class="col">${window.lang.folderDetailsContentsEmpty}</div>`;
     let contentsArr = {};
@@ -1188,51 +1269,51 @@ timeoutShowDropdown = [];
 timeoutHideDropdown = [];
 function showDropdown(id, data, anchorId) {
     // Create the dropdown element
-    if (!_(`dropdown-${id}`)) {
-        _("body").insertAdjacentHTML('beforeend', `
+    if (!_id(`dropdown-${id}`)) {
+        _id("body").insertAdjacentHTML('beforeend', `
             <div id="dropdownArea-${id}" class="dropdownHitArea" style="display: none;"></div>
             <div id="dropdown-${id}" class="dropdown" style="display: none; opacity: 0">
         `);
-        _(`dropdownArea-${id}`).addEventListener("click", function() { hideDropdown(id) });
+        _id(`dropdownArea-${id}`).addEventListener("click", function() { hideDropdown(id) });
     }
     // Set initial element properties
-    _(`dropdownArea-${id}`).style.display = "none";
-    _(`dropdown-${id}`).classList.remove("ease-in-out-100ms");
-    _(`dropdown-${id}`).style.display = "none";
-    _(`dropdown-${id}`).style.opacity = 0;
-    _(`dropdown-${id}`).style.marginTop = "5px";
-    _(`dropdown-${id}`).style.height = "";
-    _(`dropdown-${id}`).style.top = "";
-    _(`dropdown-${id}`).style.left = "";
-    _(`dropdown-${id}`).style.right = "";
-    _(`dropdown-${id}`).innerHTML = "";
+    _id(`dropdownArea-${id}`).style.display = "none";
+    _id(`dropdown-${id}`).classList.remove("ease-in-out-100ms");
+    _id(`dropdown-${id}`).style.display = "none";
+    _id(`dropdown-${id}`).style.opacity = 0;
+    _id(`dropdown-${id}`).style.marginTop = "5px";
+    _id(`dropdown-${id}`).style.height = "";
+    _id(`dropdown-${id}`).style.top = "";
+    _id(`dropdown-${id}`).style.left = "";
+    _id(`dropdown-${id}`).style.right = "";
+    _id(`dropdown-${id}`).innerHTML = "";
     // Add items to the dropdown
     data.forEach(item => {
         switch (item.type) {
             case 'header':
-                _(`dropdown-${id}`).insertAdjacentHTML('beforeend', `
+                _id(`dropdown-${id}`).insertAdjacentHTML('beforeend', `
                     <div class="dropdownHeader">${item.text}</div>
                 `);
                 break;
             case 'item':
-                _(`dropdown-${id}`).insertAdjacentHTML('beforeend', `
+                _id(`dropdown-${id}`).insertAdjacentHTML('beforeend', `
                     <div id="dropdown-${id}-${item.id}" class="dropdownItem row no-gutters">
                         <div id="dropdown-${id}-${item.id}-icon" class="col-auto dropdownItemIcon material-icons">${item.icon}</div>
                         <div class="col dropdownItemName">${item.text}</div>
                     </div>
                 `);
                 if (item.tooltip)
-                    _(`dropdown-${id}-${item.id}`).dataset.tooltip = item.tooltip;
+                    _id(`dropdown-${id}-${item.id}`).dataset.tooltip = item.tooltip;
                 if (item.disabled) {
-                    _(`dropdown-${id}-${item.id}`).classList.add("disabled");
-                    _(`dropdown-${id}-${item.id}`).dataset.tooltip = window.lang.dropdownDisabled;
+                    _id(`dropdown-${id}-${item.id}`).classList.add("disabled");
+                    _id(`dropdown-${id}-${item.id}`).dataset.tooltip = window.lang.dropdownDisabled;
                 } else {
-                    _(`dropdown-${id}-${item.id}`).addEventListener("click", item.action);
-                    _(`dropdown-${id}-${item.id}`).addEventListener("click", function() { hideDropdown(id) });
+                    _id(`dropdown-${id}-${item.id}`).addEventListener("click", item.action);
+                    _id(`dropdown-${id}-${item.id}`).addEventListener("click", function() { hideDropdown(id) });
                 }
                 break;
             case 'sep':
-                _(`dropdown-${id}`).insertAdjacentHTML('beforeend', `
+                _id(`dropdown-${id}`).insertAdjacentHTML('beforeend', `
                     <div class="dropdownSep"></div>
                 `);
                 break;
@@ -1240,36 +1321,36 @@ function showDropdown(id, data, anchorId) {
     });
     // Show the dropdown
     console.log(`Showing dropdown "${id}"`);
-    _(`dropdownArea-${id}`).style.display = "block";
-    _(`dropdown-${id}`).style.display = "block";
+    _id(`dropdownArea-${id}`).style.display = "block";
+    _id(`dropdown-${id}`).style.display = "block";
     if (anchorId !== null) {
         // Position the dropdown
         let anchorX = _getX2(anchorId);
         let anchorY = _getY(anchorId);
         let windowW = window.innerWidth;
         let windowH = window.innerHeight;
-        _(`dropdown-${id}`).style.top = `${anchorY-5}px`;
+        _id(`dropdown-${id}`).style.top = `${anchorY-5}px`;
         if (anchorX > (windowW/2))
-            _(`dropdown-${id}`).style.left = `${anchorX-_getW(`dropdown-${id}`)-10}px`;
+            _id(`dropdown-${id}`).style.left = `${anchorX-_getW(`dropdown-${id}`)-10}px`;
         else
-            _(`dropdown-${id}`).style.left = `${anchorX+10}px`;
+            _id(`dropdown-${id}`).style.left = `${anchorX+10}px`;
         // Check for height and scrolling
         let elY = _getY(`dropdown-${id}`);
         let elH = _getH(`dropdown-${id}`);
         console.log(`${elY} - ${elH} - ${windowH}`);
         if ((elY+elH) > windowH-20) {
-            _(`dropdown-${id}`).style.height = `calc(100% - ${elY}px - 20px)`;
+            _id(`dropdown-${id}`).style.height = `calc(100% - ${elY}px - 20px)`;
         } else {
-            _(`dropdown-${id}`).style.height = "";
+            _id(`dropdown-${id}`).style.height = "";
         }
     }
     try {
         clearTimeout(window.timeoutShowDropdown[id]);
     } catch (error) {}
     window.timeoutShowDropdown[id] = setTimeout(() => {
-        _(`dropdown-${id}`).classList.add("ease-in-out-100ms");
-        _(`dropdown-${id}`).style.opacity = 1;
-        _(`dropdown-${id}`).style.marginTop = "10px";
+        _id(`dropdown-${id}`).classList.add("ease-in-out-100ms");
+        _id(`dropdown-${id}`).style.opacity = 1;
+        _id(`dropdown-${id}`).style.marginTop = "10px";
     }, 50);
     return `dropdown-${id}`;
 }
@@ -1277,14 +1358,14 @@ function showDropdown(id, data, anchorId) {
 // Hide an existing dropdown
 function hideDropdown(id) {
     console.log(`Hiding dropdown "${id}"`);
-    _(`dropdownArea-${id}`).style.display = "none";
-    _(`dropdown-${id}`).style.marginTop = "15px";
-    _(`dropdown-${id}`).style.opacity = 0;
+    _id(`dropdownArea-${id}`).style.display = "none";
+    _id(`dropdown-${id}`).style.marginTop = "15px";
+    _id(`dropdown-${id}`).style.opacity = 0;
     try {
         clearTimeout(window.timeoutHideDropdown[id]);
     } catch (error) {}
     window.timeoutHideDropdown[id] = setTimeout(() => {
-        _(`dropdown-${id}`).style.display = "none";
+        _id(`dropdown-${id}`).style.display = "none";
     }, 200);
 }
 
@@ -1363,40 +1444,40 @@ function showDropdown_sort() {
     }
     let dropdownId = showDropdown("sort", data, "topbarButtonMenu");
     // Hide all icons
-    _(`${dropdownId}-name-icon`).style.opacity = 0;
-    _(`${dropdownId}-nameDesc-icon`).style.opacity = 0;
-    _(`${dropdownId}-date-icon`).style.opacity = 0;
-    _(`${dropdownId}-dateDesc-icon`).style.opacity = 0;
-    _(`${dropdownId}-ext-icon`).style.opacity = 0;
-    _(`${dropdownId}-extDesc-icon`).style.opacity = 0;
-    _(`${dropdownId}-size-icon`).style.opacity = 0;
-    _(`${dropdownId}-sizeDesc-icon`).style.opacity = 0;
+    _id(`${dropdownId}-name-icon`).style.opacity = 0;
+    _id(`${dropdownId}-nameDesc-icon`).style.opacity = 0;
+    _id(`${dropdownId}-date-icon`).style.opacity = 0;
+    _id(`${dropdownId}-dateDesc-icon`).style.opacity = 0;
+    _id(`${dropdownId}-ext-icon`).style.opacity = 0;
+    _id(`${dropdownId}-extDesc-icon`).style.opacity = 0;
+    _id(`${dropdownId}-size-icon`).style.opacity = 0;
+    _id(`${dropdownId}-sizeDesc-icon`).style.opacity = 0;
     let sortString = `${window.fileListSort.type}-${window.fileListSort.desc.toString()}`;
     // Show the icon of the sort item matching the current file list
     switch (sortString) {
         case 'name-false':
-            _(`${dropdownId}-name-icon`).style.opacity = 1;
+            _id(`${dropdownId}-name-icon`).style.opacity = 1;
             break;
         case 'name-true':
-            _(`${dropdownId}-nameDesc-icon`).style.opacity = 1;
+            _id(`${dropdownId}-nameDesc-icon`).style.opacity = 1;
             break;
         case 'date-false':
-            _(`${dropdownId}-date-icon`).style.opacity = 1;
+            _id(`${dropdownId}-date-icon`).style.opacity = 1;
             break;
         case 'date-true':
-            _(`${dropdownId}-dateDesc-icon`).style.opacity = 1;
+            _id(`${dropdownId}-dateDesc-icon`).style.opacity = 1;
             break;
         case 'ext-false':
-            _(`${dropdownId}-ext-icon`).style.opacity = 1;
+            _id(`${dropdownId}-ext-icon`).style.opacity = 1;
             break;
         case 'ext-true':
-            _(`${dropdownId}-extDesc-icon`).style.opacity = 1;
+            _id(`${dropdownId}-extDesc-icon`).style.opacity = 1;
             break;
         case 'size-false':
-            _(`${dropdownId}-size-icon`).style.opacity = 1;
+            _id(`${dropdownId}-size-icon`).style.opacity = 1;
             break;
         case 'size-true':
-            _(`${dropdownId}-sizeDesc-icon`).style.opacity = 1;
+            _id(`${dropdownId}-sizeDesc-icon`).style.opacity = 1;
             break;
     }
 }
@@ -1508,9 +1589,9 @@ function showDropdown_themes() {
     }
     let dropdownId = showDropdown("themes", data, "topbarButtonMenu");
     window.themes.forEach(t => {
-        _(`${dropdownId}-${t.file}-icon`).style.opacity = 0;
+        _id(`${dropdownId}-${t.file}-icon`).style.opacity = 0;
         if (window.theme.name == t.name)
-            _(`${dropdownId}-${t.file}-icon`).style.opacity = 1;
+            _id(`${dropdownId}-${t.file}-icon`).style.opacity = 1;
     });
 }
 function showDropdown_lang() {
@@ -1546,9 +1627,9 @@ function showDropdown_lang() {
     }
     let dropdownId = showDropdown("lang", data, "topbarButtonMenu");
     window.languages.forEach(t => {
-        _(`${dropdownId}-${t.file}-icon`).style.opacity = 0;
+        _id(`${dropdownId}-${t.file}-icon`).style.opacity = 0;
         if (window.lang.name == t.name)
-            _(`${dropdownId}-${t.file}-icon`).style.opacity = 1;
+            _id(`${dropdownId}-${t.file}-icon`).style.opacity = 1;
     });
 }
 
@@ -1594,7 +1675,7 @@ doOnLoad.push(() => {
         'action': function() { window.location.href = "" }
     }];
 });
-_("topbarButtonMenu").addEventListener("click", function() {
+_id("topbarButtonMenu").addEventListener("click", function() {
     this.blur();
     data = [];
     data.push({
@@ -1649,7 +1730,6 @@ _("topbarButtonMenu").addEventListener("click", function() {
         'text': window.lang.dropdownHeaderShare
     });
     data.push({
-        'disabled': !window.fileListLoaded,
         'type': 'item',
         'id': 'share',
         'text': window.lang.dropdownShareDirectory,
@@ -1674,7 +1754,7 @@ _("topbarButtonMenu").addEventListener("click", function() {
     data = data.concat(window.standardDropdownEntries);
     showDropdown("mainMenu", data, this.id);
 });
-_("previewButtonMenu").addEventListener("click", function() {
+_id("previewButtonMenu").addEventListener("click", function() {
     this.blur();
     let fileData = window.currentFile;
     data = [];
@@ -1743,22 +1823,22 @@ _("previewButtonMenu").addEventListener("click", function() {
 // Show a toast notification
 function showToast(text) {
     let id = Date.now();
-    _("body").insertAdjacentHTML('beforeend', `
+    _id("body").insertAdjacentHTML('beforeend', `
         <div id="toast-${id}" class="toastContainer ease-in-out-100ms" style="display: none;">
             <div class="toast">${text}</div>
         </div>
     `);
-    _(`toast-${id}`).style.opacity = 0;
-    _(`toast-${id}`).style.bottom = "-20px";
-    _(`toast-${id}`).style.display = "flex";
+    _id(`toast-${id}`).style.opacity = 0;
+    _id(`toast-${id}`).style.bottom = "-20px";
+    _id(`toast-${id}`).style.display = "flex";
     setTimeout(() => {
-        _(`toast-${id}`).style.bottom = "0px";
-        _(`toast-${id}`).style.opacity = 1;
+        _id(`toast-${id}`).style.bottom = "0px";
+        _id(`toast-${id}`).style.opacity = 1;
         setTimeout(() => {
-            _(`toast-${id}`).style.opacity = 0;
-            _(`toast-${id}`).style.bottom = "-20px";
+            _id(`toast-${id}`).style.opacity = 0;
+            _id(`toast-${id}`).style.bottom = "-20px";
             setTimeout(() => {
-                _(`toast-${id}`).remove();
+                _id(`toast-${id}`).remove();
             }, 200);
         }, 3000);
     }, 100);
@@ -1770,13 +1850,13 @@ function showTooltip(el) {
     if (!canHover()) return;
     window.tooltipTimeout = setTimeout(() => {
         let text = el.dataset.tooltip;
-        _("tooltip").innerHTML = text;
-        _("tooltip").style.opacity = 0;
-        _("tooltip").style.display = "block";
-        _("tooltip").style.left = "";
-        _("tooltip").style.right = "";
-        _("tooltip").style.top = "";
-        _("tooltip").style.bottom = "";
+        _id("tooltip").innerHTML = text;
+        _id("tooltip").style.opacity = 0;
+        _id("tooltip").style.display = "block";
+        _id("tooltip").style.left = "";
+        _id("tooltip").style.right = "";
+        _id("tooltip").style.top = "";
+        _id("tooltip").style.bottom = "";
         let winW = window.innerWidth;
         let winH = window.innerHeight;
         let elW = Math.floor(_getW("tooltip"));
@@ -1788,29 +1868,29 @@ function showTooltip(el) {
         // Position horizontally
         if (window.mouseX > (winW/2)
           && left > (winW-elW-30)) {
-            _("tooltip").style.right = `${right}px`;
+            _id("tooltip").style.right = `${right}px`;
             // Fix a strange bug where sometimes the tooltip is too far away from the cursor
             if (_getX2("tooltip") != window.mouseX) {
                 right = right+(_getX2("tooltip")-window.mouseX);
-                _("tooltip").style.right = `${right}px`;
+                _id("tooltip").style.right = `${right}px`;
             }
         } else
-            _("tooltip").style.left = `${left}px`;
+            _id("tooltip").style.left = `${left}px`;
         // Position vertically
         if (window.mouseY > (winH/2)
           && top > (winH-elH-30))
-            _("tooltip").style.bottom = `${bottom}px`;
+            _id("tooltip").style.bottom = `${bottom}px`;
         else {
-            _("tooltip").style.top = `${top+15}px`;
+            _id("tooltip").style.top = `${top+15}px`;
             // Adjust for the top left corner
-            if (_("tooltip").style.left != '')
-                _("tooltip").style.left = `${left+12}px`;
+            if (_id("tooltip").style.left != '')
+                _id("tooltip").style.left = `${left+12}px`;
         }
         // Fade in
         //console.log(`Showing tooltip at (${_getX("tooltip")}, ${_getY("tooltip")})\nCursor: (${window.mouseX}, ${window.mouseY})\nWindow W ${winW}px, H ${winH}px\nX1 ${_getX("tooltip")}px  Y1 ${_getY("tooltip")}px\nX2 ${_getX2("tooltip")}px  Y2 ${_getY2("tooltip")}px\nW ${_getW("tooltip")}px  H ${_getH("tooltip")}px`);
         console.log(`Showing tooltip at (${_getX("tooltip")}, ${_getY("tooltip")})`);
         window.tooltipFadeTimeout = setTimeout(() => {
-            _("tooltip").style.opacity = 1;
+            _id("tooltip").style.opacity = 1;
             window.tooltipTimeout = setTimeout(() => {
                 hideTooltip();
             }, (20*1000));
@@ -1822,9 +1902,9 @@ function showTooltip(el) {
 function hideTooltip() {
     clearTimeout(window.tooltipTimeout);
     clearTimeout(window.tooltipFadeTimeout);
-    _("tooltip").style.opacity = 0;
+    _id("tooltip").style.opacity = 0;
     window.tooltipFadeTimeout = setTimeout(() => {
-        _("tooltip").style.display = "none";
+        _id("tooltip").style.display = "none";
     }, 200);
 }
 
@@ -1851,10 +1931,10 @@ setInterval(() => {
 }, 500);
 
 // Handle the filter bar
-_("fileListFilter").addEventListener("keyup", function(event) { filterFiles(event, this) });
-_("fileListFilterClear").addEventListener("click", function(event) {
-    _("fileListFilter").value = "";
-    filterFiles(event, _("fileListFilter"));
+_id("fileListFilter").addEventListener("keyup", function(event) { filterFiles(event, this) });
+_id("fileListFilterClear").addEventListener("click", function(event) {
+    _id("fileListFilter").value = "";
+    filterFiles(event, _id("fileListFilter"));
 });
 function filterFiles(event, elBar) {
     let value = elBar.value.toLowerCase();
@@ -1868,9 +1948,9 @@ function filterFiles(event, elBar) {
                 const el = window.fileElements[i];
                 el.style.display = "";
             }
-            _("fileListHint").innerHTML = window.fileListHint;
-            if (window.dirHeader) _("directoryHeader").style.display = "";
-            _("fileListFilterClear").style.display = "none";
+            _id("fileListHint").innerHTML = window.fileListHint;
+            if (window.dirHeader) _id("directoryHeader").style.display = "";
+            _id("fileListFilterClear").style.display = "none";
         } else {
             let matches = 0;
             for (i = 0; i < window.fileElements.length; i++) {
@@ -1883,26 +1963,26 @@ function filterFiles(event, elBar) {
                     el.style.display = "none";
             }
             if (elBar.value.match(/^url=(.*)$/gi)) {
-                _("fileListHint").innerHTML = window.lang.fileListFilterUrl;
+                _id("fileListHint").innerHTML = window.lang.fileListFilterUrl;
                 if (event.key == "Enter" || event.keyCode == 13) {
                     window.location.href = elBar.value.replace(/^url=(.*)$/gi, "$1");
                 }
             } else if (matches == 0) {
-                _("fileListHint").innerHTML = window.lang.fileListDetailsFilterNone;
+                _id("fileListHint").innerHTML = window.lang.fileListDetailsFilterNone;
             } else if (matches == 1) {
-                _("fileListHint").innerHTML = window.lang.fileListDetailsFilterSingle;
+                _id("fileListHint").innerHTML = window.lang.fileListDetailsFilterSingle;
             } else {
-                _("fileListHint").innerHTML = window.lang.fileListDetailsFilterMulti.replace("%0", matches);
+                _id("fileListHint").innerHTML = window.lang.fileListDetailsFilterMulti.replace("%0", matches);
             }
-            _("directoryHeader").style.display = "none";
-            _("fileListFilterClear").style.display = "";
+            _id("directoryHeader").style.display = "none";
+            _id("fileListFilterClear").style.display = "";
         }
     // 100ms for every 500 files
     }, (100*Math.floor(window.fileElements.length/500)));
 }
 
 // Topbar title click event
-_("topbarTitle").addEventListener("click", function() {
+_id("topbarTitle").addEventListener("click", function() {
     this.blur();
     historyPushState('', `/`);
     loadFileList();
@@ -1954,9 +2034,9 @@ window.addEventListener("popstate", function(event) {
 document.addEventListener("scroll", function(event) {
     el = document.documentElement;
     if (el.scrollTop > 0)
-        _("topbar").classList.add("shadow");
+        _id("topbar").classList.add("shadow");
     else
-        _("topbar").classList.remove("shadow");
+        _id("topbar").classList.remove("shadow");
 });
 
 // Do this stuff when the cursor moves anywhere within the window
@@ -2020,17 +2100,17 @@ loadCheck = setInterval(() => {
         document.getElementById("body").classList.remove("no-transitions");
         console.log("CyberFiles loaded at "+dateFormat(Date.now(), "%+H:%+M on %Y-%+m-%+d"));
         // Hide the splash
-        _("splash").style.opacity = 0;
+        _id("splash").style.opacity = 0;
         setTimeout(() => {
-            _("splash").style.display = "none";
+            _id("splash").style.display = "none";
         }, 300);
         // Do this stuff initially
         initLocStore();
         loadFileList();
-        _("topbarTitle").dataset.tooltip = window.lang.tooltipTopbarTitle;
-        _("topbarButtonMenu").dataset.tooltip = window.lang.tooltipMenu;
-        _("previewButtonMenu").dataset.tooltip = window.lang.tooltipMenu;
-        _("previewButtonClose").dataset.tooltip = window.lang.tooltipPreviewClose;
+        _id("topbarTitle").dataset.tooltip = window.lang.tooltipTopbarTitle;
+        _id("topbarButtonMenu").dataset.tooltip = window.lang.tooltipMenu;
+        _id("previewButtonMenu").dataset.tooltip = window.lang.tooltipMenu;
+        _id("previewButtonClose").dataset.tooltip = window.lang.tooltipPreviewClose;
         window.doOnLoad.forEach(func => {
             func();
         });

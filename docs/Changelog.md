@@ -2,6 +2,25 @@
 # CyberFilesRewrite Changelog
 I'll try my best to keep track of all changes to CyberFilesRewrite, big and small, right here in this changelog. I do most of my web development late at night, so the dates here tend to extend into the following day.
 
+## 1.12.0 - October 15th, 2021
+* File sorting now happens on the client side
+* Directory headers are now sent from server to client encoded as base64
+* Added a little bit of padding around the scrollbar thumb
+* A custom sort entry is deleted from local storage when it matches the folder's default sort (the sort values returned by the API)
+* Separated file list loading on the client into a series of subfunctions
+* Added load chunking
+    * This involves the server and client ping-ponging every few seconds until the client has gotten the whole file list
+    * This should prevent long requests timing out, and allows us to show loading progress to the user
+    * This will typically only come into play when loading large directories that haven't been cached, or that have files which need thumbnails generated
+* Breadcrumbs now update immediately after clicking a directory, not after it's loaded
+
+## 1.11.4 - October 14th, 2021
+* Fixed the folder name displayed in the Folder Info popup when in the root directory
+* Fixed logging errors to their own file
+* Added the creation of thumbnails from images and videos (stored in `_cyberfiles/public/thumbs`) and corresponding config options
+* The client now sends the load start time along with the request to the server, and the response is only processed on the client if the returned start time matches the one we sent
+    * This makes it so, if the user navigates away from a directory before it finishes loading, the response won't be processed if/once it's received
+
 ## 1.11.3 - October 8th, 2021
 * Added a folder info popup
 * Slightly changed the shadow of popups

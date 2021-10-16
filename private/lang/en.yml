@@ -69,9 +69,9 @@ fileDetailsName: Name
 fileDetailsSize: File size
 fileDetailsType: File type
 folderDetailsName: Name
-folderDetailsTotalSize: Total size
-folderDetailsContents: Contents
-folderDetailsContentsEmpty: None
+folderDetailsTotalSize: Size of contents
+folderDetailsContents: Contains
+folderDetailsContentsEmpty: Nothing
 folderDetailsContentItem: "%0 %1 file"
 folderDetailsContentItemMulti: "%0 %1 files"
 folderDetailsContentItemFolder: "%0 folder"
@@ -83,6 +83,8 @@ fileListDetails2: "Total size: %0"
 fileListDetailsFilterMulti: "Filtered %0 files"
 fileListDetailsFilterNone: "No files match your filter"
 fileListDetailsFilterSingle: "Filtered 1 file"
+fileListDetailsLoading1: "Hang tight while the server processes your request"
+fileListDetailsLoading2: "%0% processed"
 fileListEmpty: There's nothing here.
 fileListEntryUp: "Up to %0"
 fileListError: An error occurred.
@@ -155,22 +157,24 @@ popupServerError500: "The server ran into an internal error. If this continues, 
 popupServerError500Lnk: "submit an issue"
 popupServerError502: "Bad gateway."
 popupServerError503: "The server is temporarily unavailable."
-popupServerError504: "The gateway server timed out. If this is a large directory that hasn't been loaded before, it may take a couple loads to get it all cached."
+popupServerError504: "The gateway server timed out. If this is a large directory that hasn't been loaded before, it may take a couple loads to get it all cached on the server."
 popupServerError520: "The origin server encountered an unknown error."
 popupServerError521: "The origin server is inaccessible."
-popupServerError522: "The proxy server timed out while connecting to the origin server. If this is a large directory that hasn't been loaded before, it may take a couple loads to get it all cached."
+popupServerError522: "The proxy server timed out while connecting to the origin server. If this is a large directory that hasn't been loaded before, it may take a couple loads to get it all cached on the server."
 popupServerError523: "The proxy server failed to connect to the origin server."
-popupServerError524: "The proxy server timed out while waiting for a response from the origin server. If this is a large directory that hasn't been loaded before, it may take a couple loads to get it all cached."
+popupServerError524: "The proxy server timed out while waiting for a response from the origin server. If this is a large directory that hasn't been loaded before, it may take a couple loads to get it all cached on the server."
 popupServerErrorOther: "The server encountered an error. Search for the error code above for more info."
 linkPreviewFileUncached: "This file's details aren't available right now, but you can preview and download it online."
 loggerApiCall: "[%0] Made an API request in \"%1\" with arguments '%2'"
 loggerCacheReset: "The cache database has been wiped to match version \"%0\""
+loggerClientAbort: "Connection aborted by client"
 loggerFailedShortLink: "Too many failed attempts to create a short link slug for path: \"%0\""
 loggerFileCached: "Saved file to cache: \"%0\""
 loggerNewShortLink: "Created new short link slug for path: \"%0\""
 loggerPageLoad: "[%0] Freshly loaded CyberFiles in \"%1\""
 loggerPhpError: "%0 (%1:%2)"
 loggerShortLinkUsed: "[%0] Used short link \"%1\""
+loggerThumbnailGenerated: "New thumbnail generated in %0 for \"%1\""
 loggerTypeAccess: Access
 loggerTypeError: Error
 loggerTypeGeneric: Info
