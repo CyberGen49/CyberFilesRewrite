@@ -626,10 +626,14 @@ function loadFileList(dir = "", entryId = null, forceReload = false) {
                     f.detailsMobile = window.lang.fileListMobileLine2.replace("%0", f.modifiedF).replace("%1", f.sizeF);
                 }
                 f.nameUri = encodeURIComponent(f.name);
+                // Check for a thumbnail and set icon accordingly
+                let iconOuter = `<div class="col-auto fileEntryIcon material-icons">${f.icon}</div>`;
+                if (f.thumbnail)
+                    iconOuter = `<div class="col-auto fileEntryIcon"><img src="/_cyberfiles/public/thumbs/${f.thumbnail}"></div>`;
                 // Build HTML
                 _id("fileList").insertAdjacentHTML('beforeend', `
                     <a id="fileEntry-${i}" class="row no-gutters fileEntry" tabindex=0 data-filename='${f.name}' data-objectindex=${i} onClick='fileEntryClicked(this, event)'>
-                        <div class="col-auto fileEntryIcon material-icons">${f.icon}</div>
+                        ${iconOuter}
                         <div class="col fileEntryName">
                             <div class="fileEntryNameInner noBoost">${f.name}</div>
                             <div class="fileEntryMobileDetails fileListMobile noBoost">${f.detailsMobile}</div>
@@ -905,7 +909,7 @@ function showFilePreview(id = null) {
             _id("previewFile").className = "";
             _id("previewFile").classList.add("previewTypeVideo");
             _id("previewFile").innerHTML = `
-                <video id="videoPreview" controls src="${encodeURIComponent(data.name)}"></video>
+                <video id="videoPreview" controls src="${encodeURIComponent(data.name)}?t=${data.modified}"></video>
             `;
             // Variables
             const vid = _id("videoPreview");
@@ -977,7 +981,7 @@ function showFilePreview(id = null) {
             _id("previewFile").className = "";
             _id("previewFile").classList.add("previewTypeAudio");
             _id("previewFile").innerHTML = `
-                <audio id="audioPreview" controls src="${encodeURIComponent(data.name)}"></audio>
+                <audio id="audioPreview" controls src="${encodeURIComponent(data.name)}?t=${data.modified}"></audio>
             `;
             const aud = _id("audioPreview");
             aud.autoplay = window.conf.audioAutoplay;
@@ -985,13 +989,13 @@ function showFilePreview(id = null) {
             _id("previewFile").className = "";
             _id("previewFile").classList.add("previewTypeImage");
             _id("previewFile").innerHTML = `
-                <img src="${encodeURIComponent(data.name)}"></img>
+                <img src="${encodeURIComponent(data.name)}?t=${data.modified}"></img>
             `;
         } else if (data.ext.match(/^(PDF)$/)) {
             _id("previewFile").className = "";
             _id("previewFile").classList.add("previewTypeEmbed");
             _id("previewFile").innerHTML = `
-                <iframe src="${encodeURIComponent(data.name)}"></iframe>
+                <iframe src="${encodeURIComponent(data.name)}?t=${data.modified}"></iframe>
             `;
         } else if (data.mimeType.match(/^text\/.*$/)) {
             const getTextPreview = async function(f) {

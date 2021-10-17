@@ -69,7 +69,7 @@ fileDetailsName: Name
 fileDetailsSize: File size
 fileDetailsType: File type
 folderDetailsName: Name
-folderDetailsTotalSize: Size of contents
+folderDetailsTotalSize: Size of files
 folderDetailsContents: Contains
 folderDetailsContentsEmpty: Nothing
 folderDetailsContentItem: "%0 %1 file"
@@ -83,7 +83,7 @@ fileListDetails2: "Total size: %0"
 fileListDetailsFilterMulti: "Filtered %0 files"
 fileListDetailsFilterNone: "No files match your filter"
 fileListDetailsFilterSingle: "Filtered 1 file"
-fileListDetailsLoading1: "Hang tight while the server processes your request"
+fileListDetailsLoading1: "Hang tight while we processes these files"
 fileListDetailsLoading2: "%0% processed"
 fileListEmpty: There's nothing here.
 fileListEntryUp: "Up to %0"

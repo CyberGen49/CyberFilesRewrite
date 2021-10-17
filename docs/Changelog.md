@@ -2,6 +2,10 @@
 # CyberFilesRewrite Changelog
 I'll try my best to keep track of all changes to CyberFilesRewrite, big and small, right here in this changelog. I do most of my web development late at night, so the dates here tend to extend into the following day.
 
+## 1.13.0 - October 16th, 2021
+* Added image and video thumbnails to file list entries
+    * This puts to use the thumbnail generation added in 1.11.4
+
 ## 1.12.0 - October 15th, 2021
 * File sorting now happens on the client side
 * Directory headers are now sent from server to client encoded as base64

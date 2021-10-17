@@ -1,4 +1,5 @@
 /private/cache.db
 /private/shortLinks.db
-private/logs/*
-private/configUser.yml
+/private/logs/*
+/private/configUser.yml
+/public/thumbs/*

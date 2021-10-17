@@ -465,7 +465,12 @@ br {
     font-family: "Material Icons Outlined";
     font-size: 22px;
     color: var(--fileIcon);
-    text-overflow: clip;
+    overflow: clip;
+}
+
+.fileEntryIcon img {
+    height: 28px;
+    border-radius: 4px;
 }
 
 .fileEntryMobileDetails {
@@ -592,6 +597,10 @@ br {
     width: 100%;
     height: 100%;
     margin: auto;
+}
+.previewTypeAudio audio {
+    width: 400px;
+    padding: 0px 10px;
 }
 .previewTypeEmbed iframe {
     width: 100%;
@@ -929,6 +938,9 @@ br {
     .fileEntryIcon {
         font-size: 26px;
     }
+    .fileEntryIcon img {
+        height: 32px;
+    }
     
     #fileListHint { font-size: 15px; }
 
@@ -1005,10 +1017,13 @@ br {
     }
 
     #fileListHeaderIcon, .fileEntryIcon {
-        width: 60px;
+        width: 65px;
     }
     .fileEntryIcon {
-        font-size: 26px;
+        font-size: 28px;
+    }
+    .fileEntryIcon img {
+        height: 36px;
     }
 
     .fileEntryNameInner {

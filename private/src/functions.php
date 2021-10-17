@@ -4,7 +4,7 @@
 // See the APICall class at the bottom for the CyberFiles API
 
 // CyberFiles version
-$version = 'v1.12.0';
+$version = 'v1.13.0';
 
 // Get relative and absolute directory paths
 $dirRel = clean_path(rawurldecode(explode("?", $_SERVER['REQUEST_URI'])[0]));
