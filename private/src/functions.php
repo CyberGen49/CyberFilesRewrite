@@ -4,7 +4,7 @@
 // See the APICall class at the bottom for the CyberFiles API
 
 // CyberFiles version
-$version = 'v1.13.0';
+$version = 'v1.13.1';
 
 // Get relative and absolute directory paths
 $dirRel = clean_path(rawurldecode(explode("?", $_SERVER['REQUEST_URI'])[0]));
@@ -319,23 +319,22 @@ class ApiCall {
                 // Get directory contents
                 $scandir = scandir($dir);
                 natsort($scandir);
+                $data['chunking']['totalFiles'] = 0;
+                $data['chunking']['offset'] = 0;
+                $data['chunking']['complete'] = true;
                 // Check for header files
                 if (file_exists("$dir/{$conf['headerFileNameMarkdown']}"))
                     $data['headerMarkdown'] = base64_encode(file_get_contents("$dir/{$conf['headerFileNameMarkdown']}"));
                 if (file_exists("$dir/{$conf['headerFileNameHtml']}"))
                     $data['headerHtml'] = base64_encode(file_get_contents("$dir/{$conf['headerFileNameHtml']}"));
-                // Check if contents are hidden
+                // Skip scanning files if contents are hidden
                 $data['files'] = [];
-                if (file_exists("$dir/{$conf['hideContentsFile']}")) {
-                    $data['status'] = "CONTENTS_HIDDEN";
-                    break;
-                }
+                if (file_exists("$dir/{$conf['hideContentsFile']}"))
+                    goto skipFileScanning;
                 // Loop through files and add
                 $chunkingStart = time();
-                $data['chunking']['totalFiles'] = count($scandir);
-                $data['chunking']['offset'] = 0;
-                $data['chunking']['complete'] = true;
                 $offset = 0;
+                $data['chunking']['totalFiles'] = count($scandir);
                 if (isset($params['offset'])) $offset = $params['offset'];
                 for ($i = $offset; $i < count($scandir); $i++) {
                     $file = $scandir[$i];
@@ -376,6 +375,7 @@ class ApiCall {
                         exit;
                     }
                 }
+                skipFileScanning:
                 // Check for sort override files
                 $data['sort']['type'] = "name";
                 $data['sort']['desc'] = false;

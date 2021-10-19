@@ -399,16 +399,17 @@ function loadFileList(dir = "", entryId = null, forceReload = false) {
             _id("fileListHint").style.display = "";
             _id("fileListHint").style.opacity = 1;
         }
-        _id("fileList").style.display = "none";
-        _id("fileList").style.opacity = 0;
-        _id("fileListHint").style.display = "none";
-        _id("fileListHint").style.opacity = 0;
-        _id("directoryHeader").style.display = "none";
-        _id("directoryHeader").style.opacity = 0;
         _id("fileListFilter").disabled = true;
         _id("fileListFilter").value = "";
         _id("fileListFilter").placeholder = window.lang.fileListFilterDisabled;
         _id("fileListFilterClear").style.display = "none";
+        _id("directoryHeader").style.display = "none";
+        _id("directoryHeader").style.opacity = 0;
+        _id("fileListHeaders").style.display = "none";
+        _id("fileList").style.display = "none";
+        _id("fileList").style.opacity = 0;
+        _id("fileListHint").style.display = "none";
+        _id("fileListHint").style.opacity = 0;
         const sortIndicators = document.getElementsByClassName("fileListSortIndicator");
         for (i = 0; i < sortIndicators.length; i++)
             sortIndicators[i].innerHTML = "";
@@ -455,7 +456,7 @@ function loadFileList(dir = "", entryId = null, forceReload = false) {
                     return;
                 }
                 // If the return status is good
-                if (data.status == "GOOD" || data.status == "CONTENTS_HIDDEN") {
+                if (data.status == "GOOD") {
                     serverProcessingTime += data.processingTime;
                     console.log(`Fetched file list chunk (${data.chunking.offset+1}/${data.chunking.totalFiles}, ${Math.round(serverProcessingTime/1000)}s):`);
                     console.log(data);
@@ -677,11 +678,8 @@ function loadFileList(dir = "", entryId = null, forceReload = false) {
             let loadTimeF = loadElapsed+window.lang.dtUnitShortMs;
             if (loadElapsed >= 1000)
                 loadTimeF = roundSmart(loadElapsed/1000, 2)+window.lang.dtUnitShortSecs;
-            // If the folder contents have been hidden
-            if (data.status == "CONTENTS_HIDDEN") {
-                _id("fileListHint").innerHTML = window.lang.fileListHidden;
             // If there aren't any files
-            } else if (data.files.length == 0) {
+            if (data.files.length == 0) {
                 _id("fileListHint").innerHTML = window.lang.fileListEmpty;
             // Otherwise, set the footer as planned
             } else {
@@ -699,6 +697,7 @@ function loadFileList(dir = "", entryId = null, forceReload = false) {
             window.fileListHint = _id("fileListHint").innerHTML;
             // Show elements
             clearTimeout(seamlessTimeout);
+            _id("fileListHeaders").style.display = "";
             _id("fileList").style.display = "";
             _id("fileListHint").style.display = "";
             if (dirHeader) _id("directoryHeader").style.display = "";
@@ -2058,7 +2057,7 @@ if ($_GET("badShortLink") === '') {
 }
 
 // Do this stuff any time an uncaught error occurs
-window.onerror = function (msg, url, lineNo, columnNo, error) {
+function errorHandler(msg, url, lineNo, columnNo, error) {
     if (msg.match(/ResizeObserver/gi)) {
         console.log(`Error ignored: ${msg}`);
         return false;
@@ -2092,6 +2091,9 @@ window.onerror = function (msg, url, lineNo, columnNo, error) {
     }], false);
     return false;
 }
+window.onerror = (msg, url, lineNo, columnNo, error) => {
+    errorHandler(msg, url, lineNo, columnNo, error)
+};
 
 // Wait for a complete load to start stuff
 loaded = false;

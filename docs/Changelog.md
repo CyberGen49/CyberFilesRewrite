@@ -2,6 +2,12 @@
 # CyberFilesRewrite Changelog
 I'll try my best to keep track of all changes to CyberFilesRewrite, big and small, right here in this changelog. I do most of my web development late at night, so the dates here tend to extend into the following day.
 
+## 1.13.1 - October 17th, 2021
+* Fixed directories with their contents hidden
+* Removed the `CONTENTS_HIDDEN` API status code
+    * This way, there's no way the client can tell if a directory is empty or has hidden contents
+* Further refined the appearance of the global scrollbars and code block scrollbars
+
 ## 1.13.0 - October 16th, 2021
 * Added image and video thumbnails to file list entries
     * This puts to use the thumbnail generation added in 1.11.4

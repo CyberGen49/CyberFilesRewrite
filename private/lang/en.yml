@@ -92,7 +92,6 @@ fileListFilter: Filter files in this folder...
 fileListFilterClear: Clear filter
 fileListFilterDisabled: Filtering is unavailable right now
 fileListFilterUrl: Type a URL and press Enter to navigate.
-fileListHidden: This folder's contents have been hidden.
 fileListMobileLine2: "%0 • %1"
 fileListRootName: "Home"
 previewTitlebar2: "%0 • %1"

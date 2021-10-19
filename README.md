@@ -129,7 +129,7 @@ If a file with this name exists in a directory, it will be read and parsed as Ma
 
 #### `headerFileNameHtml`
 Type: `string`  
-Like `headerFileNameMarkdown`, but instead of parsing the contents as Markdown, they'll be dumped right on to the page. Ideally, the contents of this file should be in HTML.
+Like `headerFileNameMarkdown`, but instead of parsing the contents as Markdown, they'll be dumped right on to the page. Ideally, this file should contain HTML.
 
 #### `hideContentsFile`
 Type: `string`  
@@ -279,8 +279,8 @@ The API will always respond with a JSON string that can then be parsed into an a
 * `sort`: Contains information about how the file list is sorted
     * `type`: `name`, `date`, or `size`
     * `desc`: `true` if the list is descending, `false` otherwise
-* `headerMarkdown`: If a header Markdown file exists in the directory, this will contain its contents - see [`headerFileNameMarkdown`](#headerfilenamemarkdown)
-* `headerHtml`: If a header HTML file exists in the directory, this will contain its contents - see [`headerFileNameHtml`](#headerfilenamehtml)
+* `headerMarkdown`: If a header Markdown file exists in the directory, this will contain its contents encoded as Base64 - see [`headerFileNameMarkdown`](#headerfilenamemarkdown)
+* `headerHtml`: If a header HTML file exists in the directory, this will contain its contents encoded as Base64 - see [`headerFileNameHtml`](#headerfilenamehtml)
 * `chunking`: Contains information about chunked responses
     * `complete`: If `true`, then the end of the file list has been reached
     * `totalFiles`: The total number of files in the directory, including hidden ones
@@ -289,7 +289,6 @@ The API will always respond with a JSON string that can then be parsed into an a
 All API responses include these values:
 * `status`: A **status code** - can be any of the following:
     * `GOOD`: The request was successful
-    * `CONTENTS_HIDDEN`: No errors were encountered, but the directory contents have been hidden from view
     * `DIRECTORY_NONEXISTENT`: The current directory doesn't exist on the server
     * `UNFINISHED`: The requested action isn't finished
     * `INVALID`: The request was invalid
