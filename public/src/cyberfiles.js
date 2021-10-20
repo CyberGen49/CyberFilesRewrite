@@ -75,6 +75,13 @@ function initLocStore() {
         dirSort = {};
         locStoreArraySet("dirsort", dirSort);
     }
+
+    // Initialize directory views
+    window.dirView = locStoreArrayGet("dirview");
+    if (dirView === null) {
+        dirView = {};
+        locStoreArraySet("dirview", dirView);
+    }
 }
 
 // Copies the specified text to the clipboard
@@ -138,7 +145,7 @@ function _getH(id) {
     return document.getElementById(id).getBoundingClientRect().height;
 }
 
-// Function to start a direct file download
+// Starts a direct file download
 function downloadFile(url, elThis) {
     let id = `fileDownload-${Date.now}`;
     _id("body").insertAdjacentHTML('beforeend', `
@@ -488,6 +495,49 @@ function loadFileList(dir = "", entryId = null, forceReload = false) {
                 throw new Error(error);
             });
         }
+        const createFileEntry = function(id, name, icon, thumb, detailsMobile, modified, type, size) {
+            // Grid view
+            if (typeof window.dirView[currentDir()] !== 'undefined' && window.dirView[currentDir()].match(/^grid.*$/)) {
+                // Check for a thumbnail and set icon accordingly
+                let iconOuter = `<div class="fileGridEntryIcon material-icons">${icon}</div>`;
+                if (thumb) iconOuter = `<div class="fileGridEntryIcon"><img src="/_cyberfiles/public/thumbs/${thumb}"></div>`;
+                let sizeOuter = '';
+                let dateOuter = '';
+                if (size != '-' && window.conf.gridView.showSize)
+                    sizeOuter = `<div class="fileGridEntrySize">${size}</div>`;
+                if (window.conf.gridView.showModified)
+                    dateOuter = `<div class="fileGridEntryDate">${modified}</div>`;
+                // Create and return HTML
+                return `
+                    <a id="fileEntry-${id}" class="fileGridEntry" tabindex=0 data-filename='${name}' data-objectindex=${id} onClick='fileEntryClicked(this, event)'>
+                        ${iconOuter}
+                        <div class="fileGridEntryDetails">
+                            <div class="fileGridEntryName">${name}</div>
+                            ${dateOuter}
+                            ${sizeOuter}
+                        </div>
+                    </a>
+                `;
+            }
+            // Check for a thumbnail and set icon accordingly
+            let iconOuter = `<div class="col-auto fileEntryIcon material-icons">${icon}</div>`;
+            if (thumb) iconOuter = `<div class="col-auto fileEntryIcon"><img src="/_cyberfiles/public/thumbs/${thumb}"></div>`;
+            // Create and return HTML
+            return `
+                <a id="fileEntry-${id}" class="row no-gutters fileEntry" tabindex=0 data-filename='${name}' data-objectindex=${id} onClick='fileEntryClicked(this, event)'>
+                    ${iconOuter}
+                    <div class="col fileEntryName">
+                        <div class="fileEntryNameInner noBoost">${name}</div>
+                        <div class="fileEntryMobileDetails fileListMobile noBoost">${detailsMobile}</div>
+                    </div>
+                    <div class="col-auto fileEntryDate fileListDesktop noBoost">${modified}</div>
+                    <div class="col-auto fileEntryType fileListDesktopBig noBoost">
+                        <div class="fileEntryTypeInner noBoost">${type}</div>
+                    </div>
+                    <div class="col-auto fileEntrySize fileListDesktop noBoost">${size}</div>
+                </a>
+            `;
+        }
         const loadFileList_display = function() {
             let data = combinedFiles;
             // Update history
@@ -511,17 +561,7 @@ function loadFileList(dir = "", entryId = null, forceReload = false) {
                 let upTitle = window.lang.fileListEntryUp.replace("%0", dirParentName);
                 // Build the HTML
                 if (window.conf.upButtonInFileList) {
-                    _id("fileList").insertAdjacentHTML('beforeend', `
-                        <a id="fileEntryUp" class="row no-gutters fileEntry" tabindex=0 onClick='fileEntryClicked(this, event)'">
-                            <div class="col-auto fileEntryIcon material-icons">arrow_back</div>
-                            <div class="col fileEntryName">
-                                <div class="fileEntryNameInner noBoost">${upTitle}</div>
-                            </div>
-                            <div class="col-auto fileEntryDate fileListDesktop">-</div>
-                            <div class="col-auto fileEntryType fileListDesktopBig noBoost"><div class="fileEntryTypeInner noBoost">-</div></div>
-                            <div class="col-auto fileEntrySize fileListDesktop">-</div>
-                        </a>
-                    `);
+                    _id("fileList").insertAdjacentHTML('beforeend', createFileEntry('up', upTitle, 'arrow_back', null, '', '-', '-', '-'));
                 }
                 // Handle the up button in the topbar
                 _id("topbarButtonUp").classList.remove("disabled");
@@ -543,12 +583,14 @@ function loadFileList(dir = "", entryId = null, forceReload = false) {
                 sortDesc = customSort.desc;
                 console.log(`Using custom sort: ${sortType}-${sortDesc}`);
             }
-            // Separate files and folders
+            // Separate files and folders and count thumbnails
             let tmpFiles = [];
             let tmpFolders = [];
+            let thumbed = 0;
             data.files.forEach(f => {
                 if (f.mimeType == 'directory') tmpFolders.push(f);
                 else tmpFiles.push(f);
+                if (f.thumbnail) thumbed++;
             });
             // Sort the files
             // https://stackoverflow.com/questions/52660451/javascript-natural-sort-objects
@@ -593,6 +635,10 @@ function loadFileList(dir = "", entryId = null, forceReload = false) {
                 'type': sortType,
                 'desc': sortDesc,
             };
+            // Switch to grid view if more than 70% of files have a thumbnail
+            if (typeof window.dirView[currentDir()] === 'undefined'
+              && (thumbed/data.files.length) > 0.5)
+                changeListView('grid2', false);
             // Loop through the returned file objects
             window.fileObjects = [];
             let totalSize = 0;
@@ -627,31 +673,13 @@ function loadFileList(dir = "", entryId = null, forceReload = false) {
                     f.detailsMobile = window.lang.fileListMobileLine2.replace("%0", f.modifiedF).replace("%1", f.sizeF);
                 }
                 f.nameUri = encodeURIComponent(f.name);
-                // Check for a thumbnail and set icon accordingly
-                let iconOuter = `<div class="col-auto fileEntryIcon material-icons">${f.icon}</div>`;
-                if (f.thumbnail)
-                    iconOuter = `<div class="col-auto fileEntryIcon"><img src="/_cyberfiles/public/thumbs/${f.thumbnail}"></div>`;
                 // Build HTML
-                _id("fileList").insertAdjacentHTML('beforeend', `
-                    <a id="fileEntry-${i}" class="row no-gutters fileEntry" tabindex=0 data-filename='${f.name}' data-objectindex=${i} onClick='fileEntryClicked(this, event)'>
-                        ${iconOuter}
-                        <div class="col fileEntryName">
-                            <div class="fileEntryNameInner noBoost">${f.name}</div>
-                            <div class="fileEntryMobileDetails fileListMobile noBoost">${f.detailsMobile}</div>
-                        </div>
-                        <div class="col-auto fileEntryDate fileListDesktop noBoost">${f.modifiedF}</div>
-                        <div class="col-auto fileEntryType fileListDesktopBig noBoost">
-                            <div class="fileEntryTypeInner noBoost">${f.typeF}</div>
-                        </div>
-                        <div class="col-auto fileEntrySize fileListDesktop noBoost">${f.sizeF}</div>
-                    </a>
-                `);
+                _id("fileList").insertAdjacentHTML('beforeend', createFileEntry(i, f.name, f.icon, f.thumbnail, f.detailsMobile, f.modifiedF, f.typeF, f.sizeF));
                 _id(`fileEntry-${i}`).dataset.tooltip = f.title;
                 _id(`fileEntry-${i}`).href = f.nameUri;
                 window.fileObjects[i] = f;
                 i++;
             });
-            window.fileElements = document.getElementsByClassName("fileEntry");
             // Get directory short link
             window.shortSlug = data.shortSlug;
             // Parse and set the directory header, if it exists
@@ -695,9 +723,21 @@ function loadFileList(dir = "", entryId = null, forceReload = false) {
                 _id("fileListHint").innerHTML += "<br>"+window.lang.fileListDetails2.replace("%0", formattedSize(totalSize));
             }
             window.fileListHint = _id("fileListHint").innerHTML;
+            _id("fileList").classList.remove('fileListGrid');
+            _id("fileList").classList.remove('grid1');
+            _id("fileList").classList.remove('grid2');
+            _id("fileList").classList.remove('grid3');
+            // Check for view and update styles accordingly
+            if (typeof window.dirView[currentDir()] !== 'undefined' && window.dirView[currentDir()].match(/^grid.*$/)) {
+                _id("fileList").classList.add('fileListGrid');
+                _id("fileList").classList.add(window.dirView[currentDir()]);
+                window.fileElements = document.getElementsByClassName("fileGridEntry");
+            } else {
+                _id("fileListHeaders").style.display = "";
+                window.fileElements = document.getElementsByClassName("fileEntry");
+            }
             // Show elements
             clearTimeout(seamlessTimeout);
-            _id("fileListHeaders").style.display = "";
             _id("fileList").style.display = "";
             _id("fileListHint").style.display = "";
             if (dirHeader) _id("directoryHeader").style.display = "";
@@ -818,6 +858,14 @@ function sortFileList(type, desc) {
     // Commit to local storage and reload the file list
     locStoreArraySet('dirsort', window.dirSort);
     loadFileList('', null, true);
+}
+
+// Change this directory's view
+function changeListView(type, refresh = true) {
+    window.dirView[currentDir()] = type;
+    // Commit to local storage and reload the file list
+    locStoreArraySet('dirview', window.dirView);
+    if (refresh) loadFileList('', null, true);
 }
 
 // File list column header click event listeners
@@ -1086,7 +1134,7 @@ function fileEntryClicked(el, event) {
         return;
     }
     // See if this is the up button
-    if (el.id == "fileEntryUp" || (el.id == "topbarButtonUp" && !el.classList.contains("disabled"))) {
+    if (el.id == "fileEntry-up" || (el.id == "topbarButtonUp" && !el.classList.contains("disabled"))) {
         console.log("Up entry clicked: "+currentDir(1));
         let upPath = currentDir(1);
         if (upPath != "/") upPath = `${currentDir(1)}/`;
@@ -1484,6 +1532,62 @@ function showDropdown_sort() {
             break;
     }
 }
+function showDropdown_view() {
+    data = [];
+    data.push({
+        'type': 'header',
+        'text': window.lang.dropdownHeaderView
+    });
+    data.push({
+        'type': 'item',
+        'id': 'list',
+        'text': window.lang.dropdownListViewList,
+        'icon': 'check',
+        'action': function() { changeListView('list') }
+    });
+    data.push({
+        'type': 'item',
+        'id': 'grid1',
+        'text': window.lang.dropdownListViewGrid1,
+        'icon': 'check',
+        'action': function() { changeListView('grid1') }
+    });
+    data.push({
+        'type': 'item',
+        'id': 'grid2',
+        'text': window.lang.dropdownListViewGrid2,
+        'icon': 'check',
+        'action': function() { changeListView('grid2') }
+    });
+    data.push({
+        'type': 'item',
+        'id': 'grid3',
+        'text': window.lang.dropdownListViewGrid3,
+        'icon': 'check',
+        'action': function() { changeListView('grid3') }
+    });
+    let dropdownId = showDropdown("view", data, "topbarButtonMenu");
+    // Hide all icons
+    _id(`${dropdownId}-list-icon`).style.opacity = 0;
+    _id(`${dropdownId}-grid1-icon`).style.opacity = 0;
+    _id(`${dropdownId}-grid2-icon`).style.opacity = 0;
+    _id(`${dropdownId}-grid3-icon`).style.opacity = 0;
+    // Show the icon of the sort item matching the current file list
+    switch (window.dirView[currentDir()]) {
+        default:
+            _id(`${dropdownId}-list-icon`).style.opacity = 1;
+            break;
+        case 'grid1':
+            _id(`${dropdownId}-grid1-icon`).style.opacity = 1;
+            break;
+        case 'grid2':
+            _id(`${dropdownId}-grid2-icon`).style.opacity = 1;
+            break;
+        case 'grid3':
+            _id(`${dropdownId}-grid3-icon`).style.opacity = 1;
+            break;
+    }
+}
 function showDropdown_recents() {
     data = [];
     data.push({
@@ -1688,14 +1792,6 @@ _id("topbarButtonMenu").addEventListener("click", function() {
     data.push({
         'disabled': !window.fileListLoaded,
         'type': 'item',
-        'id': 'refresh',
-        'text': window.lang.dropdownRefreshList,
-        'icon': 'refresh',
-        'action': function() { loadFileList("", null, true) }
-    });
-    data.push({
-        'disabled': !window.fileListLoaded,
-        'type': 'item',
         'id': 'folderInfo',
         'text': window.lang.dropdownFolderInfo,
         'icon': 'topic',
@@ -1708,6 +1804,14 @@ _id("topbarButtonMenu").addEventListener("click", function() {
         'text': window.lang.dropdownSortList,
         'icon': 'sort',
         'action': function() { showDropdown_sort() }
+    });
+    data.push({
+        'disabled': !window.fileListLoaded,
+        'type': 'item',
+        'id': 'view',
+        'text': window.lang.dropdownListView,
+        'icon': 'grid_view',
+        'action': function() { showDropdown_view() }
     });
     data.push({
         'disabled': !window.fileListLoaded,
@@ -1726,6 +1830,14 @@ _id("topbarButtonMenu").addEventListener("click", function() {
                 loadFileList('', id);
             } else showPopup("noValidRandomFile", window.lang.popupErrorTitle, window.lang.popupNoRandomFile, [{'id': 'close', 'text': window.lang.popupClose}]);
         }
+    });
+    data.push({
+        'disabled': !window.fileListLoaded,
+        'type': 'item',
+        'id': 'refresh',
+        'text': window.lang.dropdownRefreshList,
+        'icon': 'refresh',
+        'action': function() { loadFileList("", null, true) }
     });
     data.push({ 'type': 'sep' });
     data.push({

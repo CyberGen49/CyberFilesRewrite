@@ -16,6 +16,7 @@ $theme = array_merge($theme, [
     'mobFileListHeadersMarginBottom' => "initial",
     'mobFileListHintMarginTop' => "initial",
     'mobFileEntryBorder' => "initial",
+    'gridViewNameLines' => $conf['gridView']['lines'],
 ]);
 if (!$conf['mobileFileListBorders']) {
     $theme = array_merge($theme, [

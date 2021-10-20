@@ -289,6 +289,10 @@ br {
     margin-top: 80px;
 }
 
+#fileList {
+    user-select: none;
+}
+
 #fileListFilterCont {
     margin-bottom: 20px;
 }
@@ -416,10 +420,6 @@ br {
     color: inherit;
 }
 
-#fileList {
-    user-select: none;
-}
-
 .fileEntry {
     border-bottom: 1px solid var(--fileSep);
     font-size: 14px;
@@ -428,6 +428,17 @@ br {
     /* content-visibility: auto;
     contain-intrinsic-size: 40px; */
     /* transition: 0.05s ease-in-out; */
+}
+
+.fileEntry:hover,
+.fileEntry:focus {
+    background: var(--fileH);
+    border-color: rgba(0, 0, 0, 0);
+}
+
+.fileEntry:active {
+    background: var(--fileC);
+    border-color: rgba(0, 0, 0, 0);
 }
 
 .fileEntryName * {
@@ -444,17 +455,6 @@ br {
 
 .fileEntrySize {
     color: var(--fileSizeCol);
-}
-
-.fileEntry:hover,
-.fileEntry:focus {
-    background: var(--fileH);
-    border-color: rgba(0, 0, 0, 0);
-}
-
-.fileEntry:active {
-    background: var(--fileC);
-    border-color: rgba(0, 0, 0, 0);
 }
 
 .fileEntryIcon {
@@ -474,6 +474,72 @@ br {
 }
 
 .fileEntryMobileDetails {
+    color: var(--fileDateMobile);
+}
+
+.fileListGrid {
+    margin-top: 15px;
+    display: grid;
+    grid-gap: 0px;
+}
+.fileListGrid.grid1 { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+.fileListGrid.grid2 { grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
+.fileListGrid.grid3 { grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); }
+
+.fileGridEntry {
+    margin: 6px 6px;
+    border-radius: 8px;
+    border: 1px solid var(--fileSep);
+    cursor: default;
+    text-decoration: none !important;
+    overflow: hidden;
+}
+.fileGridEntry:hover,
+.fileGridEntry:focus {
+    background: var(--fileH);
+    border-color: rgba(0, 0, 0, 0);
+}
+.fileGridEntry:active {
+    background: var(--fileC);
+    border-color: rgba(0, 0, 0, 0);
+}
+
+.fileGridEntryIcon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0px;
+    font-family: "Material Icons Outlined";
+    font-size: 42px;
+    color: var(--fileIcon);
+    overflow: hidden;
+}
+.fileListGrid.grid1 .fileGridEntryIcon { height: calc(130px - 20px); }
+.fileListGrid.grid2 .fileGridEntryIcon { height: calc(170px - 20px); }
+.fileListGrid.grid3 .fileGridEntryIcon { height: calc(210px - 20px); }
+
+.fileGridEntryIcon img {
+    object-fit: cover;
+    width: 100%;
+    height: 100%;
+}
+
+.fileGridEntryDetails {
+    padding: 6px 10px;
+    font-size: 14px;
+}
+
+.fileGridEntryName {
+    display: -webkit-box;
+    -webkit-line-clamp: var(--gridViewNameLines);
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 130%;
+    padding-bottom: 2px;
+}
+
+.fileGridEntryDate, .fileGridEntrySize {
+    font-size: 13px;
     color: var(--fileDateMobile);
 }
 
@@ -928,7 +994,8 @@ br {
         font-size: 16px;
     }
     .fileEntryNameInner,
-    .fileEntryMobileDetails {
+    .fileEntryMobileDetails,
+    .fileGridEntryDetails * {
         font-size: 16px;
     }
 

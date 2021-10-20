@@ -36,6 +36,10 @@ dateFormatShort: '%b %d, %Y'
 dateFormatFull: '%Y/%m/%d %I:%+M %p'
 upButtonInFileList: false
 mobileFileListBorders: false
+gridView:
+  showModified: true
+  showSize: false
+  lines: 3
 videoAutoplay: true
 audioAutoplay: true
 videoProgressSave:

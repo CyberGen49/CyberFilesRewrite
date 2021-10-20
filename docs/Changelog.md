@@ -2,6 +2,12 @@
 # CyberFilesRewrite Changelog
 I'll try my best to keep track of all changes to CyberFilesRewrite, big and small, right here in this changelog. I do most of my web development late at night, so the dates here tend to extend into the following day.
 
+## 1.14.0 - October 18th, 2021
+* Added a grid view with multiple sizes
+* Added a menu for selecting views
+* Made it so folders automatically switch to grid view when over 50% of the files have thumbnails
+    * This only happens when the user doesn't already have a view set for that folder
+
 ## 1.13.1 - October 17th, 2021
 * Fixed directories with their contents hidden
 * Removed the `CONTENTS_HIDDEN` API status code

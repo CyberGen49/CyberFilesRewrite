@@ -25,6 +25,7 @@ dropdownHeaderShare: Share
 dropdownHeaderSort: Sort file list
 dropdownHeaderSubmenus: Data and settings
 dropdownHeaderTheme: Theme
+dropdownHeaderView: Change file list view
 dropdownLang: Language...
 dropdownLangDefault: Use server default
 dropdownRandomFile: "Preview a random file"
@@ -39,7 +40,7 @@ dropdownShareDirectoryShort: "Copy short directory URL"
 dropdownShareFile: "Copy raw file URL"
 dropdownShareFilePreview: "Copy preview URL"
 dropdownShareFilePreviewShort: "Copy short preview URL"
-dropdownSortList: "Sort files..."
+dropdownSortList: "Sort..."
 dropdownSortListDate: Oldest first
 dropdownSortListDateDesc: Newest first
 dropdownSortListDefault: Use folder default
@@ -49,6 +50,11 @@ dropdownSortListSize: Smallest first
 dropdownSortListSizeDesc: Largest first
 dropdownSortListType: Extension A-Z
 dropdownSortListTypeDesc: Extension Z-A
+dropdownListView: View...
+dropdownListViewList: List
+dropdownListViewGrid1: Medium cards
+dropdownListViewGrid2: Large cards
+dropdownListViewGrid3: Giant cards
 dropdownTheme: Theme...
 dropdownThemeDefault: Use server default
 toastCopyDirectoryLink: Copied directory URL to clipboard.

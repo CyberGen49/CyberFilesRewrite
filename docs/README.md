@@ -3,7 +3,7 @@ A capable and customizable file index for the web, built to make viewing and sha
 
 This project is a complete ground-up rewrite of my previous file index, with improvements in nearly every aspect.
 
-Keep an eye on [the changelog](https://github.com/CyberGen49/CyberFilesRewrite/blob/main/Changelog.md) to see what's changing!    
+Keep an eye on [the changelog](docs/Changelog.md) to see what's changing!    
 
 ## Features
 * A responsive, mobile-friendly interface
@@ -28,7 +28,7 @@ For those looking to update their CyberFiles installation:
 * Extract the newly downloaded .zip file to your existing `_cyberfiles` folder
 * Open any files you backed up and their corresponding new files in your text editor and **manually transfer** your custom settings
     * Things could have changed, so directly replacing the new files with your old ones could lead to unforeseen consequences
-* Open CyberFiles and navigate to **Menu > About CyberFiles...**, then confirm that the version listed there matches the latest in [the changelog](/Changelog.md)
+* Open CyberFiles and navigate to **Menu > About CyberFiles...**, then confirm that the version listed there matches the latest in [the changelog](docs/Changelog.md)
 
 ## Installation
 We can only guarantee everything will work as expected if you're using an Apache webserver. Your mileage may vary with other setups. The tutorials below assume that you're on a Debian-based Linux distribution and that you plan on using Apache.
@@ -129,7 +129,7 @@ If a file with this name exists in a directory, it will be read and parsed as Ma
 
 #### `headerFileNameHtml`
 Type: `string`  
-Like `headerFileNameMarkdown`, but instead of parsing the contents as Markdown, they'll be dumped right on to the page. Ideally, the contents of this file should be in HTML.
+Like `headerFileNameMarkdown`, but instead of parsing the contents as Markdown, they'll be dumped right on to the page. Ideally, this file should contain HTML.
 
 #### `hideContentsFile`
 Type: `string`  
@@ -162,11 +162,11 @@ Defines the global default sort type and direction. This can be overridden by th
 
 #### `dateFormatShort`
 Type: `string`  
-A date format containing some of [these placeholders](https://github.com/CyberGen49/CyberFilesRewrite/blob/main/README-dateTimePlaceholders.md). This should be a short, friendly date format, used in the modification date column of the file list.
+A date format containing some of [these placeholders](docs/dateTimePlaceholders.md). This should be a short, friendly date format, used in the modification date column of the file list.
 
 #### `dateFormatFull`
 Type: `string`  
-A date format containing some of [these placeholders](https://github.com/CyberGen49/CyberFilesRewrite/blob/main/README-dateTimePlaceholders.md). This should be a complete and informative date format, used in file details.
+A date format containing some of [these placeholders](docs/dateTimePlaceholders.md). This should be a complete and informative date format, used in file details.
 
 #### `upButtonInFileList`
 Type: `boolean`  
@@ -175,6 +175,12 @@ Whether or not the "Up to parent directory" entry should be shown at the top of 
 #### `mobileFileListBorders`
 Type: `boolean`  
 Whether or or not separators should be shown between file entries on mobile (small width) displays.
+
+#### `gridView`
+Options for the grid (card) view
+* `showModified`: `true` if modification dates should be shown in file cards
+* `showSize`: `true` if file sizes should be shown in file cards (never shown on folders)
+* `lines`: The number of lines that should be shown of long file names before clipping them with ellipses
 
 #### `videoAutoplay`
 Type: `boolean`  
@@ -187,19 +193,39 @@ Whether or not audio file previews should autoplay when opened.
 #### `videoProgressSave`
 Options for video progress saving. When enabled, users will be given the option to pick up where they left off previewing a video file. This data, like history, is stored on the user's computer only.
 * `enable`: If `true`, video progress saving is enabled
-* `minDuration`: The minimum duration, in seconds, a video needs to be for progress to be saved
-* `minPercent`: Video progress will only be saved once the user is this far into a video, as a percentage. For example, when set to 10, progress will start saving 2 minutes into a 20 minute video.
-* `maxPercent`: Video progress will stop saving after the user is this far into a video. Functions the same as `minPercent`.
-* `expire`: The time, in hours, after which a video's saved progress can't be resumed anymore. 
+* `minDuration`: A video needs to be at least this many seconds long to have its progress saved
+* `minTime`: The number of seconds into a video that progress saving should start
+* `maxTime`: The number of seconds before the end of a video that progress saving should stop
+* `expire`: The number of hours after which a video's saved progress can't be resumed anymore
 * `prompt`: If `true`, the user will be given the option to resume or not. If `false`, the video will be resumed automatically, and the user will see a toast notification about it.
 
+#### `generateThumbs`
+Type: `boolean`  
+Whether or not image and video thumbnails should be generated.
+
+`ImageMagick` needs to be installed to get image thumbnails. For video thumbnails, you'll need both `ImageMagick` and `FFMPEG` installed. Make sure these programs are in the path by confirming the `mogrify` and `ffmpeg` commands can be run in your terminal.
+
+When this is enabled, the initial loading of directories will be significantly slower, especially for videos.
+
+Thumbnails are stored in `/_cyberfiles/public/thumbs`. This folder can be deleted to clear the thumbnails.
+
+#### `thumbnailWidth`
+Type: `integer`  
+The width, in pixels, of image and video thumbnails, while maintaining aspect ratio. Higher values will make thumbnails look clearer on high resolution displays, but they'll take longer to load and take up more space on the server.
+
+You'll need to delete the `thumbs` folder (path above) to update the size of existing thumbnails.
+
 #### `textPreviewMaxSize`
-Type: `string`  
+Type: `integer`  
 The largest a text file can be to still have a file preview, in bytes.
 
 #### `shortLinkSlugLength`
-Type: `string`  
+Type: `integer`  
 The length of random strings generated for short links. These are hex strings, meaning the number of possible unique short links is 16 to the power of this length. The default 8 characters make for nearly 4.3 billion possible links.
+
+#### `chunkInterval`
+Type: `integer`  
+The number of seconds to process each file list chunk. After processing for longer than this time, the server will respond to the client so the client can request the next chunk. Larger values will decrease the number of times the client needs to make requests, but it means the user will see less frequent updates to the loading percentage.
 
 #### `logTimezone`
 Type: `string`  
@@ -244,6 +270,7 @@ The API will always respond with a JSON string that can then be parsed into an a
 ##### Parameters
 * `sort`: The column to sort files by, should be `name`, `date`, `ext`, or `size`, defaults to `name`
 * `desc`: If set to `true`, the sort order will be reversed
+* `offset`: The offset at which to continue scanning files - see `chunking.offset` below
 
 ##### Response
 * `files`: Contains 0 or more file objects
@@ -251,18 +278,23 @@ The API will always respond with a JSON string that can then be parsed into an a
         * `name`: The file name
         * `modified`: The file's modification date, as a Unix timestamp
         * `size`: The file's size, in bytes
+        * `ext`: The file's extension, or an empty string if the file has no extension
+        * `thumbnail`: The file's thumbnail file name, if applicable - see [`generateThumbs`](#generatethumbs)
         * `mimeType`: The file's [MIME Type](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types)
         * `indexed`: `true` if the file's details were loaded from cache, `false` if they needed to be updated
 * `sort`: Contains information about how the file list is sorted
     * `type`: `name`, `date`, or `size`
     * `desc`: `true` if the list is descending, `false` otherwise
-* `headerMarkdown`: If a header Markdown file exists in the directory, this will contain its contents  - see [`headerFileNameMarkdown`](#headerfilenamemarkdown)
-* `headerHtml`: If a header HTML file exists in the directory, this will contain its contents - see [`headerFileNameHtml`](#headerfilenamehtml)
+* `headerMarkdown`: If a header Markdown file exists in the directory, this will contain its contents encoded as Base64 - see [`headerFileNameMarkdown`](#headerfilenamemarkdown)
+* `headerHtml`: If a header HTML file exists in the directory, this will contain its contents encoded as Base64 - see [`headerFileNameHtml`](#headerfilenamehtml)
+* `chunking`: Contains information about chunked responses
+    * `complete`: If `true`, then the end of the file list has been reached
+    * `totalFiles`: The total number of files in the directory, including hidden ones
+    * `offset`: The file scanning offset at which the API stopped at. If `complete` is `false`, another request should be made with the inclusion of the `offset` parameter (listed above) to continue getting directory contents.
 
 All API responses include these values:
 * `status`: A **status code** - can be any of the following:
-    * `GOOD`: No errors were encountered
-    * `CONTENTS_HIDDEN`: No errors were encountered, but the directory contents have been hidden from view
+    * `GOOD`: The request was successful
     * `DIRECTORY_NONEXISTENT`: The current directory doesn't exist on the server
     * `UNFINISHED`: The requested action isn't finished
     * `INVALID`: The request was invalid
