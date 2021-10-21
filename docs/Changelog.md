@@ -4,11 +4,11 @@ I'll try my best to keep track of all changes to CyberFilesRewrite, big and smal
 
 This project adheres to [semantic versioning](https://semver.org/) and is (kind of) based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## 1.14.1 - 2021-10-18
+## 1.14.1 - 2021-10-20
 * Now allowing for transparency in thumbnails
 * Fixed a error that occurs when trying to get the extension of a file without one, now defaulting to an empty string
 
-## 1.14.0 - 2021-10-18
+## 1.14.0 - 2021-10-19
 * Added a grid view with multiple sizes
 * Added a menu for selecting views
 * Made it so folders automatically switch to grid view when over 50% of the files have thumbnails
