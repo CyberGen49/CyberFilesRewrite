@@ -9,6 +9,8 @@ Keep an eye on [the changelog](Changelog.md) to see what's changing!
 * A responsive, mobile-friendly interface
 * View videos, audio, images, and documents without leaving the page
 * Quickly sort file lists by clicking column headers (or using the Sort menu)
+* Image and video thumbnails
+* View files as a list or as tiled cards with large thumbnails
 * Get back to where you left off quickly with recents
 * Resume videos where you left off with video progress saving
 * Add custom text headers to directories in either Markdown or HTML
