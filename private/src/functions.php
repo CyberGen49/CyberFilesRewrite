@@ -4,7 +4,7 @@
 // See the APICall class at the bottom for the CyberFiles API
 
 // CyberFiles version
-$version = 'v1.14.0';
+$version = 'v1.14.1';
 
 // Get relative and absolute directory paths
 $dirRel = clean_path(rawurldecode(explode("?", $_SERVER['REQUEST_URI'])[0]));
@@ -431,7 +431,9 @@ class ApiCall {
         $file['path'] = $path;
         $file['name'] = pathinfo($path)['basename'];
         $file['modified'] = filemtime($path);
-        $file['ext'] = strtoupper(pathinfo($path)['extension']);
+        $file['ext'] = '';
+        if (isset(pathinfo($path)['extension']))
+            $file['ext'] = strtoupper(pathinfo($path)['extension']);
         $file['thumbnail'] = null;
         $file['indexed'] = false;
         // If the database is open
@@ -485,7 +487,7 @@ class ApiCall {
                 $thumbTime = (microtime(true)*1000);
                 $thumbPath = document_root.'/_cyberfiles/public/thumbs/'.$thumbName;
                 if (preg_match("/^image\/(.*)$/", $file['mimeType']))
-                    $cmd = 'convert -define png:size='.$GLOBALS['conf']['thumbnailSize'].'x'.$GLOBALS['conf']['thumbnailSize'].' "'.$file['path'].'"  -thumbnail 256x256^ -gravity center -extent 256x256  "'.$thumbPath.'"';
+                    $cmd = 'convert -define png:size='.$GLOBALS['conf']['thumbnailSize'].'x'.$GLOBALS['conf']['thumbnailSize'].'  -background none "'.$file['path'].'"  -thumbnail 256x256^ -gravity center  "'.$thumbPath.'"';
                 if (preg_match("/^video\/(.*)$/", $file['mimeType']))
                     $cmd = 'ffmpeg -i "'.$file['path'].'" -ss 00:00:01.000 -vframes 1 "'.$thumbPath.'"; convert -define png:size='.$GLOBALS['conf']['thumbnailSize'].'x'.$GLOBALS['conf']['thumbnailSize'].' "'.$thumbPath.'"  -thumbnail 256x256^ -gravity center -extent 256x256  "'.$thumbPath.'"';
                 exec($cmd);

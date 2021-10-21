@@ -203,7 +203,7 @@ Options for video progress saving. When enabled, users will be given the option 
 Type: `boolean`  
 Whether or not image and video thumbnails should be generated.
 
-`ImageMagick` needs to be installed to get image thumbnails. For video thumbnails, you'll need both `ImageMagick` and `FFMPEG` installed. Make sure these programs are in the path by confirming the `mogrify` and `ffmpeg` commands can be run in your terminal.
+`ImageMagick` needs to be installed to get image thumbnails. For video thumbnails, you'll need both `ImageMagick` and `FFMPEG` installed. Make sure these programs are in the path by confirming that the `convert` and `ffmpeg` commands can be run in your terminal.
 
 When this is enabled, the initial loading of directories will be significantly slower, especially for videos.
 
@@ -221,7 +221,7 @@ The largest a text file can be to still have a file preview, in bytes.
 
 #### `shortLinkSlugLength`
 Type: `integer`  
-The length of random strings generated for short links. These are hex strings, meaning the number of possible unique short links is 16 to the power of this length. The default 8 characters make for nearly 4.3 billion possible links.
+The length of random strings generated for short links. These are hex strings, meaning the number of possible unique short links is 16 to the power of this length. The default 8-character length makes for nearly 4.3 billion possible links.
 
 #### `chunkInterval`
 Type: `integer`  

@@ -2,6 +2,12 @@
 # CyberFilesRewrite Changelog
 I'll try my best to keep track of all changes to CyberFilesRewrite, big and small, right here in this changelog. I do most of my web development late at night, so the dates here tend to extend into the following day.
 
+This project adheres to [semantic versioning](https://semver.org/) and is (kind of) based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
+
+## 1.14.1 - 2021-10-18
+* Now allowing for transparency in thumbnails
+* Fixed a error that occurs when trying to get the extension of a file without one, now defaulting to an empty string
+
 ## 1.14.0 - 2021-10-18
 * Added a grid view with multiple sizes
 * Added a menu for selecting views
