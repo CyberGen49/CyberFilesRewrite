@@ -3,7 +3,7 @@ A capable and customizable file index for the web, built to make viewing and sha
 
 This project is a complete ground-up rewrite of my previous file index, with improvements in nearly every aspect.
 
-Keep an eye on [the changelog](docs/Changelog.md) to see what's changing!    
+Keep an eye on [the changelog](Changelog.md) to see what's changing!    
 
 ## Features
 * A responsive, mobile-friendly interface
@@ -28,7 +28,7 @@ For those looking to update their CyberFiles installation:
 * Extract the newly downloaded .zip file to your existing `_cyberfiles` folder
 * Open any files you backed up and their corresponding new files in your text editor and **manually transfer** your custom settings
     * Things could have changed, so directly replacing the new files with your old ones could lead to unforeseen consequences
-* Open CyberFiles and navigate to **Menu > About CyberFiles...**, then confirm that the version listed there matches the latest in [the changelog](docs/Changelog.md)
+* Open CyberFiles and navigate to **Menu > About CyberFiles...**, then confirm that the version listed there matches the latest in [the changelog](Changelog.md)
 
 ## Installation
 We can only guarantee everything will work as expected if you're using an Apache webserver. Your mileage may vary with other setups. The tutorials below assume that you're on a Debian-based Linux distribution and that you plan on using Apache.
@@ -162,11 +162,11 @@ Defines the global default sort type and direction. This can be overridden by th
 
 #### `dateFormatShort`
 Type: `string`  
-A date format containing some of [these placeholders](docs/dateTimePlaceholders.md). This should be a short, friendly date format, used in the modification date column of the file list.
+A date format containing some of [these placeholders](dateTimePlaceholders.md). This should be a short, friendly date format, used in the modification date column of the file list.
 
 #### `dateFormatFull`
 Type: `string`  
-A date format containing some of [these placeholders](docs/dateTimePlaceholders.md). This should be a complete and informative date format, used in file details.
+A date format containing some of [these placeholders](dateTimePlaceholders.md). This should be a complete and informative date format, used in file details.
 
 #### `upButtonInFileList`
 Type: `boolean`  
