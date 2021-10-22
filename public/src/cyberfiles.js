@@ -406,6 +406,7 @@ function loadFileList(dir = "", entryId = null, forceReload = false) {
             _id("fileListHint").style.display = "";
             _id("fileListHint").style.opacity = 1;
         }
+        window.fileObjects = [];
         _id("fileListFilter").disabled = true;
         _id("fileListFilter").value = "";
         _id("fileListFilter").placeholder = window.lang.fileListFilterDisabled;
@@ -506,7 +507,7 @@ function loadFileList(dir = "", entryId = null, forceReload = false) {
                 if (size != '-' && window.conf.gridView.showSize)
                     sizeOuter = `<div class="fileGridEntrySize">${size}</div>`;
                 if (window.conf.gridView.showModified)
-                    dateOuter = `<div class="fileGridEntryDate">${modified}</div>`;
+                    dateOuter = `<div id="fileEntryDate-${i}" class="fileGridEntryDate">${modified}</div>`;
                 // Create and return HTML
                 return `
                     <a id="fileEntry-${id}" class="fileGridEntry" tabindex=0 data-filename='${name}' data-objectindex=${id} onClick='fileEntryClicked(this, event)'>
@@ -530,7 +531,7 @@ function loadFileList(dir = "", entryId = null, forceReload = false) {
                         <div class="fileEntryNameInner noBoost">${name}</div>
                         <div class="fileEntryMobileDetails fileListMobile noBoost">${detailsMobile}</div>
                     </div>
-                    <div class="col-auto fileEntryDate fileListDesktop noBoost">${modified}</div>
+                    <div id="fileEntryDate-${i}" class="col-auto fileEntryDate fileListDesktop noBoost">${modified}</div>
                     <div class="col-auto fileEntryType fileListDesktopBig noBoost">
                         <div class="fileEntryTypeInner noBoost">${type}</div>
                     </div>
@@ -640,7 +641,6 @@ function loadFileList(dir = "", entryId = null, forceReload = false) {
               && (thumbed/data.files.length) > 0.5)
                 changeListView('grid2', false);
             // Loop through the returned file objects
-            window.fileObjects = [];
             let totalSize = 0;
             i = 0;
             data.files.forEach(f => {
@@ -677,6 +677,7 @@ function loadFileList(dir = "", entryId = null, forceReload = false) {
                 _id("fileList").insertAdjacentHTML('beforeend', createFileEntry(i, f.name, f.icon, f.thumbnail, f.detailsMobile, f.modifiedF, f.typeF, f.sizeF));
                 _id(`fileEntry-${i}`).dataset.tooltip = f.title;
                 _id(`fileEntry-${i}`).href = f.nameUri;
+                f.dateElement = _id(`fileEntryDate-${i}`);
                 window.fileObjects[i] = f;
                 i++;
             });
@@ -818,6 +819,16 @@ function loadFileList(dir = "", entryId = null, forceReload = false) {
     if (dirName != "") document.title = `${dirName} - ${window.conf.siteName}`;
     else document.title = window.conf.siteName;
 }
+
+// Interval to dynamically update the displayed modification dates
+setInterval(() => {
+    for (i = 0; i < window.fileObjects.length; i++) {
+        let f = window.fileObjects[i];
+        window.fileObjects[i].modifiedF = dateFormatRelative(f.modified);
+        f.dateElement.innerHTML = window.fileObjects[i].modifiedF;
+    }
+    console.log(`Updated ${i} modification dates`);
+}, (1000*60));
 
 // Change this directory's sort order
 function sortFileList(type, desc) {

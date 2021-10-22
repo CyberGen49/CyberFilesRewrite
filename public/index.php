@@ -123,7 +123,7 @@ while (isset($_GET['f'])) {
                 <div id="splashText"><?= $webConf['siteName'] ?></div>
             </div>
         </div>
-        <div id="topbar" class="row no-gutters flex-nowrap">
+        <nav id="topbar" class="row no-gutters flex-nowrap">
             <div class="col-auto d-flex align-items-center">
                 <button id="topbarButtonUp" class="topbarButton disabled" onClick='fileEntryClicked(this, event)'>arrow_back</button>
             </div>
@@ -134,7 +134,7 @@ while (isset($_GET['f'])) {
             <div class="col-auto d-flex align-items-center">
                 <button id="topbarButtonMenu" class="topbarButton">more_vert</button>
             </div>
-        </div>
+        </nav>
         <div id="fileListContainer" class="container">
             <div id="fileListFilterCont" class="row no-gutters">
                 <div class="col">
@@ -144,15 +144,15 @@ while (isset($_GET['f'])) {
                     <button id="fileListFilterClear" style="display: none;" title="<?= $lang['fileListFilterClear'] ?>">clear</button>
                 </div>
             </div>
-            <div id="directoryHeader" class="ease-in-out-100ms" style="display: none"></div>
-            <div id="fileListHeaders" class="row no-gutters">
+            <header id="directoryHeader" class="ease-in-out-100ms" style="display: none"></header>
+            <nav id="fileListHeaders" class="row no-gutters">
                 <div id="fileListHeaderIcon" class="fileListHeader col-auto"></div>
                 <div id="fileListHeaderName" class="fileListHeader col fileListDesktop"><?= $lang['fileDetailsName'] ?><span id="sortIndicatorName" class="fileListSortIndicator material-icons"></span></div>
                 <div id="fileListHeaderDate" class="fileListHeader col-auto fileListDesktop"><?= $lang['fileDetailsDate'] ?><span id="sortIndicatorDate" class="fileListSortIndicator material-icons"></span></div>
                 <div id="fileListHeaderType" class="fileListHeader col-auto fileListDesktopBig"><?= $lang['fileDetailsType'] ?><span id="sortIndicatorType" class="fileListSortIndicator material-icons"></span></div>
                 <div id="fileListHeaderSize" class="fileListHeader col-auto fileListDesktop"><?= $lang['fileDetailsSize'] ?><span id="sortIndicatorSize" class="fileListSortIndicator material-icons"></span></div>
                 <div id="fileListHeaderMobile" class="fileListHeader col fileListMobile"><?= $lang['fileListColumnGeneric'] ?></div>
-            </div>
+            </nav>
             <div id="fileListLoading">
                 <div class="mdSpinner">
                     <svg viewBox="0 0 100 100">
@@ -161,7 +161,7 @@ while (isset($_GET['f'])) {
                 </div>
             </div>
             <div id="fileList" class="ease-in-out-100ms"></div>
-            <div id="fileListHint" class="ease-in-out-100ms noBoost"></div>
+            <footer id="fileListHint" class="ease-in-out-100ms noBoost"></footer>
         </div>
         <div id="previewContainer" class="ease-in-out-100ms" style="display: none; opacity: 0;">
             <div id="previewTopbar" class="row no-gutters flex-nowrap">

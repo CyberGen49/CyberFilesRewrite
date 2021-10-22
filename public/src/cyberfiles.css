@@ -62,11 +62,6 @@ a {
     text-decoration: none;
 }
 
-a:hover, a:focus {
-    color: var(--hyperlinkH);
-    text-decoration: underline;
-}
-
 b, em {
     color: inherit;
     line-height: inherit;
@@ -193,13 +188,6 @@ br {
     border-radius: 8px;
     transition: 0.1s ease-in-out;
 }
-#topbarTitle:hover:not(.disabled),
-#topbarTitle:focus:not(.disabled) {
-    background: var(--bgTopbarButtonH);
-    color: var(--fgTopbarH);
-    text-decoration: none;
-    cursor: default;
-}
 #topbarTitle:active:not(.disabled) {
     background: var(--bgTopbarButtonC);
 }
@@ -215,14 +203,6 @@ br {
     border: none;
     border-radius: 20px;
     transition: 0.1s ease-in-out;
-}
-
-.topbarButton:hover:not(.disabled),
-.topbarButton:focus:not(.disabled) {
-    background: var(--bgTopbarButtonH);
-    color: var(--fgTopbarH);
-    text-decoration: none;
-    cursor: default;
 }
 
 .topbarButton:active:not(.disabled) {
@@ -273,16 +253,6 @@ br {
     border-radius: 6px;
     transition: 0.1s ease-in-out;
 }
-.breadcrumbName.hover:hover:not(.disabled),
-.breadcrumbName.hover:focus:not(.disabled) {
-    background: var(--bgTopbarButtonH);
-    color: var(--fgTopbarH);
-    text-decoration: none;
-    cursor: default;
-}
-.breadcrumbName.hover:active:not(.disabled) {
-    background: var(--bgTopbarButtonC);
-}
 
 #fileListContainer {
     max-width: 1100px;
@@ -329,10 +299,6 @@ br {
     color: var(--fgFilterBarClear);
     transition: 0.1s ease-in-out;
 }
-#fileListFilterClear:hover,
-#fileListFilterClear:focus {
-    color: var(--fgFilterBarClearH);
-}
 #fileListFilterClear:active {
     color: var(--fgFilterBarClearC);
 }
@@ -350,17 +316,6 @@ br {
 #fileListHeaders {
     border-bottom: 1px solid var(--fileSep);
     user-select: none;
-}
-
-#fileListHeaderName:hover,
-#fileListHeaderName:focus,
-#fileListHeaderDate:hover,
-#fileListHeaderDate:focus,
-#fileListHeaderType:hover,
-#fileListHeaderType:focus,
-#fileListHeaderSize:hover,
-#fileListHeaderSize:focus {
-    color: var(--fileListHeadersH);
 }
 
 .fileListMobile { display: none; }
@@ -430,12 +385,6 @@ br {
     /* transition: 0.05s ease-in-out; */
 }
 
-.fileEntry:hover,
-.fileEntry:focus {
-    background: var(--fileH);
-    border-color: rgba(0, 0, 0, 0);
-}
-
 .fileEntry:active {
     background: var(--fileC);
     border-color: rgba(0, 0, 0, 0);
@@ -493,11 +442,6 @@ br {
     cursor: default;
     text-decoration: none !important;
     overflow: hidden;
-}
-.fileGridEntry:hover,
-.fileGridEntry:focus {
-    background: var(--fileH);
-    border-color: rgba(0, 0, 0, 0);
 }
 .fileGridEntry:active {
     background: var(--fileC);
@@ -591,14 +535,6 @@ br {
     border-radius: 20px;
     transition: 0.1s ease-in-out;
     pointer-events: initial;
-}
-
-.previewTopbarButton:hover:not(.disabled),
-.previewTopbarButton:focus:not(.disabled) {
-    background: var(--bgPreviewH);
-    color: var(--fgPreviewH);
-    text-decoration: none;
-    cursor: default;
 }
 
 .previewTopbarButton:active:not(.disabled) {
@@ -806,13 +742,6 @@ br {
     transition: 0.1s ease-in-out;
 }
 
-.popupButton:hover,
-.popupButton:focus {
-    background: var(--bgPopupButtonH);
-    color: var(--fgPopupButton);
-    text-decoration: none;
-}
-
 .popupButton:active {
     background: var(--bgPopupButtonC);
     color: var(--fgPopupButton);
@@ -858,9 +787,8 @@ br {
     padding: 8px 12px;
     width: 100%;
 }
-.dropdownItem:hover:not(.disabled),
-.dropdownItem:focus:not(.disabled) {
-    background: var(--bgDropdownH);
+.dropdownItem:active {
+    background: var(--bgDropdownC);
 }
 
 .dropdownItem.disabled {
@@ -943,11 +871,6 @@ br {
     border-radius: 6px;
     transition: 0.1s ease-in-out;
 }
-.buttonMain:hover,
-.buttonMain:focus {
-    color: var(--fgButtonH);
-    background: var(--bgButtonH);
-}
 .buttonMain:active {
     color: var(--fgButtonC);
     background: var(--bgButtonC);
@@ -984,6 +907,10 @@ br {
 
     .fileListHeader {
         font-size: 15px;
+    }
+
+    .fileEntry, .fileGridEntry {
+        transition: 0.2s ease-in-out;
     }
 
     .fileEntryName,
@@ -1032,6 +959,7 @@ br {
 
     .dropdownItem {
         padding: 10px 15px;
+        transition: 0.2s ease-in-out;
     }
 
     .dropdownHeader {
@@ -1106,6 +1034,95 @@ br {
     
     .fileEntryName {
         padding: 11px 15px 11px 15px;
+    }
+}
+
+/* Handle devices that can hover */
+@media only screen and (hover: hover) {
+    a:hover, a:focus {
+        color: var(--hyperlinkH);
+        text-decoration: underline;
+    }
+
+    #topbarTitle:hover:not(.disabled),
+    #topbarTitle:focus:not(.disabled) {
+        background: var(--bgTopbarButtonH);
+        color: var(--fgTopbarH);
+        text-decoration: none;
+        cursor: default;
+    }
+
+    .topbarButton:hover:not(.disabled),
+    .topbarButton:focus:not(.disabled) {
+        background: var(--bgTopbarButtonH);
+        color: var(--fgTopbarH);
+        text-decoration: none;
+        cursor: default;
+    }
+
+    .breadcrumbName.hover:hover:not(.disabled),
+    .breadcrumbName.hover:focus:not(.disabled) {
+        background: var(--bgTopbarButtonH);
+        color: var(--fgTopbarH);
+        text-decoration: none;
+        cursor: default;
+    }
+    .breadcrumbName.hover:active:not(.disabled) {
+        background: var(--bgTopbarButtonC);
+    }
+
+    #fileListFilterClear:hover,
+    #fileListFilterClear:focus {
+        color: var(--fgFilterBarClearH);
+    }
+
+    #fileListHeaderName:hover,
+    #fileListHeaderName:focus,
+    #fileListHeaderDate:hover,
+    #fileListHeaderDate:focus,
+    #fileListHeaderType:hover,
+    #fileListHeaderType:focus,
+    #fileListHeaderSize:hover,
+    #fileListHeaderSize:focus {
+        color: var(--fileListHeadersH);
+    }
+
+    .fileEntry:hover,
+    .fileEntry:focus {
+        background: var(--fileH);
+        border-color: rgba(0, 0, 0, 0);
+    }
+
+    .fileGridEntry:hover,
+    .fileGridEntry:focus {
+        background: var(--fileH);
+        border-color: rgba(0, 0, 0, 0);
+    }
+
+    .previewTopbarButton:hover:not(.disabled),
+    .previewTopbarButton:focus:not(.disabled) {
+        background: var(--bgPreviewH);
+        color: var(--fgPreviewH);
+        text-decoration: none;
+        cursor: default;
+    }
+
+    .popupButton:hover,
+    .popupButton:focus {
+        background: var(--bgPopupButtonH);
+        color: var(--fgPopupButton);
+        text-decoration: none;
+    }
+
+    .dropdownItem:hover:not(.disabled),
+    .dropdownItem:focus:not(.disabled) {
+        background: var(--bgDropdownH);
+    }
+
+    .buttonMain:hover,
+    .buttonMain:focus {
+        color: var(--fgButtonH);
+        background: var(--bgButtonH);
     }
 }
 

@@ -4,6 +4,11 @@ I'll try my best to keep track of all changes to CyberFilesRewrite, big and smal
 
 This project adheres to [semantic versioning](https://semver.org/) and is (kind of) based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 1.14.2 - 2021-10-21
+* Added [semantic elements](https://www.w3schools.com/html/html5_semantic_elements.asp) in place of some `<div>` elements.
+* Removed hover and focus styling when the user can't hover
+* Now relative file modification dates will dynamically update every minute
+
 ## 1.14.1 - 2021-10-20
 * Now allowing for transparency in thumbnails
 * Fixed a error that occurs when trying to get the extension of a file without one, now defaulting to an empty string
