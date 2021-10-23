@@ -40,11 +40,11 @@ Create a new folder where you'll store the files you want to serve with CyberFil
 ```sh
 mkdir /path/to/cyberfiles
 ```
-Remember this path, we'll use it again in a bit.
+This is the new root of your website. We're about to put CyberFiles here.
 
 ### Install CyberFiles
 * [Download the current archive](https://github.com/CyberGen49/CyberFilesRewrite/archive/refs/heads/main.zip)
-* Create a new folder named `_cyberfiles` in the root of your website (the folder we made earlier)
+* Create a new folder named `_cyberfiles` in the root of your website (the folder we just made)
 * Extract the downloaded .zip file into `_cyberfiles`
 
 ### Set up the webserver
