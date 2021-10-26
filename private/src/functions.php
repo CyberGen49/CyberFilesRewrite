@@ -514,10 +514,12 @@ class ApiCall {
                 // Create thumbnail
                 $thumbTime = (microtime(true)*1000);
                 $thumbPath = document_root.'/_cyberfiles/public/thumbs/'.$thumbName;
+                unlink($thumbPath);
                 if (preg_match("/^image\/(.*)$/", $file['mimeType']))
                     $cmd = str_replace(["%0", "%1"], [$file['path'], $thumbPath], $GLOBALS['conf']['commands']['thumbImage']);
                 if (preg_match("/^video\/(.*)$/", $file['mimeType']))
                     $cmd = str_replace(["%0", "%1"], [$file['path'], $thumbPath], $GLOBALS['conf']['commands']['thumbVideo'])."; ".str_replace(["%0", "%1"], [$thumbPath, $thumbPath], $GLOBALS['conf']['commands']['thumbImage']);
+                trigger_error($cmd);
                 exec($cmd);
                 // Make sure the new thumb exists
                 if (file_exists("$thumbsDir/$thumbName")) {
