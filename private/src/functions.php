@@ -4,7 +4,7 @@
 // See the APICall class at the bottom for the CyberFiles API
 
 // CyberFiles version
-$version = 'v1.14.2';
+$version = 'v1.15.0';
 
 // Get relative and absolute directory paths
 $dirRel = clean_path(rawurldecode(explode("?", $_SERVER['REQUEST_URI'])[0]));
@@ -248,6 +248,7 @@ class ApiCall {
         $this->indexDir = [];
         // Check for and build cache database
         if (class_exists("SQLite3")) {
+            initCacheStart:
             $dbPath = document_root."/_cyberfiles/private/cache.db";
             $dbLnksPath = document_root."/_cyberfiles/private/shortLinks.db";
             // Open the databases
@@ -261,27 +262,32 @@ class ApiCall {
                 'value' text not null
             );");
             // Get database version and wipe if necessary
-            $versionTarget = "1";
+            $versionTarget = "2";
             $result = $db->query("SELECT value
                 from data
                 where key = 'version';
             ");
             $version = $result->fetchArray(SQLITE3_NUM)[0];
             if (!isset($version) or $version !== $versionTarget) {
-                if (!isset($version))
-                    $db->query("REPLACE INTO data ('key', 'value')
-                        values ('version', '$versionTarget');
-                    ");
                 writeLog($GLOBALS['lang']['loggerTypeGeneric'], str_replace(
                     "%0", $versionTarget, $GLOBALS['lang']['loggerCacheReset']
                 ));
+                if (!isset($version)) {
+                    $db->query("REPLACE INTO data ('key', 'value')
+                        values ('version', '$versionTarget');
+                    ");
+                } else {
+                    unlink($dbPath);
+                    goto initCacheStart;
+                }
             }
             // Create the fileCache table if it doesn't exist
             $db->query("CREATE TABLE IF NOT EXISTS 'fileCache' (
                 'path' text not null unique,
                 'modified' integer not null,
                 'size' integer not null,
-                'mimeType' integer not null
+                'mimeType' integer not null,
+                'other' text
             );");
             // Create the short links table if it doesn't exist
             $dbLnks->query("CREATE TABLE IF NOT EXISTS 'entries' (
@@ -436,6 +442,7 @@ class ApiCall {
             $file['ext'] = strtoupper(pathinfo($path)['extension']);
         $file['thumbnail'] = null;
         $file['indexed'] = false;
+        $file['other'] = [];
         // If the database is open
         if (isset($this->db)) {
             // Attempt to get the file's cache entry
@@ -447,25 +454,47 @@ class ApiCall {
             if ($cache and $file['modified'] == $cache['modified']) {
                 $reindex = false;
                 $file['indexed'] = true;
-                $file = array_merge($cache, $file);
+                $file = array_merge($file, $cache);
+                $file['other'] = json_decode($file['other'], true);
             }
         }
         // Get up to date file details if needed
         if ($reindex) {
             $file['size'] = filesize($path);
             $file['mimeType'] = mime_content_type($path);
+            // Get extra metadata if applicable
+            if (preg_match("/^(video)\/(.*)$/", $file['mimeType'])) {
+                exec('ffprobe -v error -select_streams v:0 -show_entries format -show_entries stream -of json "'.$file['path'].'"', $tmp);
+                $tmp = json_decode(implode('', $tmp), true);
+                $file['other']['duration'] = $tmp['format']['duration'];
+                $file['other']['width'] = $tmp['streams'][0]['width'];
+                $file['other']['height'] = $tmp['streams'][0]['height'];
+                $file['other']['fps'] = $tmp['streams'][0]['r_frame_rate'];
+            } elseif (preg_match("/^(audio)\/(.*)$/", $file['mimeType'])) {
+                exec('ffprobe -v error -show_entries format -show_entries stream -of json "'.$file['path'].'"', $tmp);
+                $tmp = json_decode(implode('', $tmp), true);
+                $file['other']['duration'] = $tmp['format']['duration'];
+                $file['other']['sampleRate'] = $tmp['streams'][0]['sample_rate'];
+            } elseif (preg_match("/^(image)\/(.*)$/", $file['mimeType'])) {
+                exec('identify -format \'{"width": "%w", "height": "%h", "depth": "%q"}\' "'.$file['path'].'"', $tmp);
+                $tmp = json_decode(implode('', $tmp), true);
+                $file['other']['width'] = $tmp['width'];
+                $file['other']['height'] = $tmp['height'];
+                $file['other']['bitDepth'] = $tmp['depth'];
+            }
             // If the database is open, update this file's cache
             if (isset($this->db)) {
                 // Build SQL
                 $stmt = $db->prepare("REPLACE INTO 'fileCache'
-                    ('path', 'modified', 'size', 'mimeType')
-                    values (:path, :mod, :size, :mimeType)
+                    ('path', 'modified', 'size', 'mimeType', 'other')
+                    values (:path, :mod, :size, :mimeType, :other)
                 ;");
                 // Bind variables
                 $stmt->bindValue(':path', $file['path'], SQLITE3_TEXT);
                 $stmt->bindValue(':mod', $file['modified'], SQLITE3_TEXT);
                 $stmt->bindValue(':size', $file['size'], SQLITE3_TEXT);
                 $stmt->bindValue(':mimeType', $file['mimeType'], SQLITE3_TEXT);
+                $stmt->bindValue(':other', json_encode($file['other']), SQLITE3_TEXT);
                 // Execute
                 $result = $stmt->execute();
                 // Log
@@ -475,8 +504,7 @@ class ApiCall {
             }
         }
         // Create a thumbnail for the file if needed
-        if ((preg_match("/^image\/(.*)$/", $file['mimeType'])
-          or preg_match("/^video\/(.*)$/", $file['mimeType']))
+        if (preg_match("/^(image|video)\/(.*)$/", $file['mimeType'])
           and $GLOBALS['conf']['generateThumbs']) {
             $thumbName = md5($file['path']).'.png';
             $thumbsDir = document_root."/_cyberfiles/public/thumbs";
@@ -487,9 +515,9 @@ class ApiCall {
                 $thumbTime = (microtime(true)*1000);
                 $thumbPath = document_root.'/_cyberfiles/public/thumbs/'.$thumbName;
                 if (preg_match("/^image\/(.*)$/", $file['mimeType']))
-                    $cmd = 'convert -define png:size='.$GLOBALS['conf']['thumbnailSize'].'x'.$GLOBALS['conf']['thumbnailSize'].'  -background none "'.$file['path'].'"  -thumbnail 256x256^ -gravity center  "'.$thumbPath.'"';
+                    $cmd = str_replace(["%0", "%1"], [$file['path'], $thumbPath], $GLOBALS['conf']['commands']['thumbImage']);
                 if (preg_match("/^video\/(.*)$/", $file['mimeType']))
-                    $cmd = 'ffmpeg -i "'.$file['path'].'" -ss 00:00:01.000 -vframes 1 "'.$thumbPath.'"; convert -define png:size='.$GLOBALS['conf']['thumbnailSize'].'x'.$GLOBALS['conf']['thumbnailSize'].' "'.$thumbPath.'"  -thumbnail 256x256^ -gravity center -extent 256x256  "'.$thumbPath.'"';
+                    $cmd = str_replace(["%0", "%1"], [$file['path'], $thumbPath], $GLOBALS['conf']['commands']['thumbVideo'])."; ".str_replace(["%0", "%1"], [$thumbPath, $thumbPath], $GLOBALS['conf']['commands']['thumbImage']);
                 exec($cmd);
                 // Make sure the new thumb exists
                 if (file_exists("$thumbsDir/$thumbName")) {

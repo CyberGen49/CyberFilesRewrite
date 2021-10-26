@@ -4,6 +4,18 @@ I'll try my best to keep track of all changes to CyberFilesRewrite, big and smal
 
 This project adheres to [semantic versioning](https://semver.org/) and is (kind of) based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 1.15.0 - 2021-10-25
+* Added the ability to open a file preview in a popup window from the preview menu
+* Now filter matching is handled by [farzher/fuzzysort](https://github.com/farzher/fuzzysort), and matched portions of the results are highlighted
+* Made it so the cache database is deleted and regenerated when the cache version changes (only when the format of the database is changed)
+* Made the thumbnail generation commands configurable
+* Added a bunch more file details
+    * Duration, resolution, and frames per second for videos
+    * Duration and sample rate for audio files
+    * Resolution and bit depth for images
+    * Naturally, FFMPEG and ImageMagick are required to get these
+* Fixed a bug where the seconds of formatted timestamps of over an hour were broken
+
 ## 1.14.2 - 2021-10-21
 * Added [semantic elements](https://www.w3schools.com/html/html5_semantic_elements.asp) in place of some `<div>` elements.
 * Removed hover and focus styling when the user can't hover

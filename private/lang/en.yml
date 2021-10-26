@@ -16,6 +16,7 @@ dropdownAbout: "About CyberFiles"
 dropdownDisabled: "This option isn't available right now."
 dropdownFileDownload: "Download (%0)"
 dropdownFileInfo: "File info..."
+dropdownFilePopOut: Pop out
 dropdownFolderInfo: "Folder info..."
 dropdownHeaderDirectory: This folder
 dropdownHeaderFile: This file
@@ -74,6 +75,15 @@ fileDetailsDate: Last modified
 fileDetailsName: Name
 fileDetailsSize: File size
 fileDetailsType: File type
+fileDetailsDuration: Duration
+fileDetailsResolution: Resolution
+fileDetailsResolutionJointFormatVid: "%0x%1 @ %2 FPS"
+fileDetailsResolutionJointFormatImg: "%0x%1"
+fileDetailsWidth: Width
+fileDetailsHeight: Height
+fileDetailsFramesPerSecond: Frame rate
+fileDetailsSampleRate: Sample rate
+fileDetailsBitDepth: Bit depth
 folderDetailsName: Name
 folderDetailsTotalSize: Size of files
 folderDetailsContents: Contains

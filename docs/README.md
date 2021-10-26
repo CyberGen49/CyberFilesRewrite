@@ -211,6 +211,11 @@ When this is enabled, the initial loading of directories will be significantly s
 
 Thumbnails are stored in `/_cyberfiles/public/thumbs`. This folder can be deleted to clear the thumbnails.
 
+#### `commands`
+Commands used to get extra data from files
+* `thumbImage`: The command used to generate image thumbnails, where `%0` is the source file, and `%1` is the destination file
+* `thumbVideo`: The command used to extract a frame of video, where `%0` is the source file, and `%1` is the destination file. Once extracted, this frame will be run through the `thumbImage` command to make sure it matches image thumbnails.
+
 #### `thumbnailWidth`
 Type: `integer`  
 The width, in pixels, of image and video thumbnails, while maintaining aspect ratio. Higher values will make thumbnails look clearer on high resolution displays, but they'll take longer to load and take up more space on the server.
@@ -283,6 +288,8 @@ The API will always respond with a JSON string that can then be parsed into an a
         * `ext`: The file's extension, or an empty string if the file has no extension
         * `thumbnail`: The file's thumbnail file name, if applicable - see [`generateThumbs`](#generatethumbs)
         * `mimeType`: The file's [MIME Type](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types)
+        * `other`: Contains more type-specific file metadata, not all properties are guaranteed to be set
+            * 
         * `indexed`: `true` if the file's details were loaded from cache, `false` if they needed to be updated
 * `sort`: Contains information about how the file list is sorted
     * `type`: `name`, `date`, or `size`

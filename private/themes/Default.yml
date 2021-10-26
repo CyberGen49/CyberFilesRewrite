@@ -55,6 +55,7 @@ fgFilterBar: +fg
 fgFilterBarClear: +fg2
 fgFilterBarClearH: +fg
 fgFilterBarClearC: +accent
+fgFilteredFileName: +accent
 bgPopup: +bg
 fgPopup: +fg
 bgPopupButton: +invis

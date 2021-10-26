@@ -338,6 +338,7 @@ function dateFormatRelative(timestamp) {
 
 // Returns a formatted interpretation of a number of seconds
 function secondsFormat(secs) {
+    secs = Math.round(secs);
     let hours = 0;
     let mins = 0;
     if (secs < 60) {
@@ -350,10 +351,9 @@ function secondsFormat(secs) {
         mins = Math.floor(secs/60);
         hours = Math.floor(mins/60);
         mins = mins-(hours*60);
-        secs = secs-(mins*60);
+        secs = Math.floor(secs-(mins*60)-(hours*60*60));
         return `${hours}:${addLeadingZeroes((mins), 2)}:${addLeadingZeroes((secs), 2)}`;
     }
-    return secs;
 }
 
 // Returns true if the input device is hover-capable
@@ -384,6 +384,7 @@ function getFileTypeIcon(mimeType) {
 
 // Loads a file list with the API
 fileListLoaded = false;
+fileObjects = [];
 function loadFileList(dir = "", entryId = null, forceReload = false) {
     // Set variables
     if (dir == "") dir = currentDir();
@@ -510,10 +511,10 @@ function loadFileList(dir = "", entryId = null, forceReload = false) {
                     dateOuter = `<div id="fileEntryDate-${i}" class="fileGridEntryDate">${modified}</div>`;
                 // Create and return HTML
                 return `
-                    <a id="fileEntry-${id}" class="fileGridEntry" tabindex=0 data-filename='${name}' data-objectindex=${id} onClick='fileEntryClicked(this, event)'>
+                    <a id="fileEntry-${id}" class="fileGridEntry" tabindex=0 data-filename="${name}" data-objectindex=${id} onClick='fileEntryClicked(this, event)'>
                         ${iconOuter}
                         <div class="fileGridEntryDetails">
-                            <div class="fileGridEntryName">${name}</div>
+                            <div class="fileGridEntryName fileNameInner">${name}</div>
                             ${dateOuter}
                             ${sizeOuter}
                         </div>
@@ -525,10 +526,10 @@ function loadFileList(dir = "", entryId = null, forceReload = false) {
             if (thumb) iconOuter = `<div class="col-auto fileEntryIcon"><img src="/_cyberfiles/public/thumbs/${thumb}"></div>`;
             // Create and return HTML
             return `
-                <a id="fileEntry-${id}" class="row no-gutters fileEntry" tabindex=0 data-filename='${name}' data-objectindex=${id} onClick='fileEntryClicked(this, event)'>
+                <a id="fileEntry-${id}" class="row no-gutters fileEntry" tabindex=0 data-filename="${name}" data-objectindex=${id} onClick='fileEntryClicked(this, event)'>
                     ${iconOuter}
                     <div class="col fileEntryName">
-                        <div class="fileEntryNameInner noBoost">${name}</div>
+                        <div class="fileEntryNameInner fileNameInner noBoost">${name}</div>
                         <div class="fileEntryMobileDetails fileListMobile noBoost">${detailsMobile}</div>
                     </div>
                     <div id="fileEntryDate-${i}" class="col-auto fileEntryDate fileListDesktop noBoost">${modified}</div>
@@ -669,6 +670,23 @@ function loadFileList(dir = "", entryId = null, forceReload = false) {
                     f.icon = getFileTypeIcon(f.mimeType);
                     // Set tooltip
                     f.title = `<b>${f.name}</b><br>${window.lang.fileDetailsDate}: ${f.modifiedFF}<br>${window.lang.fileDetailsType}: ${f.typeF}<br>${window.lang.fileDetailsSize}: ${f.sizeF}`;
+                    try {
+                        if (f.mimeType.match(/^(video|audio)\/.*$/)) {
+                            f.title += `<br>${window.lang.fileDetailsDuration}: ${secondsFormat(Math.round(f.other.duration))}`;
+                        }
+                        if (f.mimeType.match(/^video\/.*$/)) {
+                            let temp = f.other.fps.split('/');
+                            f.other.fpsF = Math.round(temp[0]/temp[1]);
+                            f.title += `<br>${window.lang.fileDetailsResolution}: ${window.lang.fileDetailsResolutionJointFormatVid.replace("%0", f.other.width).replace("%1", f.other.height).replace("%2", f.other.fpsF)}`;
+                        }
+                        if (f.mimeType.match(/^audio\/.*$/)) {
+                            f.title += `<br>${window.lang.fileDetailsSampleRate}: ${f.other.sampleRate}`;
+                        }
+                        if (f.mimeType.match(/^image\/.*$/)) {
+                            f.title += `<br>${window.lang.fileDetailsResolution}: ${window.lang.fileDetailsResolutionJointFormatImg.replace("%0", f.other.width).replace("%1", f.other.height)}`;
+                            f.title += `<br>${window.lang.fileDetailsBitDepth}: ${f.other.bitDepth}`;
+                        }
+                    } catch (error) {}
                     // Set mobile details
                     f.detailsMobile = window.lang.fileListMobileLine2.replace("%0", f.modifiedF).replace("%1", f.sizeF);
                 }
@@ -1222,6 +1240,25 @@ function hidePopup(id) {
 // Prebuilt popups
 function popup_fileInfo(id) {
     let data = window.fileObjects[id];
+    let other = '';
+    try {
+        if (data.mimeType.match(/^(video|audio)\/.*$/)) {
+            other += `<p><b>${window.lang.fileDetailsDuration}</b><br>${secondsFormat(data.other.duration)}</p>`;
+        }
+        if (data.mimeType.match(/^(video|image)\/.*$/)) {
+            other += `<p><b>${window.lang.fileDetailsWidth}</b><br>${data.other.width}</p>`;
+            other += `<p><b>${window.lang.fileDetailsHeight}</b><br>${data.other.height}</p>`;
+        }
+        if (data.mimeType.match(/^video\/.*$/)) {
+            other += `<p><b>${window.lang.fileDetailsFramesPerSecond}</b><br>${data.other.fpsF}</p>`;
+        }
+        if (data.mimeType.match(/^audio\/.*$/)) {
+            other += `<p><b>${window.lang.fileDetailsSampleRate}</b><br>${data.other.sampleRate}</p>`;
+        }
+        if (data.mimeType.match(/^image\/.*$/)) {
+            other += `<p><b>${window.lang.fileDetailsBitDepth}</b><br>${data.other.bitDepth}</p>`;
+        }
+    } catch (error) {}
     showPopup("fileInfo", window.lang.popupFileInfoTitle, `
         <p>
             <b>${window.lang.fileDetailsName}</b><br>
@@ -1235,7 +1272,7 @@ function popup_fileInfo(id) {
         </p><p>
             <b>${window.lang.fileDetailsSize}</b><br>
             ${data.sizeF}
-        </p>
+        </p>${other}
     `, [{
         'id': "close",
         'text': window.lang.popupClose
@@ -1387,19 +1424,19 @@ function showDropdown(id, data, anchorId) {
     _id(`dropdown-${id}`).style.display = "block";
     if (anchorId !== null) {
         // Position the dropdown
+        let elW = _getW(`dropdown-${id}`);
+        let elH = _getH(`dropdown-${id}`);
         let anchorX = _getX2(anchorId);
         let anchorY = _getY(anchorId);
         let windowW = window.innerWidth;
         let windowH = window.innerHeight;
         _id(`dropdown-${id}`).style.top = `${anchorY-5}px`;
-        if (anchorX > (windowW/2))
+        if (anchorX > (windowW-elW))
             _id(`dropdown-${id}`).style.left = `${anchorX-_getW(`dropdown-${id}`)-10}px`;
         else
             _id(`dropdown-${id}`).style.left = `${anchorX+10}px`;
         // Check for height and scrolling
         let elY = _getY(`dropdown-${id}`);
-        let elH = _getH(`dropdown-${id}`);
-        console.log(`${elY} - ${elH} - ${windowH}`);
         if ((elY+elH) > windowH-20) {
             _id(`dropdown-${id}`).style.height = `calc(100% - ${elY}px - 20px)`;
         } else {
@@ -1753,7 +1790,8 @@ function showDropdown_lang() {
 
 // Handle dropdown menu buttons
 doOnLoad.push(() => {
-    window.standardDropdownEntries = [{
+    window.standardDropdownEntries = [
+    { 'type': 'sep' }, {
         'type': 'header',
         'text': window.lang.dropdownHeaderSubmenus
     }, {
@@ -1876,7 +1914,6 @@ _id("topbarButtonMenu").addEventListener("click", function() {
             showToast(window.lang.toastCopyDirectoryLinkShort);
         }
     });
-    data.push({ 'type': 'sep' });
     data = data.concat(window.standardDropdownEntries);
     showDropdown("mainMenu", data, this.id);
 });
@@ -1903,6 +1940,24 @@ _id("previewButtonMenu").addEventListener("click", function() {
         'action': function() {
             showToast(window.lang.toastFileDownload);
             downloadFile(encodeURIComponent(fileData.name));
+        }
+    });
+    data.push({
+        'type': 'item',
+        'id': 'popout',
+        'text': window.lang.dropdownFilePopOut,
+        'icon': 'open_in_new',
+        'action': function() {
+            let params = `status=no,location=no,toolbar=no,menubar=no,width=1189,height=724`;
+            let popout = open(window.location.href, 'File', params);
+            popout.addEventListener("load", function() {
+                popout.document.getElementById("topbar").style.visibility = "hidden";
+                popout.document.getElementById("fileListContainer").style.visibility = "hidden";
+                popout.document.getElementById("previewButtonClose").style.display = "none";
+                popout.standardDropdownEntries = {};
+                popout.console.log("Popup loaded");
+            });
+            hideFilePreview();
         }
     });
     data.push({ 'type': 'sep' });
@@ -1941,7 +1996,6 @@ _id("previewButtonMenu").addEventListener("click", function() {
             showToast(window.lang.toastCopyFileLink);
         }
     });
-    data.push({ 'type': 'sep' });
     data = data.concat(window.standardDropdownEntries);
     showDropdown("previewMenu", data, this.id);
 });
@@ -2072,6 +2126,7 @@ function filterFiles(event, elBar) {
         if (value == "") {
             for (i = 0; i < window.fileElements.length; i++) {
                 const el = window.fileElements[i];
+                el.getElementsByClassName("fileNameInner")[0].innerHTML = el.dataset.filename;
                 el.style.display = "";
             }
             _id("fileListHint").innerHTML = window.fileListHint;
@@ -2081,7 +2136,14 @@ function filterFiles(event, elBar) {
             let matches = 0;
             for (i = 0; i < window.fileElements.length; i++) {
                 const el = window.fileElements[i];
-                if (el.dataset.filename.toLowerCase().includes(value)) {
+                const options = {
+                    threshold: -10000,
+                    allowTypo: false,
+                }
+                let result = fuzzysort.single(value, el.dataset.filename, options);
+                //if (el.dataset.filename.toLowerCase().includes(value)) {
+                if (result) {
+                    el.getElementsByClassName("fileNameInner")[0].innerHTML = fuzzysort.highlight(result, "<span class=\"fileListFilterHighlight\">", "</span>");
                     el.style.display = "";
                     matches++;
                 }

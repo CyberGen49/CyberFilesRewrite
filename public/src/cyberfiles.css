@@ -487,6 +487,11 @@ br {
     color: var(--fileDateMobile);
 }
 
+.fileListFilterHighlight {
+    color: var(--fgFilteredFileName);
+    font-weight: bold;
+}
+
 #fileListLoading {
     margin-bottom: -30px;
 }

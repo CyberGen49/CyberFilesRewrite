@@ -165,7 +165,7 @@ while (isset($_GET['f'])) {
         </div>
         <div id="previewContainer" class="ease-in-out-100ms" style="display: none; opacity: 0;">
             <div id="previewTopbar" class="row no-gutters flex-nowrap">
-                <div class="col-auto d-flex align-items-center">
+                <div id="previewButtonCloseCont" class="col-auto d-flex align-items-center">
                     <button id="previewButtonClose" class="previewTopbarButton" onClick='hideFilePreview()'>close</button>
                 </div>
                 <div id="previewTitleContainer" class="col">
@@ -211,5 +211,9 @@ while (isset($_GET['f'])) {
         <script src="/_cyberfiles/public/src/cyberfiles.js?t=<?= filemtime(document_root."/_cyberfiles/public/src/cyberfiles.js") ?>"></script>
         <!-- Marked -->
         <script src="/_cyberfiles/public/src/marked.min.js"></script>
+        <!-- DynamicVirtualScroll -->
+        <!-- <script src="/_cyberfiles/public/src/DynamicVirtualScroll.js"></script> -->
+        <!-- https://github.com/farzher/fuzzysort -->
+        <script src="/_cyberfiles/public/src/fuzzysort.js"></script>
     </body>
 </html>

@@ -50,7 +50,9 @@ videoProgressSave:
   expire: 168 # 7 days
   prompt: true
 generateThumbs: true
-thumbnailSize: 196
+commands:
+  thumbImage: 'convert -define png:size=196x196  -background none "%0"  -thumbnail 256x256^ -gravity center  "%1"'
+  thumbVideo: 'ffmpeg -i "%0" -ss 00:00:01.000 -vframes 1 "%1"'
 textPreviewMaxSize: 1000000
 shortLinkSlugLength: 8
 chunkInterval: 5
