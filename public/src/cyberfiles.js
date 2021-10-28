@@ -696,7 +696,12 @@ function loadFileList(dir = "", entryId = null, forceReload = false) {
                 _id(`fileEntry-${i}`).dataset.tooltip = f.title;
                 _id(`fileEntry-${i}`).href = f.nameUri;
                 f.dateElement = _id(`fileEntryDate-${i}`);
+                f.index = i;
                 window.fileObjects[i] = f;
+                _id(`fileEntry-${i}`).addEventListener("contextmenu", function(e) {
+                    e.preventDefault();
+                    showDropdown_file(f);
+                }, false)
                 i++;
             });
             // Get directory short link
@@ -1238,22 +1243,21 @@ function hidePopup(id) {
 }
 
 // Prebuilt popups
-function popup_fileInfo(id) {
-    let data = window.fileObjects[id];
+function popup_fileInfo(data) {
     let other = '';
     try {
         if (data.mimeType.match(/^(video|audio)\/.*$/)) {
             other += `<p><b>${window.lang.fileDetailsDuration}</b><br>${secondsFormat(data.other.duration)}</p>`;
         }
         if (data.mimeType.match(/^(video|image)\/.*$/)) {
-            other += `<p><b>${window.lang.fileDetailsWidth}</b><br>${data.other.width}</p>`;
-            other += `<p><b>${window.lang.fileDetailsHeight}</b><br>${data.other.height}</p>`;
+            other += `<p><b>${window.lang.fileDetailsWidth}</b><br>${window.lang.fileDetailsResolutionWHFormat.replace("%0", data.other.width)}</p>`;
+            other += `<p><b>${window.lang.fileDetailsHeight}</b><br>${window.lang.fileDetailsResolutionWHFormat.replace("%0", data.other.height)}</p>`;
         }
         if (data.mimeType.match(/^video\/.*$/)) {
-            other += `<p><b>${window.lang.fileDetailsFramesPerSecond}</b><br>${data.other.fpsF}</p>`;
+            other += `<p><b>${window.lang.fileDetailsFramesPerSecond}</b><br>${window.lang.fileDetailsFramesPerSecondFormat.replace("%0", data.other.fpsF)}</p>`;
         }
         if (data.mimeType.match(/^audio\/.*$/)) {
-            other += `<p><b>${window.lang.fileDetailsSampleRate}</b><br>${data.other.sampleRate}</p>`;
+            other += `<p><b>${window.lang.fileDetailsSampleRate}</b><br>${window.lang.fileDetailsSampleRateFormat.replace("%0", data.other.sampleRate)}</p>`;
         }
         if (data.mimeType.match(/^image\/.*$/)) {
             other += `<p><b>${window.lang.fileDetailsBitDepth}</b><br>${data.other.bitDepth}</p>`;
@@ -1366,7 +1370,7 @@ function popup_about() {
 // Show a dropdown menu
 timeoutShowDropdown = [];
 timeoutHideDropdown = [];
-function showDropdown(id, data, anchorId) {
+function showDropdown(id, data, anchorId = null) {
     // Create the dropdown element
     if (!_id(`dropdown-${id}`)) {
         _id("body").insertAdjacentHTML('beforeend', `
@@ -1382,9 +1386,8 @@ function showDropdown(id, data, anchorId) {
     _id(`dropdown-${id}`).style.opacity = 0;
     _id(`dropdown-${id}`).style.marginTop = "5px";
     _id(`dropdown-${id}`).style.height = "";
-    _id(`dropdown-${id}`).style.top = "";
-    _id(`dropdown-${id}`).style.left = "";
-    _id(`dropdown-${id}`).style.right = "";
+    _id(`dropdown-${id}`).style.top = -1000;
+    _id(`dropdown-${id}`).style.left = -1000;
     _id(`dropdown-${id}`).innerHTML = "";
     // Add items to the dropdown
     data.forEach(item => {
@@ -1422,26 +1425,39 @@ function showDropdown(id, data, anchorId) {
     console.log(`Showing dropdown "${id}"`);
     _id(`dropdownArea-${id}`).style.display = "block";
     _id(`dropdown-${id}`).style.display = "block";
+    // Position the dropdown
+    let windowW = _getW("topbar");
+    let windowH = window.innerHeight;
+    let elW = _getW(`dropdown-${id}`);
+    let elH = _getH(`dropdown-${id}`);
+    let anchorX = window.mouseX;
+    let anchorY = window.mouseY;
     if (anchorId !== null) {
-        // Position the dropdown
-        let elW = _getW(`dropdown-${id}`);
-        let elH = _getH(`dropdown-${id}`);
-        let anchorX = _getX2(anchorId);
-        let anchorY = _getY(anchorId);
-        let windowW = window.innerWidth;
-        let windowH = window.innerHeight;
-        _id(`dropdown-${id}`).style.top = `${anchorY-5}px`;
-        if (anchorX > (windowW-elW))
-            _id(`dropdown-${id}`).style.left = `${anchorX-_getW(`dropdown-${id}`)-10}px`;
-        else
-            _id(`dropdown-${id}`).style.left = `${anchorX+10}px`;
-        // Check for height and scrolling
-        let elY = _getY(`dropdown-${id}`);
-        if ((elY+elH) > windowH-20) {
-            _id(`dropdown-${id}`).style.height = `calc(100% - ${elY}px - 20px)`;
-        } else {
-            _id(`dropdown-${id}`).style.height = "";
-        }
+        anchorX = _getX2(anchorId);
+        anchorY = _getY(anchorId);
+    }
+    // Adaptive X
+    if (windowW <= elW) anchorX = 0;
+    else if ((anchorX+elW) > (windowW-25)) {
+        anchorX = (anchorX-((anchorX+elW)-(windowW-25)));
+    }
+    // Adaptive Y
+    if (anchorX < 0) anchorX = 0;
+    if (windowH <= elH) anchorY = 0;
+    else if ((anchorY+elH) > (windowH-25)) {
+        anchorY = (anchorY-((anchorY+elH)-(windowH-25)));
+    }
+    if (anchorY < 0) anchorY = 0;
+    // Set CSS
+    _id(`dropdown-${id}`).style.top = `${anchorY}px`;
+    _id(`dropdown-${id}`).style.left = `${anchorX}px`;
+    console.log(`${elW} - ${elH} -- ${(windowW-anchorX)}`);
+    // Check for height and scrolling
+    let elY = _getY(`dropdown-${id}`);
+    if ((elY+elH) > windowH-20) {
+        _id(`dropdown-${id}`).style.height = `calc(100% - ${elY}px - 20px)`;
+    } else {
+        _id(`dropdown-${id}`).style.height = "";
     }
     try {
         clearTimeout(window.timeoutShowDropdown[id]);
@@ -1787,6 +1803,146 @@ function showDropdown_lang() {
             _id(`${dropdownId}-${t.file}-icon`).style.opacity = 1;
     });
 }
+function showDropdown_file(fileData, anchorId = null, inlineContext = true, showMore = true) {
+    data = [];
+    if (inlineContext)
+        data.push({
+            'type': 'header',
+            'text': fileData.name
+        });
+    else
+        data.push({
+            'type': 'header',
+            'text': window.lang.dropdownHeaderFile
+        });
+    if (fileData.mimeType !== 'directory') {
+        if (inlineContext)
+            data.push({
+                'type': 'item',
+                'id': 'open',
+                'text': window.lang.dropdownFileContextOpenFile,
+                'icon': 'open_in_full',
+                'action': function() {
+                    _id(`fileEntry-${fileData.index}`).click();
+                    hideTooltip();
+                }
+            });
+        data.push({
+            'type': 'item',
+            'id': 'fileInfo',
+            'text': window.lang.dropdownFileInfo,
+            'icon': 'description',
+            'action': function() { popup_fileInfo(fileData) }
+        });
+        data.push({
+            'type': 'item',
+            'id': 'download',
+            'text': window.lang.dropdownFileDownload.replace("%0", fileData.sizeF),
+            'icon': 'download',
+            'action': function() {
+                showToast(window.lang.toastFileDownload);
+                downloadFile(encodeURIComponent(fileData.name));
+            }
+        });
+        if (($_GET("minimal") === null))
+            data.push({
+                'type': 'item',
+                'id': 'popout',
+                'text': window.lang.dropdownFilePopOut,
+                'icon': 'open_in_new',
+                'action': function() {
+                    let x = 0;
+                    let y = 0;
+                    let w = 1280;
+                    let h = 720+55;
+                    if (screen.width > w) x = ((screen.width/2)-(w/2))
+                    if (screen.height > h) y = ((screen.height/2)-(h/2))-40
+                    let params = `status=no,location=no,toolbar=no,menubar=no,width=${w},height=${h},left=${x},top=${y}`;
+                    let popout = open(`${decodeURIComponent(currentDir())}?f=${fileData.name}&minimal`.replace("%", "%25"), 'File', params);
+                    popout.addEventListener("load", function() {
+                        popout.console.log("Popup loaded");
+                    });
+                    hideFilePreview();
+                }
+            });
+        data.push({ 'type': 'sep' });
+        data.push({
+            'type': 'header',
+            'text': window.lang.dropdownHeaderShare
+        });
+        data.push({
+            'type': 'item',
+            'id': 'share',
+            'text': window.lang.dropdownShareFilePreview,
+            'icon': 'share',
+            'action': function() {
+                copyText(new URL(`./?f=${fileData.name}`, window.location.href.split("?")[0]).href);
+                showToast(window.lang.toastCopyFilePreviewLink);
+            }
+        });
+        data.push({
+            'disabled': !(window.fileListLoaded && fileData.shortSlug),
+            'type': 'item',
+            'id': 'shareShort',
+            'text': window.lang.dropdownShareFilePreviewShort,
+            'icon': 'share',
+            'action': function() {
+                copyText(`${window.location.protocol}//${window.location.hostname}/?s=${fileData.shortSlug}`);
+                showToast(window.lang.toastCopyFilePreviewLinkShort);
+            }
+        });
+        data.push({
+            'type': 'item',
+            'id': 'shareDirect',
+            'text': window.lang.dropdownShareFile,
+            'icon': 'link',
+            'action': function() {
+                copyText(new URL(`./${fileData.name}`, window.location.href.split("?")[0]).href);
+                showToast(window.lang.toastCopyFileLink);
+            }
+        });
+    } else {
+        if (inlineContext)
+            data.push({
+                'type': 'item',
+                'id': 'open',
+                'text': window.lang.dropdownFileContextOpenDir,
+                'icon': 'folder_open',
+                'action': function() {
+                    _id(`fileEntry-${fileData.index}`).click();
+                    hideTooltip();
+                }
+            });
+        data.push({ 'type': 'sep' });
+        data.push({
+            'type': 'header',
+            'text': window.lang.dropdownHeaderShare
+        });
+        data.push({
+            'type': 'item',
+            'id': 'share',
+            'text': window.lang.dropdownShareDirectory,
+            'icon': 'share',
+            'action': function() {
+                copyText(new URL(`./${fileData.name}`, window.location.href).href);
+                showToast(window.lang.toastCopyDirectoryLink);
+            }
+        });
+        data.push({
+            'disabled': !(window.fileListLoaded && window.shortSlug),
+            'type': 'item',
+            'id': 'shareShort',
+            'text': window.lang.dropdownShareDirectoryShort,
+            'icon': 'share',
+            'action': function() {
+                copyText(`${window.location.protocol}//${window.location.hostname}/?s=${fileData.shortSlug}`);
+                showToast(window.lang.toastCopyDirectoryLinkShort);
+            }
+        });
+    }
+    if (!inlineContext && showMore) data = data.concat(window.standardDropdownEntries);
+    showDropdown("previewMenu", data, anchorId);
+}
 
 // Handle dropdown menu buttons
 doOnLoad.push(() => {
@@ -1920,84 +2076,7 @@ _id("topbarButtonMenu").addEventListener("click", function() {
 _id("previewButtonMenu").addEventListener("click", function() {
     this.blur();
     let fileData = window.currentFile;
-    data = [];
-    data.push({
-        'type': 'header',
-        'text': window.lang.dropdownHeaderFile
-    });
-    data.push({
-        'type': 'item',
-        'id': 'fileInfo',
-        'text': window.lang.dropdownFileInfo,
-        'icon': 'description',
-        'action': function() { popup_fileInfo(window.currentFileId) }
-    });
-    data.push({
-        'type': 'item',
-        'id': 'download',
-        'text': window.lang.dropdownFileDownload.replace("%0", fileData.sizeF),
-        'icon': 'download',
-        'action': function() {
-            showToast(window.lang.toastFileDownload);
-            downloadFile(encodeURIComponent(fileData.name));
-        }
-    });
-    data.push({
-        'type': 'item',
-        'id': 'popout',
-        'text': window.lang.dropdownFilePopOut,
-        'icon': 'open_in_new',
-        'action': function() {
-            let params = `status=no,location=no,toolbar=no,menubar=no,width=1189,height=724`;
-            let popout = open(window.location.href, 'File', params);
-            popout.addEventListener("load", function() {
-                popout.document.getElementById("topbar").style.visibility = "hidden";
-                popout.document.getElementById("fileListContainer").style.visibility = "hidden";
-                popout.document.getElementById("previewButtonClose").style.display = "none";
-                popout.standardDropdownEntries = {};
-                popout.console.log("Popup loaded");
-            });
-            hideFilePreview();
-        }
-    });
-    data.push({ 'type': 'sep' });
-    data.push({
-        'type': 'header',
-        'text': window.lang.dropdownHeaderShare
-    });
-    data.push({
-        'type': 'item',
-        'id': 'share',
-        'text': window.lang.dropdownShareFilePreview,
-        'icon': 'share',
-        'action': function() {
-            copyText(window.location.href);
-            showToast(window.lang.toastCopyFilePreviewLink);
-        }
-    });
-    data.push({
-        'disabled': !(window.fileListLoaded && fileData.shortSlug),
-        'type': 'item',
-        'id': 'shareShort',
-        'text': window.lang.dropdownShareFilePreviewShort,
-        'icon': 'share',
-        'action': function() {
-            copyText(`${window.location.protocol}//${window.location.hostname}/?s=${fileData.shortSlug}`);
-            showToast(window.lang.toastCopyFilePreviewLinkShort);
-        }
-    });
-    data.push({
-        'type': 'item',
-        'id': 'shareDirect',
-        'text': window.lang.dropdownShareFile,
-        'icon': 'link',
-        'action': function() {
-            copyText(window.location.href.replace("?f=", ""));
-            showToast(window.lang.toastCopyFileLink);
-        }
-    });
-    data = data.concat(window.standardDropdownEntries);
-    showDropdown("previewMenu", data, this.id);
+    showDropdown_file(fileData, this.id, false, ($_GET("minimal") === null));
 });
 
 // Show a toast notification
@@ -2279,6 +2358,13 @@ function errorHandler(msg, url, lineNo, columnNo, error) {
 window.onerror = (msg, url, lineNo, columnNo, error) => {
     errorHandler(msg, url, lineNo, columnNo, error)
 };
+
+// Check for minimal status
+if ($_GET("minimal") !== null) {
+    _id("topbar").style.visibility = "hidden";
+    _id("fileListContainer").style.visibility = "hidden";
+    _id("previewButtonClose").style.display = "none";
+}
 
 // Wait for a complete load to start stuff
 loaded = false;

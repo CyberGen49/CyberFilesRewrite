@@ -16,7 +16,7 @@ dropdownAbout: "About CyberFiles"
 dropdownDisabled: "This option isn't available right now."
 dropdownFileDownload: "Download (%0)"
 dropdownFileInfo: "File info..."
-dropdownFilePopOut: Pop out
+dropdownFilePopOut: Open standalone
 dropdownFolderInfo: "Folder info..."
 dropdownHeaderDirectory: This folder
 dropdownHeaderFile: This file
@@ -56,6 +56,8 @@ dropdownListViewList: List
 dropdownListViewGrid1: Medium cards
 dropdownListViewGrid2: Large cards
 dropdownListViewGrid3: Giant cards
+dropdownFileContextOpenDir: Move into directory
+dropdownFileContextOpenFile: Preview file
 dropdownTheme: Theme...
 dropdownThemeDefault: Use server default
 toastCopyDirectoryLink: Copied directory URL to clipboard.
@@ -81,8 +83,11 @@ fileDetailsResolutionJointFormatVid: "%0x%1 @ %2 FPS"
 fileDetailsResolutionJointFormatImg: "%0x%1"
 fileDetailsWidth: Width
 fileDetailsHeight: Height
+fileDetailsResolutionWHFormat: "%0 pixels"
 fileDetailsFramesPerSecond: Frame rate
+fileDetailsFramesPerSecondFormat: "%0 FPS"
 fileDetailsSampleRate: Sample rate
+fileDetailsSampleRateFormat: "%0 kbps"
 fileDetailsBitDepth: Bit depth
 folderDetailsName: Name
 folderDetailsTotalSize: Size of files
@@ -99,7 +104,7 @@ fileListDetails2: "Total size: %0"
 fileListDetailsFilterMulti: "Filtered %0 files"
 fileListDetailsFilterNone: "No files match your filter"
 fileListDetailsFilterSingle: "Filtered 1 file"
-fileListDetailsLoading1: "Hang tight while we processes these files"
+fileListDetailsLoading1: "Hang tight while we process these files"
 fileListDetailsLoading2: "%0% processed"
 fileListEmpty: There's nothing here.
 fileListEntryUp: "Up to %0"

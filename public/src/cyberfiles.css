@@ -420,6 +420,7 @@ br {
 .fileEntryIcon img {
     height: 28px;
     border-radius: 4px;
+    user-select: none;
 }
 
 .fileEntryMobileDetails {
@@ -466,6 +467,7 @@ br {
     object-fit: cover;
     width: 100%;
     height: 100%;
+    user-select: none;
 }
 
 .fileGridEntryDetails {
@@ -766,7 +768,7 @@ br {
     position: fixed;
     top: 0px;
     left: 0px;
-    max-width: 350px;
+    max-width: 300px;
     margin: 10px;
     background: var(--bgDropdown);
     padding: 8px 0px;
@@ -786,6 +788,10 @@ br {
     padding: 5px 12px 3px 12px;
     font-size: 14px;
     color: var(--fgDropdownHeader);
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    max-width: 100%;
 }
 
 .dropdownItem {
@@ -833,7 +839,7 @@ br {
     left: 0px;
     width: 100%;
     display: flex;
-    padding: 10px;
+    padding: 10px 15px;
     padding-bottom: 20px;
     z-index: 70;
     pointer-events: none;
@@ -841,7 +847,7 @@ br {
 
 .toast {
     margin: 0px auto;
-    padding: 15px;
+    padding: 15px 20px;
     color: var(--fgToast);
     background: var(--bgToast);
     border-left: 8px solid var(--bgToastBorder);
@@ -889,6 +895,10 @@ br {
     opacity: 0%;
 }
 
+.touch {
+    display: none;
+}
+
 /* Handle devices that can't hover */
 @media (hover: none) {
     #hoverCapable { width: 0px; }
@@ -896,6 +906,13 @@ br {
 
 /* Handle touch devices */
 @media (hover: none) and (pointer: coarse) {
+    .touch {
+        display: inherit !important;
+    }
+    .pointer {
+        display: none !important;
+    }
+
     * {
         line-height: 145%;
     }

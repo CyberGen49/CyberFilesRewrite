@@ -4,6 +4,13 @@ I'll try my best to keep track of all changes to CyberFilesRewrite, big and smal
 
 This project adheres to [semantic versioning](https://semver.org/) and is (kind of) based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 1.16.0 - 2021-10-26
+* Added custom context menus when right-clicking on file entries
+    * These menus present the same set of options seen in file preview menus
+    * Folder context menus only show sharing options
+* Watered down the preview menu when in a popped out file preview
+* Popped out previews are now initially centered on the display (+40px from the bottom)
+
 ## 1.15.0 - 2021-10-25
 * Added the ability to open a file preview in a popup window from the preview menu
 * Now filter matching is handled by [farzher/fuzzysort](https://github.com/farzher/fuzzysort), and matched portions of the results are highlighted

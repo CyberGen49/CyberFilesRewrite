@@ -3,3 +3,4 @@
 /private/logs/*
 /private/configUser.yml
 /public/thumbs/*
+/private/themes/user-*.yml
