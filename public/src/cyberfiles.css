@@ -887,21 +887,8 @@ br {
     background: var(--bgButtonC);
 }
 
-#hoverCapable {
-    position: fixed;
-    left: 0px;
-    width: 1px;
-    height: 1px;
-    opacity: 0%;
-}
-
 .touch {
     display: none;
-}
-
-/* Handle devices that can't hover */
-@media (hover: none) {
-    #hoverCapable { width: 0px; }
 }
 
 /* Handle touch devices */

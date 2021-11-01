@@ -4,6 +4,13 @@ I'll try my best to keep track of all changes to CyberFilesRewrite, big and smal
 
 This project adheres to [semantic versioning](https://semver.org/) and is (kind of) based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 1.17.0 - 2021-10-31
+* Added a web manifest
+    * This was in an attempt to add the "Install CyberFiles" option, but it turns out, for Chrome at least, that you need a service worker to enable that option. Sad.
+* Switched to using my own new embedded video player, [CyberVideoPlayer](https://github.com/CyberGen49/CyberVideoPlayer)
+    * This means that, finally, we have a video player that's the same across browsers, with features that the browser defaults don't have
+* Removed the video and audio autoplay options - now they always autoplay when possible
+
 ## 1.16.0 - 2021-10-26
 * Added custom context menus when right-clicking on file entries
     * These menus present the same set of options seen in file preview menus

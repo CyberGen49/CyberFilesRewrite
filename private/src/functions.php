@@ -4,7 +4,7 @@
 // See the APICall class at the bottom for the CyberFiles API
 
 // CyberFiles version
-$version = 'v1.16.0';
+$version = 'v1.17.0';
 
 // Get relative and absolute directory paths
 $dirRel = clean_path(rawurldecode(explode("?", $_SERVER['REQUEST_URI'])[0]));
@@ -77,6 +77,23 @@ try {
     print("CyberFiles requires the php_yaml extension. Install the extension and reload to continue.");
     exit;
 }
+
+// Update web manifest
+$manifest = [];
+$manifest['name'] = $conf['siteName'];
+$manifest['short_name'] = $conf['siteName'];
+$manifest['start_url'] = '/';
+$manifest['display'] = 'standalone';
+$manifest['background_color'] = $themeDef['bg'];
+$manifest['description'] = $conf['siteDesc'];
+$manifest['icons'] = [
+    [
+        "src" => '/_cyberfiles/public/src/icon.png',
+        "sizes" => '256x256',
+        "type" => 'image/png',
+    ]
+];
+file_put_contents(document_root."/_cyberfiles/public/manifest.json", json_encode($manifest));
 
 /**
  * Requires a file and outputs an error if it fails

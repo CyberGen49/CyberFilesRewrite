@@ -86,7 +86,7 @@ Don't forget to change `files.example.com` to your domain, and `/path/to/cyberfi
 
 Note that these settings are just the bare bones required to get things working. If you plan on using extra features like SSL (for HTTPS), there are plenty of online guides to help.
 
-After pasting the config, press `Ctrl + O`, then `Enter`.
+After pasting the config, press `Ctrl + O`, then `Enter` to save, then `Ctrl + X` to exit.
 
 Enable the site in Apache, then reload
 ```

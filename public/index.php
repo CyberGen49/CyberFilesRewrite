@@ -101,6 +101,7 @@ while (isset($_GET['f'])) {
         <meta name="theme-color" content="<?= $webConf['themeColour'] ?>">
         <link rel="icon" href="<?= $webConf['favicon'] ?>">
         <meta name="mobile-web-app-capable" content="yes">
+        <link rel="manifest" href="/_cyberfiles/public/manifest.json">
         <meta charset="utf-8">
         <!-- Bootstrap -->
         <link rel="stylesheet" href="/_cyberfiles/public/src/bootstrap-grid.min.css">
@@ -189,8 +190,6 @@ while (isset($_GET['f'])) {
         </div>
 
         <div id="tooltip" style="display: none;"></div>
-
-        <div id="hoverCapable"></div>
 
         <noscript>
             <div id="popupNoJs" class="popupBackground ease-in-out-100ms">

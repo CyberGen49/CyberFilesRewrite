@@ -356,9 +356,14 @@ function secondsFormat(secs) {
     }
 }
 
+// Returns the value of a CSS media query
+function mediaQuery(query) {
+    return window.matchMedia(query).matches;
+}
+
 // Returns true if the input device is hover-capable
 function canHover() {
-    return Boolean(_getW("hoverCapable"));
+    return mediaQuery("(hover: hover)");
 }
 
 // Returns an icon specific to the given MIME type
@@ -925,6 +930,7 @@ _id("fileListHeaderSize").addEventListener("click", function() {
 });
 
 // Displays a file preview
+vidPreviewId = 0;
 function showFilePreview(id = null) {
     window.canClickEntries = true;
     // If a file is requested and the passed object ID is set
@@ -988,84 +994,94 @@ function showFilePreview(id = null) {
         // Show file-specific previews
         if (data.ext.match(/^(MP4|WEBM)$/)) {
             _id("previewFile").className = "";
-            _id("previewFile").classList.add("previewTypeVideo");
-            _id("previewFile").innerHTML = `
-                <video id="videoPreview" controls src="${encodeURIComponent(data.name)}?t=${data.modified}"></video>
-            `;
-            // Variables
-            const vid = _id("videoPreview");
-            vid.autoplay = window.conf.videoAutoplay;
+            _id("previewFile").classList.add("previewTypeEmbed");
+            let src = new URL(`./${data.name.replace('%', '%25')}?t=${data.modified}`, window.location.href.split("?")[0]).href;
+            let html = `<iframe id="vid" src="https://vid.simplecyber.org/player/?src=${btoa(src)}&autoplay&noDownload" frameborder=0 allow="autoplay; fullscreen">`;
+            _id("previewFile").innerHTML = html;
+            vid.focus();
+            let localVidId = Date.now();
+            window.videoData = {};
+            window.vidPreviewId = localVidId;
             window.vidProgLastSave = 0;
             window.vidProgCanSave = false;
-            // Do this stuff when the video metadata is loaded (duration, etc.)
-            vid.addEventListener("loadedmetadata", function(event) {
-                console.log("Video metadata has loaded");
-                // If video progress saving is enabled
-                if (window.vidProgConf.enable) {
-                    // If the video duration is longer than the minimum to save
-                    if (vid.duration >= window.vidProgConf.minDuration) {
-                        // If this video has saved progress, and if it hasn't expired, and if it's later than the minimum, and if its earlier than the maximum
-                        if (typeof vidProg.entries[vid.src] !== 'undefined'
-                          && Date.now()-vidProg.entries[vid.src].updated < (window.vidProgConf.expire*60*60*1000)
-                          && vidProg.entries[vid.src].progress > window.vidProgConf.minTime
-                          && vidProg.entries[vid.src].progress < (vid.duration-window.vidProgConf.maxTime)) {
-                            console.log(vidProg.entries[vid.src].progress);
-                            // If the user should be prompted to resume
-                            if (window.vidProgConf.prompt) {
-                                // Pause the video
-                                vid.pause();
-                                // Prompt the user about resuming
-                                showPopup("vidResume", window.lang.popupVideoResumeTitle, `<p>${window.lang.popupVideoResumeDesc.replace("%0", `<b>${secondsFormat(vidProg.entries[vid.src].progress)}</b>`)}</p>`, [{
-                                    'id': "cancel",
-                                    'text': window.lang.popupNo2,
-                                    'action': function() {
+            window.vidLastTime = 0;
+            window.vidLoaded = false;
+            // Start an interval for progress saving
+            let vidInterval = setInterval(() => {
+                if (localVidId != window.vidPreviewId) clearInterval(vidInterval);
+                if (window.videoData.duration > 0) {
+                    if (!window.vidLoaded) {
+                        console.log("Video metadata has loaded");
+                        // If video progress saving is enabled
+                        if (window.vidProgConf.enable) {
+                            // If the video duration is longer than the minimum to save
+                            if (videoData.duration >= window.vidProgConf.minDuration) {
+                                // If this video has saved progress, and if it hasn't expired, and if it's later than the minimum, and if its earlier than the maximum
+                                if (typeof vidProg.entries[src] !== 'undefined'
+                                  && Date.now()-vidProg.entries[src].updated < (window.vidProgConf.expire*60*60*1000)
+                                  && vidProg.entries[src].progress > window.vidProgConf.minTime
+                                  && vidProg.entries[src].progress < (videoData.duration-window.vidProgConf.maxTime)) {
+                                    console.log(vidProg.entries[src].progress);
+                                    // If the user should be prompted to resume
+                                    if (window.vidProgConf.prompt) {
+                                        // Pause the video
+                                        vid.contentWindow.postMessage({'cmd': 'pause'}, '*');
+                                        // Prompt the user about resuming
+                                        showPopup("vidResume", window.lang.popupVideoResumeTitle, `<p>${window.lang.popupVideoResumeDesc.replace("%0", `<b>${secondsFormat(vidProg.entries[src].progress)}</b>`)}</p>`, [{
+                                            'id': "cancel",
+                                            'text': window.lang.popupNo2,
+                                            'action': function() {
+                                                window.vidProgCanSave = true;
+                                                vid.contentWindow.postMessage({'cmd': 'play'}, '*');
+                                            }
+                                        }, {
+                                            'id': "resume",
+                                            'text': window.lang.popupYes2,
+                                            'action': function() {
+                                                vid.contentWindow.postMessage({'cmd': 'time', 'time': vidProg.entries[src].progress}, '*');
+                                                window.vidProgCanSave = true;
+                                                vid.contentWindow.postMessage({'cmd': 'play'}, '*');
+                                            }
+                                        }]);
+                                    // If prompt is disabled, resume automatically
+                                    } else {
+                                        vid.contentWindow.postMessage({'cmd': 'time', 'time': vidProg.entries[src].progress}, '*');
                                         window.vidProgCanSave = true;
-                                        vid.play();
+                                        showToast(window.lang.toastVideoResumed.replace("%0", `<b>${secondsFormat(vidProg.entries[src].progress)}</b>`));
                                     }
-                                }, {
-                                    'id': "resume",
-                                    'text': window.lang.popupYes2,
-                                    'action': function() {
-                                        vid.currentTime = vidProg.entries[vid.src].progress;
-                                        window.vidProgCanSave = true;
-                                        vid.play();
-                                    }
-                                }]);
-                            // If prompt is disabled, resume automatically
-                            } else {
-                                vid.currentTime = vidProg.entries[vid.src].progress;
-                                window.vidProgCanSave = true;
-                                showToast(window.lang.toastVideoResumed.replace("%0", `<b>${secondsFormat(vidProg.entries[vid.src].progress)}</b>`));
+                                } else window.vidProgCanSave = true;
                             }
-                        } else window.vidProgCanSave = true;
+                        } else clearInterval(vidInterval);
                     }
+                    window.vidLoaded = true;
+                    if (window.vidLastTime != videoData.time) {
+                        // If the last saved progress doesn't match the current 
+                        // progress, and saving is enabled, and if the current 
+                        // progress is later than the minimum, and if its earlier 
+                        // than the maximum
+                        if (Math.floor(videoData.time) != Math.floor(window.vidProgLastSave)
+                          && window.vidProgCanSave
+                          && videoData.time > window.vidProgConf.minTime
+                          && videoData.time < (videoData.duration-window.vidProgConf.maxTime)) {
+                            // Save the new progress
+                            window.vidProgLastSave = Math.floor(videoData.time);
+                            vidProg.entries[src] = {
+                                'updated': Date.now(),
+                                'progress': Math.floor(videoData.time),
+                            };
+                            locStoreArraySet("vidprog", vidProg);
+                            console.log("Saved video progress");
+                        }
+                    }
+                    window.vidLastTime = videoData.time;
                 }
-            });
-            // Do this stuff when the video progress changes
-            vid.addEventListener("timeupdate", function(event) {
-                // If the last saved progress doesn't match the current progress, and saving is enabled, and if the current progress is later than the minimum, and if its earlier than the maximum
-                if (Math.floor(vid.currentTime) != Math.floor(window.vidProgLastSave)
-                  && window.vidProgCanSave
-                  && vid.currentTime > window.vidProgConf.minTime
-                  && vid.currentTime < (vid.duration-window.vidProgConf.maxTime)) {
-                    // Save the new progress
-                    window.vidProgLastSave = Math.floor(vid.currentTime);
-                    vidProg.entries[vid.src] = {
-                        'updated': Date.now(),
-                        'progress': Math.floor(vid.currentTime),
-                    };
-                    locStoreArraySet("vidprog", vidProg);
-                    console.log("Saved video progress");
-                }
-            });
+            }, 500);
         } else if (data.ext.match(/^(MP3|OGG|WAV|M4A)$/)) {
             _id("previewFile").className = "";
             _id("previewFile").classList.add("previewTypeAudio");
             _id("previewFile").innerHTML = `
-                <audio id="audioPreview" controls src="${encodeURIComponent(data.name)}?t=${data.modified}"></audio>
+                <audio id="audioPreview" controls src="${encodeURIComponent(data.name)}?t=${data.modified}" autoplay></audio>
             `;
-            const aud = _id("audioPreview");
-            aud.autoplay = window.conf.audioAutoplay;
         } else if (data.ext.match(/^(JPG|JPEG|PNG|SVG|GIF)$/)) {
             _id("previewFile").className = "";
             _id("previewFile").classList.add("previewTypeImage");
@@ -1145,6 +1161,7 @@ _id("previewNext").addEventListener("click", function() { navFilePreview(this); 
 
 // Hides the file preview
 function hideFilePreview() {
+    window.vidPreviewId = 0;
     meta_themeColor(window.theme.browserTheme);
     _id("previewContainer").style.opacity = 0;
     _id("body").style.overflowY = "";
@@ -2311,6 +2328,15 @@ window.addEventListener("mousemove", function(event) {
     window.mouseX = event.clientX;
     window.mouseY = event.clientY;
 });
+
+// Do this stuff when a message is received
+var videoData = {};
+window.onmessage = function(e) {
+    if (e.origin == 'https://vid.simplecyber.org') {
+        // Update the videoData object
+        Object.assign(window.videoData, e.data);
+    }
+};
 
 // Check if the user was redirected from an invalid short link
 if ($_GET("badShortLink") === '') {
