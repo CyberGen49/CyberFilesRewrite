@@ -996,7 +996,7 @@ function showFilePreview(id = null) {
             _id("previewFile").className = "";
             _id("previewFile").classList.add("previewTypeEmbed");
             let src = new URL(`./${data.name.replace('%', '%25')}?t=${data.modified}`, window.location.href.split("?")[0]).href;
-            let html = `<iframe id="vid" src="https://vid.simplecyber.org/player/?src=${btoa(src)}&autoplay&noDownload" frameborder=0 allow="autoplay; fullscreen">`;
+            let html = `<iframe id="vid" src="https://vid.simplecyber.org/player/?src=${btoa(src)}&autoplay&noDownload&noRestore" frameborder=0 allow="autoplay; fullscreen">`;
             _id("previewFile").innerHTML = html;
             vid.focus();
             let localVidId = Date.now();
