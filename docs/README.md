@@ -8,6 +8,7 @@ Keep an eye on [the changelog](Changelog.md) to see what's changing!
 ## Features
 * A responsive, mobile-friendly interface
 * View videos, audio, images, and documents without leaving the page
+    * With a custom video player also developed by me, see [CyberVideoPlayer](https://github.com/CyberGen49/CyberVideoPlayer)
 * Quickly sort file lists by clicking column headers (or using the Sort menu)
 * Image and video thumbnails
 * View files as a list or as tiled cards with large thumbnails

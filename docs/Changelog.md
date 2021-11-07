@@ -4,6 +4,9 @@ I'll try my best to keep track of all changes to CyberFilesRewrite, big and smal
 
 This project adheres to [semantic versioning](https://semver.org/) and is (kind of) based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 1.17.1 - 2021-11-04
+* Made clicked element appearance (:active) work properly on desktop again
+
 ## 1.17.0 - 2021-10-31
 * Added a web manifest
     * This was in an attempt to add the "Install CyberFiles" option, but it turns out, for Chrome at least, that you need a service worker to enable that option. Sad.

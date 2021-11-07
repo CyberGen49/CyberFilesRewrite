@@ -1048,29 +1048,29 @@ br {
 
 /* Handle devices that can hover */
 @media only screen and (hover: hover) {
-    a:hover, a:focus {
+    a:hover:not(:active), a:focus:not(:active) {
         color: var(--hyperlinkH);
         text-decoration: underline;
     }
 
-    #topbarTitle:hover:not(.disabled),
-    #topbarTitle:focus:not(.disabled) {
+    #topbarTitle:hover:not(:active):not(.disabled),
+    #topbarTitle:focus:not(:active):not(.disabled) {
         background: var(--bgTopbarButtonH);
         color: var(--fgTopbarH);
         text-decoration: none;
         cursor: default;
     }
 
-    .topbarButton:hover:not(.disabled),
-    .topbarButton:focus:not(.disabled) {
+    .topbarButton:hover:not(:active):not(.disabled),
+    .topbarButton:focus:not(:active):not(.disabled) {
         background: var(--bgTopbarButtonH);
         color: var(--fgTopbarH);
         text-decoration: none;
         cursor: default;
     }
 
-    .breadcrumbName.hover:hover:not(.disabled),
-    .breadcrumbName.hover:focus:not(.disabled) {
+    .breadcrumbName.hover:hover:not(:active):not(.disabled),
+    .breadcrumbName.hover:focus:not(:active):not(.disabled) {
         background: var(--bgTopbarButtonH);
         color: var(--fgTopbarH);
         text-decoration: none;
@@ -1080,56 +1080,56 @@ br {
         background: var(--bgTopbarButtonC);
     }
 
-    #fileListFilterClear:hover,
-    #fileListFilterClear:focus {
+    #fileListFilterClear:hover:not(:active),
+    #fileListFilterClear:focus:not(:active) {
         color: var(--fgFilterBarClearH);
     }
 
-    #fileListHeaderName:hover,
-    #fileListHeaderName:focus,
-    #fileListHeaderDate:hover,
-    #fileListHeaderDate:focus,
-    #fileListHeaderType:hover,
-    #fileListHeaderType:focus,
-    #fileListHeaderSize:hover,
-    #fileListHeaderSize:focus {
+    #fileListHeaderName:hover:not(:active),
+    #fileListHeaderName:focus:not(:active),
+    #fileListHeaderDate:hover:not(:active),
+    #fileListHeaderDate:focus:not(:active),
+    #fileListHeaderType:hover:not(:active),
+    #fileListHeaderType:focus:not(:active),
+    #fileListHeaderSize:hover:not(:active),
+    #fileListHeaderSize:focus:not(:active) {
         color: var(--fileListHeadersH);
     }
 
-    .fileEntry:hover,
-    .fileEntry:focus {
+    .fileEntry:hover:not(:active),
+    .fileEntry:focus:not(:active) {
         background: var(--fileH);
         border-color: rgba(0, 0, 0, 0);
     }
 
-    .fileGridEntry:hover,
-    .fileGridEntry:focus {
+    .fileGridEntry:hover:not(:active),
+    .fileGridEntry:focus:not(:active) {
         background: var(--fileH);
         border-color: rgba(0, 0, 0, 0);
     }
 
-    .previewTopbarButton:hover:not(.disabled),
-    .previewTopbarButton:focus:not(.disabled) {
+    .previewTopbarButton:hover:not(:active):not(.disabled),
+    .previewTopbarButton:focus:not(:active):not(.disabled) {
         background: var(--bgPreviewH);
         color: var(--fgPreviewH);
         text-decoration: none;
         cursor: default;
     }
 
-    .popupButton:hover,
-    .popupButton:focus {
+    .popupButton:hover:not(:active),
+    .popupButton:focus:not(:active) {
         background: var(--bgPopupButtonH);
         color: var(--fgPopupButton);
         text-decoration: none;
     }
 
-    .dropdownItem:hover:not(.disabled),
-    .dropdownItem:focus:not(.disabled) {
+    .dropdownItem:hover:not(:active):not(.disabled),
+    .dropdownItem:focus:not(:active):not(.disabled) {
         background: var(--bgDropdownH);
     }
 
-    .buttonMain:hover,
-    .buttonMain:focus {
+    .buttonMain:hover:not(:active),
+    .buttonMain:focus:not(:active) {
         color: var(--fgButtonH);
         background: var(--bgButtonH);
     }
