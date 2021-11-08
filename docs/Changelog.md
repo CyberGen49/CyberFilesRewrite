@@ -4,6 +4,11 @@ I'll try my best to keep track of all changes to CyberFilesRewrite, big and smal
 
 This project adheres to [semantic versioning](https://semver.org/) and is (kind of) based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 1.17.2 - 2021-11-07
+* Made menu items thinner on desktop
+* Removed file names from their context menu headers
+    * Long file names uselessly stretch the menu out to its maximum length - just look at the file details for a full filename
+
 ## 1.17.1 - 2021-11-04
 * Made clicked element appearance (:active) work properly on desktop again
 

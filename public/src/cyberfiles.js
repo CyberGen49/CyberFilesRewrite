@@ -1825,7 +1825,8 @@ function showDropdown_file(fileData, anchorId = null, inlineContext = true, show
     if (inlineContext)
         data.push({
             'type': 'header',
-            'text': fileData.name
+            //'text': fileData.name
+            'text': window.lang.dropdownHeaderFile
         });
     else
         data.push({
