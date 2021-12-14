@@ -355,11 +355,11 @@ br {
 }
 
 #fileListHeaderDate, .fileEntryDate {
-    width: 140px;
+    width: 130px;
 }
 
 #fileListHeaderType, .fileEntryType {
-    width: 150px;
+    width: 160px;
 }
 
 #fileListHeaderSize, .fileEntrySize {

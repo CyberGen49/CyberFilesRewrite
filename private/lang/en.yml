@@ -125,7 +125,7 @@ previewPrev: "Previous file:"
 previewTitle: "This file can't be previewed!"
 popupAboutVersion: "Version: %0"
 popupAboutChangelog: "Local Changelog"
-popupAboutDesc2: "Built with love by CyberGen49"
+popupAboutDesc2: "Built with ❤️ by CyberGen49"
 popupAboutDesc: "CyberFiles is an open-sourced, capable, and customizable file index that makes it easy to view and share files stored on the server."
 popupAboutDescLink: "Check it out on GitHub"
 popupAboutTitle: About CyberFiles
@@ -254,6 +254,7 @@ sizeUnitKB: KB
 sizeUnitMB: MB
 sizeUnitTB: TB
 fileTypeDefault: File
+fileTypeExt: '%0 File'
 fileTypeDirectory: Folder
 fileTypes:
   3DM: Rhino 3D Model
@@ -273,7 +274,7 @@ fileTypes:
   B: Grand Theft Auto 3 Saved Game File
   BAK: Backup File
   BAT: Windows Batch File
-  BIN: Binary Disc Image
+  BIN: Binary File
   BMP: Bitmap Image File
   C: C/C++ Source Code File
   CAB: Windows Cabinet File
@@ -323,6 +324,7 @@ fileTypes:
   GIF: GIF Image
   GPX: GPS Exchange File
   GZ: GNU Zipped Archive
+  GZIP: GNU Zipped Archive
   H: C/C++/Objective-C Header File
   HEIC: High Efficiency Image File
   HQX: BinHex 40 Encoded File
@@ -360,6 +362,7 @@ fileTypes:
   MDF: Media Disc Image File
   MID: MIDI File
   MIM: Multi-Purpose Internet Mail Message File
+  KMV: KMV Video File
   MOV: Apple QuickTime Movie
   MP3: MP3 Audio File
   MP4: MP4 Video File
@@ -391,7 +394,7 @@ fileTypes:
   PSD: Adobe Photoshop Document
   PSPIMAGE: PaintShop Pro Image
   PY: Python Script
-  RAR: WinRAR Compressed Archive
+  RAR: RAR Compressed Archive
   RM: RealMedia File
   ROM: N64 Game ROM File
   RPM: Red Hat Package Manager File
@@ -408,7 +411,8 @@ fileTypes:
   SWF: Adobe Flash Application
   SWIFT: Swift Source Code File
   SYS: Windows System File
-  TAR: Consolidated Unix File Archive
+  TAP: Tape File
+  TAR: Archive
   TARGZ: Compressed Tarball File
   TAX2016: TurboTax 2016 Tax Return
   TAX2020: TurboTax 2020 Tax Return
@@ -444,5 +448,6 @@ fileTypes:
   YAML: YAML Data File
   YML: YAML Data File
   YUV: YUV Encoded Image File
+  Z64: Nintendo 64 ROM
   ZIP: Compressed Zip Archive
   ZIPX: Extended Zip Archive

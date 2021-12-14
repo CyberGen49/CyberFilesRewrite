@@ -4,6 +4,15 @@ I'll try my best to keep track of all changes to CyberFilesRewrite, big and smal
 
 This project adheres to [semantic versioning](https://semver.org/) and is (kind of) based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 1.17.3 - 2021-12-11
+* Fixed a bug where the custom file type of a file with an undefined extension was set to `undefined`, and an empty string in link previews
+    * Now these file types will be listed as `EXTENSION File`, where `EXTENSION` is the file's extension - this can be changed in the language file
+* Added a few more custom file types
+* Fixed sometimes-broken copied file preview links when the filename contains a percent sign
+* Added a function to make the generation of URLs more standard
+* Added the `noManifest` get parameter, which, when passed, will load the page without a web manifest.
+    * This is useful when, for example, adding a specific subfolder to your home screen on Android, where Chrome would otherwise add the root folder because that's what's specified in the manifest.
+
 ## 1.17.2 - 2021-11-07
 * Made menu items thinner on desktop
 * Removed file names from their context menu headers

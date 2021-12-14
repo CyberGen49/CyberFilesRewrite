@@ -64,7 +64,7 @@ bgPopupButtonH: rgba(163, 231, 252, 0.3)
 bgPopupButtonC: rgba(163, 231, 252, 0.5)
 popupShadow: rgba(0, 0, 0, 0.3)
 bgDropdown: +fg
-bgDropdownH: rgba(0, 0, 0, 0.2)
+bgDropdownH: rgba(0, 0, 0, 0.15)
 bgDropdownC: +fg2
 bgDropdownSep: rgba(0, 0, 0, 0.15)
 fgDropdown: +bg

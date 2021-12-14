@@ -64,11 +64,14 @@ while (isset($_GET['f'])) {
     // If the file has cached details
     if ($cache) {
         $sizeF = formatted_size($cache['size']);
+        $typeF = $lang['fileTypes']['fileTypeDefault'];
         $fileExt = strtoupper(pathinfo($path)['extension']);
-        if (isset($lang['fileTypes'][$fileExt]))
-            $typeF = $lang['fileTypes'][$fileExt];
-        else
-            $typeF = $lang['fileTypes']['fileTypeDefault'];
+        if ($fileExt !== '') {
+            if (isset($lang['fileTypes'][$fileExt]))
+                $typeF = $lang['fileTypes'][$fileExt];
+            else
+                $typeF = str_replace("%0", $fileExt, $lang['fileTypeExt']);
+        }
         $webConf['pageDesc'] = "{$lang['fileDetailsType']}: $typeF\n{$lang['fileDetailsSize']}: $sizeF";
     }
     break;
@@ -101,7 +104,9 @@ while (isset($_GET['f'])) {
         <meta name="theme-color" content="<?= $webConf['themeColour'] ?>">
         <link rel="icon" href="<?= $webConf['favicon'] ?>">
         <meta name="mobile-web-app-capable" content="yes">
-        <link rel="manifest" href="/_cyberfiles/public/manifest.json">
+        <?php if (!isset($_GET['noManifest'])): ?>
+            <link rel="manifest" href="/_cyberfiles/public/manifest.json">
+        <?php endif ?>
         <meta charset="utf-8">
         <!-- Bootstrap -->
         <link rel="stylesheet" href="/_cyberfiles/public/src/bootstrap-grid.min.css">

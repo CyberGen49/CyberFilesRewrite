@@ -145,6 +145,21 @@ function _getH(id) {
     return document.getElementById(id).getBoundingClientRect().height;
 }
 
+// Returns an absolute and consistently formatted URL
+function makeUrl(relative, base = '') {
+    // If the base URL is empty, replace it with the current URL without query string
+    if (base == '') base = window.location.href.split("?")[0];
+    // Replace existing percent characters with their percent-value
+    relative = relative.replace('%', "%25");
+    // Create and format the URL
+    let url = new URL(relative, base).href;
+    let split = url.split('?');
+    if (split.length > 1) {
+        url = `${split[0]}?${split[1].replace("%20", '+').replace(" ", '+')}`;
+    }
+    return url;
+}
+
 // Starts a direct file download
 function downloadFile(url, elThis) {
     let id = `fileDownload-${Date.now}`;
@@ -667,10 +682,13 @@ function loadFileList(dir = "", entryId = null, forceReload = false) {
                     // Get formatted size and add to total
                     f.sizeF = formattedSize(f.size);
                     totalSize += f.size;
-                    // Set file type from type list
+                    // Set file type from type list or use its extension
                     f.typeF = window.lang.fileTypeDefault;
-                    if (typeof window.lang.fileTypes[f.ext] !== '')
-                        f.typeF = window.lang.fileTypes[f.ext];
+                    if (f.ext !== '') {
+                        f.typeF = window.lang.fileTypeExt.replace('%0', f.ext.toUpperCase());
+                        if (typeof window.lang.fileTypes[f.ext] !== 'undefined')
+                            f.typeF = window.lang.fileTypes[f.ext];
+                    };
                     // Set icon based on MIME type
                     f.icon = getFileTypeIcon(f.mimeType);
                     // Set tooltip
@@ -995,7 +1013,7 @@ function showFilePreview(id = null) {
         if (data.ext.match(/^(MP4|WEBM)$/)) {
             _id("previewFile").className = "";
             _id("previewFile").classList.add("previewTypeEmbed");
-            let src = new URL(`./${data.name.replace('%', '%25')}?t=${data.modified}`, window.location.href.split("?")[0]).href;
+            let src = makeUrl(`./${data.name}`);
             let html = `<iframe id="vid" src="https://vid.simplecyber.org/player/?src=${btoa(src)}&autoplay&noDownload&noCopyUrl&noRestore" frameborder=0 allow="autoplay; fullscreen">`;
             _id("previewFile").innerHTML = html;
             vid.focus();
@@ -1151,7 +1169,7 @@ function navFilePreview(el) {
         return;
     }
     console.log("File entry navigation button clicked");
-    historyReplaceState("", `?f=${encodeURI(f.name)}`);
+    historyReplaceState("", `?f=${encodeURIComponent(f.name)}`);
     loadFileList("", el.dataset.objectid);
     el.blur();
 }
@@ -1876,7 +1894,7 @@ function showDropdown_file(fileData, anchorId = null, inlineContext = true, show
                     if (screen.width > w) x = ((screen.width/2)-(w/2))
                     if (screen.height > h) y = ((screen.height/2)-(h/2))-40
                     let params = `status=no,location=no,toolbar=no,menubar=no,width=${w},height=${h},left=${x},top=${y}`;
-                    let popout = open(`${decodeURIComponent(currentDir())}?f=${fileData.name}&minimal`.replace("%", "%25"), 'File', params);
+                    let popout = open(makeUrl(`?f=${fileData.name}&minimal`), 'File', params);
                     popout.addEventListener("load", function() {
                         popout.console.log("Popup loaded");
                     });
@@ -1894,7 +1912,7 @@ function showDropdown_file(fileData, anchorId = null, inlineContext = true, show
             'text': window.lang.dropdownShareFilePreview,
             'icon': 'share',
             'action': function() {
-                copyText(new URL(`./?f=${fileData.name}`, window.location.href.split("?")[0]).href);
+                copyText(makeUrl(`./?f=${fileData.name}`));
                 showToast(window.lang.toastCopyFilePreviewLink);
             }
         });
@@ -1915,7 +1933,7 @@ function showDropdown_file(fileData, anchorId = null, inlineContext = true, show
             'text': window.lang.dropdownShareFile,
             'icon': 'link',
             'action': function() {
-                copyText(new URL(`./${fileData.name}`, window.location.href.split("?")[0]).href);
+                copyText(makeUrl(`./${fileData.name}`));
                 showToast(window.lang.toastCopyFileLink);
             }
         });
@@ -1942,7 +1960,7 @@ function showDropdown_file(fileData, anchorId = null, inlineContext = true, show
             'text': window.lang.dropdownShareDirectory,
             'icon': 'share',
             'action': function() {
-                copyText(new URL(`./${fileData.name}`, window.location.href).href);
+                copyText(makeUrl(`./${fileData.name}`));
                 showToast(window.lang.toastCopyDirectoryLink);
             }
         });
