@@ -14,6 +14,8 @@ theme: Default
 hiddenFiles:
   - '*.php'
   - 'index.html'
+  - 'desktop.ini'
+  - 'System Volume Information'
   - '.*'
   - '_*'
 hideDirWhenContains:
