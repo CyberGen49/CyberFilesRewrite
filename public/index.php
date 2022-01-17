@@ -39,20 +39,24 @@ $webConf = [
     "pageTitle" => "",
     "pageDesc" => $conf['siteDesc'],
     "siteName" => $conf['siteName'],
-    "favicon" => "/_cyberfiles/public/src/icon.png",
+    "favicon" => "/_cyberfiles/public/icon.png",
     "themeColour" => $theme['browserTheme'],
 ];
 
 // Set dynamic page meta
 $dirExpR = array_reverse(explode("/", $dir));
 $webConf['pageTitle'] = $dirExpR[0];
+if ($dirRel == '') $webConf['pageTitle'] = $conf['siteName'];
 
 // Check for a file preview
+$filePath = '';
 while (isset($_GET['f'])) {
-    $webConf['pageTitle'] = urldecode($_GET['f']);
     $path = clean_path($dir.'/'.$_GET['f']);
+    $fullFileUrl = "https://".$_SERVER['HTTP_HOST'].str_replace("%2F", '/', rawurlencode(clean_path($dirRel.'/'.$_GET['f'])));
+    $thumbUrl = "https://".$_SERVER['HTTP_HOST']."/_cyberfiles/public/thumbs/".md5($path).".png";
     if (!file_exists($path)) break;
     if (is_dir($path)) break;
+    $webConf['pageTitle'] = urldecode($_GET['f']);
     $webConf['pageDesc'] = $lang['linkPreviewFileUncached'];
     // Get file details from the cache database
     $db = new SQLite3(document_root."/_cyberfiles/private/cache.db");
@@ -95,12 +99,26 @@ while (isset($_GET['f'])) {
             }
         ?>
         <title><?= $webConf['siteName'] ?></title>
-        <meta name="og:type" content="website">
+        <?php if (preg_match("/(MP4|WEBM)/", $fileExt)): ?>
+            <meta name="og:type" content="video">
+            <meta name="og:image" content="<?= $thumbUrl ?>">
+            <meta name="twitter:card" content="player">
+            <meta name="twitter:image" content="<?= $thumbUrl ?>">
+            <meta name="twitter:player" content="https://vid.simplecyber.org/player/?src=aHR0cHM6Ly9jZG4uZGlzY29yZGFwcC5jb20vYXR0YWNobWVudHMvODMyODM1MjAwODAyNDg4MzUxLzkzMDkwNTQyNjk0NDQ3NTE0Ni9lbXBpcmVfZHJpcC5tcDQ=">
+        <?php elseif (preg_match("/(PNG|JPG|JPEG|GIF)/", $fileExt)): ?>
+            <meta name="og:type" content="image">
+            <meta name="og:image" content="<?= $fullFileUrl ?>">
+            <meta name="twitter:card" content="summary_large_image">
+            <meta name="twitter:image" content="<?= $fullFileUrl ?>">
+        <?php else: ?>
+            <meta name="og:image" content="<?= $webConf['favicon'] ?>">
+            <meta name="og:type" content="website">
+        <?php endif ?>
         <meta name="og:site_name" content="<?= $webConf['siteName'] ?>">
         <meta name="og:title" content="<?= $webConf['metaTitle'] ?>">
         <meta name="og:description" content="<?= $webConf['pageDesc'] ?>">
+        <meta name="twitter:description" content="<?= $webConf['pageDesc'] ?>">
         <meta name="description" content="<?= $webConf['pageDesc'] ?>">
-        <meta name="og:image" content="<?= $webConf['favicon'] ?>">
         <meta name="theme-color" content="<?= $webConf['themeColour'] ?>">
         <link rel="icon" href="<?= $webConf['favicon'] ?>">
         <meta name="mobile-web-app-capable" content="yes">

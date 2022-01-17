@@ -4,6 +4,11 @@ I'll try my best to keep track of all changes to CyberFilesRewrite, big and smal
 
 This project adheres to [semantic versioning](https://semver.org/) and is (kind of) based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 1.17.4 - 2022-01-15
+* Added Twitter meta tags, allowing for videos and images to properly embed themselves in Discord link previews
+* A file's name will no longer appear in the link preview if it doesn't exist
+    * The folder's name will be used instead, as if a file wasn't selected
+
 ## 1.17.3 - 2021-12-11
 * Fixed a bug where the custom file type of a file with an undefined extension was set to `undefined`, and an empty string in link previews
     * Now these file types will be listed as `EXTENSION File`, where `EXTENSION` is the file's extension - this can be changed in the language file
